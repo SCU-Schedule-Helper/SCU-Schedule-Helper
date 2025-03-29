@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import Main from "../components/pageComponents/main";
-import Preferences from "../components/pageComponents/preferences";
-import Menu from "../components/Menu";
-import Friends from "../components/pageComponents/friends";
-import Profile from "../components/pageComponents/profile";
+import NavMenu from "../components/NavMenu";
+import SearchPage from "../components/search/SearchPage";
+import PreferencesPage from "../components/preferences/PreferencesPage";
+import FriendsPage from "../components/friends/FriendsPage";
+import ProfilePage from "../components/profile/ProfilePage";
 
 export default function Home() {
   const [activePage, setActivePage] = useState("main");
@@ -34,7 +34,10 @@ export default function Home() {
         position: "relative",
       }}
     >
-      <Menu navigateToPage={navigateToPage} openLandingPage={openLandingPage} />
+      <NavMenu
+        navigateToPage={navigateToPage}
+        openLandingPage={openLandingPage}
+      />
 
       <Box
         sx={{
@@ -46,10 +49,10 @@ export default function Home() {
           paddingBottom: "20px",
         }}
       >
-        {activePage === "main" && <Main />}
-        {activePage === "preferences" && <Preferences />}
-        {activePage === "friends" && <Friends />}
-        {activePage === "profile" && <Profile />}
+        {activePage === "main" && <SearchPage />}
+        {activePage === "preferences" && <PreferencesPage />}
+        {activePage === "friends" && <FriendsPage />}
+        {activePage === "profile" && <ProfilePage />}
       </Box>
     </Box>
   );

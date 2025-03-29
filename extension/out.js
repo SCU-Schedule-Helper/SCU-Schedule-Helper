@@ -39,11 +39,6 @@ async function processFiles() {
     await fsPromises.rename(sourcePath, destinationPath);
     console.log("Successfully processed files and renamed _next to next");
 
-    //Add service worker to out folder
-    fs.copyFileSync(
-      path.join(__dirname, "./public/service_worker.js"),
-      path.join(__dirname, "./out/service_worker.js"),
-    );
   } catch (error) {
     console.error("Error during processing:", error);
     process.exit(1); // Exit with error code
