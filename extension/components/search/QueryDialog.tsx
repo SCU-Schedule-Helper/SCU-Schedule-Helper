@@ -8,7 +8,12 @@ import {
   Button,
 } from "@mui/material";
 
-export default function QueryDialog({ open, onClose }) {
+interface QueryDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function QueryDialog({ open, onClose }: QueryDialogProps) {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>More Information</DialogTitle>

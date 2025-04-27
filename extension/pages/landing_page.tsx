@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, SyntheticEvent } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -28,15 +28,18 @@ const theme = createTheme({
 });
 
 export default function LandingPage() {
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [error, setError] = useState("");
-  const [expanded, setExpanded] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [expanded, setExpanded] = useState<string | false>(false);
 
   useEffect(() => {
     checkAuthStatus();
-    function authListener(changes, namespace) {
+    function authListener(
+      changes: { [key: string]: chrome.storage.StorageChange },
+      namespace: chrome.storage.AreaName
+    ): void {
       if (changes.accessToken) {
         checkAuthStatus();
       }
@@ -61,11 +64,15 @@ export default function LandingPage() {
     }
   }
 
-  function handleAccordionChange(event, isExpanded, panel) {
+  function handleAccordionChange(
+    event: SyntheticEvent,
+    isExpanded: boolean,
+    panel: string
+  ): void {
     setExpanded(isExpanded ? panel : false);
   }
 
-  async function handleSignIn() {
+  async function handleSignIn(): Promise<void> {
     if (isLoggingIn) return;
     setIsLoggingIn(true);
 
@@ -85,7 +92,7 @@ export default function LandingPage() {
     }
   }
 
-  function handleCloseError() {
+  function handleCloseError(): void {
     setShowError(false);
   }
 
@@ -224,9 +231,9 @@ export default function LandingPage() {
 
         <Box sx={{ backgroundColor: "white", width: "100%", mt: 4 }}>
           <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Grid2 container spacing={4} sx={{ mb: 6 }}>
-              {features.map((feature, index) => (
-                <Grid2 item size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+        <Grid2 container spacing={4} sx={{ mb: 6 }}>
+          {features.map((feature, index) => (
+            <Grid2 size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                   <Box
                     sx={{
                       p: 3,

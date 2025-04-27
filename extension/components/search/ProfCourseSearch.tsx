@@ -147,7 +147,7 @@ export default function ProfCourseSearch({
         label: newPageKey,
         groupLabel: "Professors",
         ...newPageData,
-      });
+      } as SelectedProfOrCourse);
     } else {
       const regexMatch = newPageKey.match(/([A-Z]{4})(\d+[A-Z]*)/);
       if (!regexMatch) {
@@ -160,7 +160,7 @@ export default function ProfCourseSearch({
         label: `${dept} ${courseNum} - ${newPageData.courseName}`,
         groupLabel: "Courses",
         ...newPageData,
-      });
+      } as SelectedProfOrCourse);
     }
     scrollToTop();
   }

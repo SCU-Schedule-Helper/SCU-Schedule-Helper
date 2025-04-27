@@ -47,10 +47,11 @@ export default function CourseAccordion({
     taken: [] as ParsedCourseTaken[],
   });
 
-  function isCourseData(
-    value: ProfessorData | CourseData | null
-  ): value is CourseData {
-    return value !== null && value.type === "course";
+  /**
+   * Type guard to check if a value is CourseData.
+   */
+  function isCourseData(value: any): value is CourseData {
+    return value != null && (value as CourseData).type === "course";
   }
 
   const courseOptions = useMemo(() => {

@@ -6,9 +6,15 @@ import {
     KeyboardArrowDown,
     KeyboardArrowUp,
 } from "@mui/icons-material";
-import { SortingMetrics } from "./ProfCourseCard.js";
+import { SortingMetrics } from "./ProfCourseCard";
+interface SortingMetricPickerProps {
+  sortingMetric: string;
+  sortDescending: boolean;
+  handleMetricChange: (metric: string) => void;
+}
+export default function SortingMetricPicker({ sortingMetric, sortDescending, handleMetricChange }: SortingMetricPickerProps) {
 
-export default function SortingMetricPicker({ sortingMetric, sortDescending, handleMetricChange }) {
+// Removed duplicate untyped function signature
     return <Box
         sx={{
             display: "flex",

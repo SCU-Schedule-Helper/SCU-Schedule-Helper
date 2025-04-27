@@ -2,7 +2,13 @@ import { Box, IconButton, Typography } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-export default function QueryPageTitle({ handleBackButton, handleDialogOpen,  showBackButton }) {
+interface QueryPageTitleProps {
+  handleBackButton: () => void;
+  handleDialogOpen: () => void;
+  showBackButton: any;
+}
+
+export default function QueryPageTitle({ handleBackButton, handleDialogOpen, showBackButton }: QueryPageTitleProps) {
     if (showBackButton.length === 0) {
       return (
         <Box sx={{

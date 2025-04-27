@@ -1,7 +1,15 @@
 import { Box, Typography } from "@mui/material";
 import StatBoxWithLessFormatting from "./StatBoxWithLessFormatting";
 
-export default function StatsWithLessFormatting({ flexGap, stats, deptStats, preferredPercentiles }) {
+import React from "react";
+import { Evaluation, DepartmentStats } from "../utils/types";
+interface StatsWithLessFormattingProps {
+  flexGap?: string | number;
+  stats: Evaluation;
+  deptStats: DepartmentStats;
+  preferredPercentiles: Record<string, number>;
+}
+export default function StatsWithLessFormatting({ flexGap, stats, deptStats, preferredPercentiles }: StatsWithLessFormattingProps) {
   if (
     !stats ||
     stats.qualityTotal === undefined ||

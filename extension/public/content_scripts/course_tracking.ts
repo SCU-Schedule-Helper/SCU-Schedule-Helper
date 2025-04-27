@@ -1,10 +1,10 @@
 // Automatically tracks courses and sections that the user is interested in, if feature is enabled.
-let debounceTimer;
-const debounceDelay = 100;
+let debounceTimer: number | undefined;
+const debounceDelay: number = 100;
 const expDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 45);
 const sentInterestedSections = new Set();
-
-function checkForInterestedSections() {
+const checkForInterestedSections = function (mutationsList: MutationRecord[]): void {
+  // Clear the previous debounce timer
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     const element = document.querySelector(
@@ -18,7 +18,7 @@ function checkForInterestedSections() {
       if (tables.length !== 1) return;
       const table = tables[0];
       const data = table.querySelectorAll("td");
-      const add = {};
+      const add: Record<string, string> = {};
       let curSection = null;
       let curProf = null;
       let curMeetingPatterns = null;
@@ -69,15 +69,15 @@ function checkForInterestedSections() {
   }, debounceDelay);
 };
 
-chrome.storage.local.get("userInfo", (data) => {
+chrome.storage.local.get("userInfo", (data: any) => {
   if (
     data.userInfo &&
     data.userInfo.id && // User must be logged in
     data.userInfo.preferences &&
     data.userInfo.preferences.courseTracking
   ) {
-    const targetNode = document.body;
-    const config = { childList: true, subtree: true };
+    const targetNode: Node = document.body;
+    const config: MutationObserverInit = { childList: true, subtree: true };
     const observer = new MutationObserver(checkForInterestedSections);
     observer.observe(targetNode, config);
   }

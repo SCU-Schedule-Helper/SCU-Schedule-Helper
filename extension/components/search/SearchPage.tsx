@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, ReactElement } from "react";
 import { Box } from "@mui/material";
 import ProfCourseSearch from "./ProfCourseSearch";
+import { SelectedProfOrCourse } from "./ProfCourseCard";
 import AuthWrapper from "../utils/AuthWrapper";
 import QueryDialog from "./QueryDialog";
 import QueryPageTitle from "./QueryTitlePage";
@@ -10,6 +11,8 @@ export default function SearchPage({}) {
   const boxRef = useRef(null as HTMLElement | null);
   const [query, setQuery] = useState(null as string | null);
   const [stack, setStack] = useState([] as string[]);
+  // Selected item for ProfCourseSearch
+  const [selectedProfessorOrCourse, setSelectedProfessorOrCourse] = useState<SelectedProfOrCourse | null>(null);
 
   useEffect(() => {
     if (query !== null) {
@@ -85,8 +88,8 @@ export default function SearchPage({}) {
           <Box sx={{ width: "100%", maxWidth: "420px" }}>
             <ProfCourseSearch
               scrollToTop={scrollToTop}
-              query={query}
-              onQueryChange={onQueryChange}
+              selectedProfessorOrCourse={selectedProfessorOrCourse}
+              onSelectionChange={setSelectedProfessorOrCourse}
             />
           </Box>
         </Box>

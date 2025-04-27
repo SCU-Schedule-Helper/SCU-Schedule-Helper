@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import NavMenu from "../components/NavMenu";
+import NavMenu from "../components/NavMenu.js";
 import SearchPage from "../components/search/SearchPage";
 import PreferencesPage from "../components/preferences/PreferencesPage";
 import FriendsPage from "../components/friends/FriendsPage";
 import ProfilePage from "../components/profile/ProfilePage";
 
 export default function Home() {
-  const [activePage, setActivePage] = useState("main");
+  const [activePage, setActivePage] = useState<string>("main");
 
-  function navigateToPage(page) {
+  function navigateToPage(page: string): void {
     setActivePage(page);
   }
 
-  function openLandingPage() {
-    chrome.tabs.create({
-      url: chrome.runtime.getURL("landing_page/index.html"),
-    });
+  function openLandingPage(): void {
+    chrome.tabs.create({ url: chrome.runtime.getURL("landing_page/index.html") });
   }
 
   useEffect(() => {

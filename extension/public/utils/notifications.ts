@@ -1,5 +1,7 @@
-import { fetchWithAuth, signOut } from "./authorization.js";
-import { PROD_USER_ENDPOINT } from "./constants.js";
+// Allow use of ServiceWorkerGlobalScope 'self' in this module
+declare const self: ServiceWorkerGlobalScope;
+import { fetchWithAuth, signOut } from "./authorization.ts";
+import { PROD_USER_ENDPOINT } from "./constants.ts";
 import {
   addFriendLocally,
   refreshUserData,
@@ -8,7 +10,7 @@ import {
   removeFriendLocally,
   clearFriendCourseAndSectionIndexes,
   updateFriendCourseAndSectionIndexes,
-} from "./user.js";
+} from "./user.ts";
 
 const SERVER_PUBLIC_KEY =
   "BLMxe4dFTN6sJ7U-ZFXgHUyhlI5udo11b4curIyRfCdGZMYjDx4kFoV3ejHzDf4hNZQOmW3UP6_dgyYTdg3LDIE";

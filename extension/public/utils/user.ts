@@ -5,9 +5,9 @@ import {
   PROD_USER_ENDPOINT,
   WORKDAY_COURSE_HISTORY_URL,
   WORKDAY_CURRENT_COURSES_URL,
-} from "./constants.js";
+} from "./constants.ts";
 
-import { fetchWithAuth, signOut } from "./authorization.js";
+import { fetchWithAuth, signOut } from "./authorization.ts";
 
 export async function refreshUserData(items = []) {
   const itemsQuery = items.length > 0 ? `?items=${items.join(",")}` : "";

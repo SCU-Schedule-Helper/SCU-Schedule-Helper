@@ -1,15 +1,23 @@
 import { Box, Typography } from "@mui/material";
 
+import React from "react";
+interface StatBoxWithLessFormattingProps {
+  label: string;
+  value: number;
+  preferredPercentiles: Record<string, number>;
+  deptStats: number[];
+  isRmpRating: boolean;
+}
 export default function StatBoxWithLessFormatting({
   label,
   value,
   preferredPercentiles,
   deptStats,
   isRmpRating,
-}) {
+}: StatBoxWithLessFormattingProps) {
   label = label.toLowerCase();
   
-  function getColor(value, label, isRmpRating) {
+  function getColor(value: number, label: string, isRmpRating: boolean) {
     if (isRmpRating) {
       if (label === "quality") return getRatingColor(value, 1, 5, true);
       const diffScore = Math.abs(
@@ -17,7 +25,8 @@ export default function StatBoxWithLessFormatting({
       );
       return getRatingColor(diffScore, 0, 4, false);
     }
-    let percentile = getPercentile(value, deptStats);
+    // Assume deptStats always contains data; assert non-null
+    let percentile = getPercentile(value, deptStats)!;
     let score = 100 - Math.abs(preferredPercentiles[label] - percentile) * 100;
     return getRatingColor(score, 0, 100, true);
   }
@@ -38,7 +47,12 @@ export default function StatBoxWithLessFormatting({
   );
 }
 
-function getRatingColor(rating, ratingMin, ratingMax, goodValuesAreHigher) {
+function getRatingColor(
+  rating: number | null | undefined,
+  ratingMin: number,
+  ratingMax: number,
+  goodValuesAreHigher: boolean
+) {
   if (nullOrUndefined(rating)) return "rgba(0, 0, 0, 0.5)";
   if (rating < ratingMin) rating = ratingMin;
   if (rating > ratingMax) rating = ratingMax;
@@ -74,19 +88,19 @@ function getRatingColor(rating, ratingMin, ratingMax, goodValuesAreHigher) {
   );
 }
 
-function interpolateColor(color1, color2, ratio) {
+function interpolateColor(color1: number[], color2: number[], ratio: number): string {
   const r = Math.round(color1[0] + ratio * (color2[0] - color1[0]));
   const g = Math.round(color1[1] + ratio * (color2[1] - color1[1]));
   const b = Math.round(color1[2] + ratio * (color2[2] - color1[2]));
   return `rgba(${r}, ${g}, ${b}, 1)`;
 }
 
-function getPercentile(value, array) {
-  if (!value || !array || array.length === 0) return null;
+function getPercentile(value: number, array: number[]): number | null {
+  if (array.length === 0) return null;
   return bsFind(array, value) / array.length;
 }
 
-function bsFind(sortedArray, target) {
+function bsFind(sortedArray: number[], target: number): number {
   let left = 0;
   let right = sortedArray.length - 1;
   while (left <= right) {
@@ -98,6 +112,6 @@ function bsFind(sortedArray, target) {
   return left;
 }
 
-function nullOrUndefined(value) {
+function nullOrUndefined(value: any): value is null | undefined {
   return value === null || value === undefined;
 }

@@ -1,6 +1,14 @@
 import { Box, Typography, Tooltip } from "@mui/material";
 
-export default function FriendCoursesTooltip({ friendData }) {
+import React from "react";
+interface FriendCoursesTooltipProps {
+  // friendData may be null while loading or when no data is available
+  friendData: {
+    friendInterestedInfos: string[];
+    friendTakenInfos: string[];
+  } | null;
+}
+export default function FriendCoursesTooltip({ friendData }: FriendCoursesTooltipProps) {
   return (
     friendData && (
       <>

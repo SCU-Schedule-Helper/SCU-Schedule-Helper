@@ -4,7 +4,11 @@ import {
     Warning as WarningIcon,
 } from "@mui/icons-material";
 
-export default function ProfessorRecencyIndicator({ lastTaughtQuarter }) {
+interface ProfessorRecencyIndicatorProps {
+  lastTaughtQuarter: string;
+}
+
+export default function ProfessorRecencyIndicator({ lastTaughtQuarter }: ProfessorRecencyIndicatorProps) {
     const indicator = getRecencyIndicator(lastTaughtQuarter);
 
     return (
@@ -22,7 +26,7 @@ export default function ProfessorRecencyIndicator({ lastTaughtQuarter }) {
     );
 }
 
-function getRecencyIndicator(lastTaughtQuarter) {
+function getRecencyIndicator(lastTaughtQuarter: string) {
     const lastSeasonTaught = lastTaughtQuarter.split(" ")[0];
     const lastYearTaught = parseInt(lastTaughtQuarter.split(" ")[1]);
     const lastMonthTaught =
@@ -38,7 +42,7 @@ function getRecencyIndicator(lastTaughtQuarter) {
     const currentQuarterDate = new Date();
     const msPerDay = 86400000;
     const daysSinceLastTaught =
-        (currentQuarterDate - lastDateTaught) / msPerDay;
+        (currentQuarterDate.getTime() - lastDateTaught.getTime()) / msPerDay;
 
     if (daysSinceLastTaught <= 365) {
         return {

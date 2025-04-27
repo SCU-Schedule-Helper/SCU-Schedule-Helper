@@ -110,7 +110,7 @@ export default function ProfCourseCard({
       try {
         const rmpRating = await chrome.runtime.sendMessage({
           type: "getRmpRatings",
-          profName: selected.id,
+          profName: selected!.id,
         });
 
         setRmpData(rmpRating);
@@ -174,8 +174,8 @@ export default function ProfCourseCard({
   ) {
     const aggregatedAvgs = [];
     for (const dept of profDepts) {
-      if (data.departmentStatistics[dept]![`${type}Avgs`].length > 0) {
-        aggregatedAvgs.push(...data.departmentStatistics[dept]![`${type}Avgs`]);
+    if (data!.departmentStatistics[dept]![`${type}Avgs`].length > 0) {
+        aggregatedAvgs.push(...data!.departmentStatistics[dept]![`${type}Avgs`]);
       }
     }
     return aggregatedAvgs.sort();
@@ -189,11 +189,10 @@ export default function ProfCourseCard({
     ]);
     const friendTakenInfos = [];
     const friendInterestedInfos = [];
-    if (selected.type === "prof") {
-      for (const friendId in friendData.friendCoursesTaken?.[selected.id] ||
-        {}) {
+    if (selected!.type === "prof") {
+      for (const friendId in friendData.friendCoursesTaken?.[selected!.id] || {}) {
         const friendName = friendData.friends[friendId].name;
-        const courses = friendData.friendCoursesTaken[selected.id][friendId];
+        const courses = friendData.friendCoursesTaken[selected!.id][friendId];
         const friendInfo = `${friendName} had for `;
         const courseCodes = [];
         for (const course of courses) {
@@ -207,12 +206,10 @@ export default function ProfCourseCard({
         if (courseCodes.length > 0)
           friendTakenInfos.push(`${friendInfo}${courseCodes.join(", ")}`);
       }
-      for (const friendId in friendData.friendInterestedSections?.[
-        selected.id
-      ] || {}) {
+      for (const friendId in friendData.friendInterestedSections?.[selected!.id] || {}) {
         const friendName = friendData.friends[friendId].name;
         const sections =
-          friendData.friendInterestedSections[selected.id][friendId];
+          friendData.friendInterestedSections[selected!.id][friendId];
         for (const section of sections) {
           const match = section.match(interestedSectionPattern);
           if (!match) continue;
@@ -232,10 +229,9 @@ export default function ProfCourseCard({
         }
       }
     } else {
-      for (const friendId in friendData.friendCoursesTaken?.[selected.id] ||
-        {}) {
+      for (const friendId in friendData.friendCoursesTaken?.[selected!.id] || {}) {
         const friendName = friendData.friends[friendId].name;
-        const course = friendData.friendCoursesTaken[selected.id][friendId];
+        const course = friendData.friendCoursesTaken[selected!.id][friendId];
         const match = course.match(courseTakenPattern);
         if (!match) continue;
         if (match[1] === "Not taken at SCU") {
@@ -246,12 +242,10 @@ export default function ProfCourseCard({
           `${friendName} took with ${match[1] || "unknown prof"}`
         );
       }
-      for (const friendId in friendData.friendInterestedSections?.[
-        selected.id
-      ] || {}) {
+      for (const friendId in friendData.friendInterestedSections?.[selected!.id] || {}) {
         const friendName = friendData.friends[friendId].name;
         const course =
-          friendData.friendInterestedSections[selected.id][friendId];
+          friendData.friendInterestedSections[selected!.id][friendId];
         const match = course.match(interestedSectionPattern);
         if (!match) continue;
         const meetingPatternMatch = match[3].match(/(.*) \| (.*) \| (.*)/);
@@ -270,7 +264,7 @@ export default function ProfCourseCard({
   }
 
   function getCourseName(courseCode: string) {
-    return (data[courseCode] as CourseData | undefined)?.courseName || "";
+    return (data![courseCode] as CourseData | undefined)?.courseName || "";
   }
 
   function extractTerms(recentTerms: string[]) {
