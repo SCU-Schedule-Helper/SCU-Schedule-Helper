@@ -1,3 +1,4 @@
+/// <reference types="chrome"/>
 import React from "react";
 import { createRoot } from "react-dom/client";
 import CourseHistoryImporter from "../components/course_history/CourseHistoryImporter";
