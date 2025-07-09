@@ -2,36 +2,12 @@ import React, { useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import * as XLSX from "xlsx";
-
-function ImportAcademicProgressTable({ data }) {
-  return (
-    <Box sx={{ mt: 4, width: "100%", maxWidth: 500 }}>
-      <h3>Academic Progress</h3>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={{ border: "1px solid #ccc", padding: 8 }}>Requirement</th>
-            <th style={{ border: "1px solid #ccc", padding: 8 }}>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, idx) => (
-            <tr key={idx}>
-              <td style={{ border: "1px solid #ccc", padding: 8 }}>{row[0]}</td>
-              <td style={{ border: "1px solid #ccc", padding: 8 }}>{row[1]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </Box>
-  );
-}
 
 export default function CoursePlannerPage() {
   const fileInputRef = useRef();
   const [unsatisfiedRequirements, setUnsatisfiedRequirements] = useState([]);
+  const [nextQuarterRequirements, setNextQuarterRequirements] = useState([]);
 
   const handleExcelUploadClick = () => {
     fileInputRef.current.click();
@@ -66,7 +42,10 @@ export default function CoursePlannerPage() {
         const unsatisfied = rows
           .filter(row => row[1] && row[1].toString().trim().toLowerCase() === "not satisfied")
           .map(row => row[0]);
+        console.log("Found unsatisfied requirements:", unsatisfied);
         setUnsatisfiedRequirements(unsatisfied);
+        setNextQuarterRequirements([]); // Reset next quarter when new file is uploaded
+        console.log("State updated - unsatisfied count:", unsatisfied.length);
       } catch (err) {
         console.error("Error reading Excel file:", err);
         alert("There was a problem reading your Excel file. Please make sure it is a valid .xlsx file and try again.\n\nError: " + err.message);
@@ -77,60 +56,210 @@ export default function CoursePlannerPage() {
     event.target.value = null;
   };
 
+  const handleDragStart = (e, requirement) => {
+    console.log("Drag started for:", requirement);
+    e.dataTransfer.setData("text/plain", requirement);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, targetList) => {
+    e.preventDefault();
+    const requirement = e.dataTransfer.getData("text/plain");
+    console.log("Drop event - requirement:", requirement, "target:", targetList);
+    
+    if (targetList === "nextQuarter") {
+      // Move from unsatisfied to next quarter
+      console.log("Moving from unsatisfied to next quarter");
+      setUnsatisfiedRequirements(prev => {
+        const newList = prev.filter(req => req !== requirement);
+        console.log("Updated unsatisfied list:", newList);
+        return newList;
+      });
+      setNextQuarterRequirements(prev => {
+        const newList = [...prev, requirement];
+        console.log("Updated next quarter list:", newList);
+        return newList;
+      });
+    } else if (targetList === "coursesFromNextQuarter") {
+      // Move from next quarter to courses from next quarter box
+      console.log("Moving from next quarter to courses box");
+      setNextQuarterRequirements(prev => prev.filter(req => req !== requirement));
+      // This would add to a new state, but for now we'll just move it back to unsatisfied
+      setUnsatisfiedRequirements(prev => [...prev, requirement]);
+    } else if (targetList === "unsatisfied") {
+      // Move from next quarter back to unsatisfied
+      console.log("Moving from next quarter back to unsatisfied");
+      setNextQuarterRequirements(prev => prev.filter(req => req !== requirement));
+      setUnsatisfiedRequirements(prev => [...prev, requirement]);
+    }
+  };
+
+  const DraggableRequirement = ({ requirement, source }) => (
+    <Box
+      draggable
+      onDragStart={(e) => handleDragStart(e, requirement)}
+      sx={{
+        backgroundColor: "#f5f5f5",
+        border: "1px solid #ddd",
+        borderRadius: "4px",
+        padding: "8px 12px",
+        margin: "4px 0",
+        cursor: "grab",
+        "&:hover": {
+          backgroundColor: "#e8e8e8",
+        },
+        "&:active": {
+          cursor: "grabbing",
+        },
+      }}
+    >
+      {requirement}
+    </Box>
+  );
+
   return (
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        height: "100%",
-        padding: 3,
-        textAlign: "center",
+        minHeight: "100vh", // Allow growing with content
+        padding: 0, // Remove padding to make divider touch top and bottom
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
-        <input
-          type="file"
-          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          style={{ display: "none" }}
-          ref={fileInputRef}
-          onChange={handleFileChange}
-        />
+      {/* Left half */}
+      <Box
+        sx={{
+          width: "50%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          padding: 2,
+          paddingRight: 3, // Extra padding for scrollbar
+          borderRight: "1px solid #ccc",
+          gap: 3,
+          height: "100%", // Full height
+        }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
+          <input
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            style={{ display: "none" }}
+            ref={fileInputRef}
+            onChange={handleFileChange}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<UploadFileIcon />}
+            onClick={handleExcelUploadClick}
+            sx={{
+              backgroundColor: "#802a25",
+              color: "white",
+              "&:hover": { backgroundColor: "#671f1a" },
+              py: 0.2, // Further reduced for shorter button
+              fontSize: "0.75rem", // Smaller text size
+            }}
+          >
+            Upload Excel Academic Progress
+          </Button>
+        </Box>
+        
+        {/* Unsatisfied Requirements Box */}
+        <Box sx={{ width: "100%", maxWidth: 400 }}>
+          <h3>Unsatisfied Requirements</h3>
+          <Box
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, "unsatisfied")}
+            sx={{
+              minHeight: "150px",
+              border: "2px dashed #ccc",
+              borderRadius: "8px",
+              padding: "16px",
+              backgroundColor: "#f8e6e6", // Lighter version of #802a25
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              margin: "0 auto",
+              maxWidth: "350px",
+            }}
+          >
+            {unsatisfiedRequirements.length === 0 ? (
+              <Box sx={{ color: "#999", textAlign: "center", marginTop: "50px" }}>
+                Upload Excel file to see unsatisfied requirements
+              </Box>
+            ) : (
+              unsatisfiedRequirements.map((req, idx) => (
+                <DraggableRequirement key={idx} requirement={req} source="unsatisfied" />
+              ))
+            )}
+          </Box>
+        </Box>
+      </Box>
+      {/* Right half */}
+      <Box
+        sx={{
+          width: "50%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          padding: 2,
+          paddingRight: 8, // Increased from 3 to 8 for much more spacing
+          height: "100%", // Full height
+          gap: 2,
+        }}
+      >
         <Button
           variant="contained"
           color="primary"
-          startIcon={<UploadFileIcon />}
-          onClick={handleExcelUploadClick}
+          onClick={() => {
+            // Add your generate quarter plan logic here
+            console.log("Generate quarter plan clicked");
+          }}
           sx={{
-            backgroundColor: "#703331",
+            backgroundColor: "#802a25",
             color: "white",
-            fontWeight: "bold",
-            borderRadius: 2,
-            textTransform: "none",
-            boxShadow: "0 2px 6px rgba(112, 51, 49, 0.15)",
-            ":hover": {
-              backgroundColor: "#8a443d",
-            },
-            minWidth: 220,
-            fontSize: "1rem",
-            py: 1.2,
+            "&:hover": { backgroundColor: "#671f1a" },
+            py: 0.2, // Same as upload button
+            fontSize: "0.75rem", // Same as upload button
           }}
         >
-          Upload Excel Academic Progress
+          Generate Quarter Plan
         </Button>
-      </Box>
-      {/* Display unsatisfied requirements */}
-      {unsatisfiedRequirements.length > 0 && (
-        <Box sx={{ mt: 4, width: "100%", maxWidth: 500 }}>
-          <h3>Unsatisfied Requirements</h3>
-          <ul style={{ textAlign: "left" }}>
-            {unsatisfiedRequirements.map((req, idx) => (
-              <li key={idx}>{req}</li>
-            ))}
-          </ul>
+        <h3>Next Quarter</h3>
+        <Box
+          onDragOver={handleDragOver}
+          onDrop={(e) => handleDrop(e, "nextQuarter")}
+          sx={{
+            width: "100%",
+            minHeight: "300px",
+            border: "2px dashed #ccc",
+            borderRadius: "8px",
+            padding: "16px",
+            paddingRight: "20px", // Extra right padding for more spacing
+            backgroundColor: "#f0f8ff",
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            margin: "0 auto",
+            maxWidth: "300px", // Reduced from 350px to 300px to create more space on the right
+          }}
+        >
+          {nextQuarterRequirements.length === 0 ? (
+            <Box sx={{ color: "#999", textAlign: "center", marginTop: "100px" }}>
+              Drag unsatisfied requirements here
+            </Box>
+          ) : (
+            nextQuarterRequirements.map((req, idx) => (
+              <DraggableRequirement key={idx} requirement={req} source="nextQuarter" />
+            ))
+          )}
         </Box>
-      )}
+      </Box>
     </Box>
   );
-} 
+}
