@@ -16,6 +16,7 @@ import {
   ExpandMore,
   ExpandLess,
   Settings,
+  Chat,
 } from "@mui/icons-material";
 import AnnouncementBar from "./AnnouncementBar";
 
@@ -80,6 +81,12 @@ export default function Menu({ navigateToPage, openLandingPage }) {
       id: "courseplanner",
       label: "Course Planner",
       action: () => navigateToPage("courseplanner"),
+    },
+    {
+      icon: <Chat />,
+      id: "chatassistant",
+      label: "Chat Assistant",
+      action: () => navigateToPage("chatassistant"),
     },
   ];
 
@@ -430,14 +437,34 @@ export default function Menu({ navigateToPage, openLandingPage }) {
             <Box
               sx={{
                 display: "flex",
-                gap: 1.5,
-                flexWrap: "wrap",
-                alignItems: "flex-start",
+                flexDirection: "column",
+                gap: 0.5,
+                alignItems: "center",
                 justifyContent: "center",
-                rowGap: 0.5,
               }}
             >
-              {[...topRowItems, ...bottomRowItems].map((item) => renderMenuButton(item, true))}
+              {/* Top Row */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {topRowItems.map((item) => renderMenuButton(item, true))}
+              </Box>
+              {/* Bottom Row */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {bottomRowItems.map((item) => renderMenuButton(item, true))}
+              </Box>
             </Box>
           </Box>
         )}

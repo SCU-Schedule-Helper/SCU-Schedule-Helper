@@ -7,6 +7,7 @@ import Friends from "../components/pageComponents/friends";
 import Profile from "../components/pageComponents/profile";
 import SettingsPage from "../components/pageComponents/settings";
 import CoursePlannerPage from "../components/pageComponents/courseplanner";
+import ChatAssistantPage from "../components/pageComponents/chatassistant";
 
 export default function Home() {
   const [activePage, setActivePage] = useState("main");
@@ -34,6 +35,7 @@ export default function Home() {
         flexDirection: "column",
         overflow: "hidden",
         position: "relative",
+
       }}
     >
       <Menu navigateToPage={navigateToPage} openLandingPage={openLandingPage} />
@@ -54,6 +56,7 @@ export default function Home() {
         {activePage === "profile" && <Profile />}
         {activePage === "settings" && <SettingsPage />}
         {activePage === "courseplanner" && <CoursePlannerPage />}
+        {activePage === "chatassistant" && <ChatAssistantPage />}
       </Box>
     </Box>
   );
