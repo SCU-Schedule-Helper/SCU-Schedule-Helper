@@ -2,10 +2,7 @@ name: Scrape and update professor name mappings on AWS S3
 
 on:
   workflow_dispatch: # Manual run.
-    inputs:
-      academic_period:
-        description: "The academic period to use within Workday (e.g. Fall 2024 Quarter)."
-        required: true
+  # The most recent academic period will be used
 
 jobs:
   run:

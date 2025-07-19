@@ -8,7 +8,6 @@ const extensionPath = path.resolve('../../../extension/out')
 export const browser = await puppeteer.launch({
   headless: false,
   devtools: true,
-  slowMo: 50,
   args: [ 
     "--start-maximized",
     `--disable-extensions-except=${extensionPath}`,
@@ -19,36 +18,51 @@ export const browser = await puppeteer.launch({
 let page = await browser.newPage(); 
 
 async function main() {
+  try {
     closeChromeExtensionPopUp();
-    await workdayLogin(page, "07700000853", "Mercer.603716");
+    await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
     await checkRaitingInjections();
     await checkCalanderButton();
+    browser.close();
+  } catch (error) {
+    console.error("Error during testing:", error);
+  } finally {
+    browser.close();
+  }
 }
 
 main();
 
 async function checkRaitingInjections() {
-  // Check to see if the raiting show up on the course sections page
-  await goToCourseSectionsPage(page, "Fall 2025");
-  await page.waitForSelector('#SCU-Schedule-Helper-Score-Container', { timeout: 10000 });
-  const raitingsExist = await page.$('#SCU-Schedule-Helper-Score-Container');
-  if (!raitingsExist) {
+  try {
+    // Check to see if the rating shows up on the course sections page
+    await goToCourseSectionsPage(page);
+    await page.waitForSelector('#SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
+    const ratingsExist = await page.$('#SCU-Schedule-Helper-Score-Container');
+    if (!ratingsExist) {
+      console.log('The Course Ratings are not injected correctly.');
+    } else {
+      console.log('The Course Ratings are injected correctly.');
+    }
+  } catch (error) {
     console.log('The Course Ratings are not injected correctly.');
-  } else {
-    console.log('The Course Ratings are injected correctly.');
   }
 }
 
 async function checkCalanderButton() {
-  // Check to see if the calander button shows up on view my courses page
-  await page.goto("https://www.myworkday.com/scu/d/task/2998$28771.htmld");
-  await page.waitForNetworkIdle();
-  await page.waitForSelector('#SCU-Schedule-Helper-Google-Calendar-Button', { timeout: 10000 });
-  const raitingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
-  if (!raitingsExist) {
+  try {
+    // Check to see if the calendar button shows up on view my courses page
+    await page.goto("https://www.myworkday.com/scu/d/task/2998$23771.htmld");
+    await page.waitForNetworkIdle();
+    await page.waitForSelector('#SCU-Schedule-Helper-Google-Calendar-Button', { timeout: 5000 });
+    const ratingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
+    if (!ratingsExist) {
+      console.log('The Google Calendar button is not injected correctly.');
+    } else {
+      console.log('The Google Calendar button is injected correctly.');
+    }
+  } catch (error) {
     console.log('The Google Calendar button is not injected correctly.');
-  } else {
-    console.log('The Google Calendar button is injected correctly.');
   }
 }
 

@@ -1,6 +1,6 @@
 const FIND_COURSE_SECTIONS_URL =
   "https://www.myworkday.com/scu/d/task/1422$3915.htmld";
-export async function goToCourseSectionsPage(page, academicPeriod) {
+export async function goToCourseSectionsPage(page) {
         await page.goto(FIND_COURSE_SECTIONS_URL);
         await page.waitForNetworkIdle();
 
@@ -24,7 +24,7 @@ export async function goToCourseSectionsPage(page, academicPeriod) {
         } else if (month >= 6 && month <= 8) {
             period = `Summer ${year} Quarter`;
         }
-        academicPeriod = period;
+        const academicPeriod = period;
         console.log(`Searching for academic period: ${academicPeriod}`);
         await searchBox[0].type(academicPeriod);
         await searchBox[0].press("Enter");
@@ -55,6 +55,7 @@ export async function goToCourseSectionsPage(page, academicPeriod) {
         await searchBox[1].press("Enter");
         
         // Proceed to the next page.
+        await new Promise(res => setTimeout(res, 1000));  // wait for undergraduate selection to apply
         const okButton = await page.$('button[title="OK"]');
         await okButton.click();
 }
