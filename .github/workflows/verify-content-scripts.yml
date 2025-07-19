@@ -32,6 +32,6 @@ jobs:
       - name: Run puppeteer script with virtual display
         run: xvfb-run -a node index.js
         env:
-          WORKDAY_USERNAME: ${{ secrets.ALEX_WORKDAY_USERNAME }}
-          WORKDAY_PASSWORD: ${{ secrets.ALEX_WORKDAY_PASSWORD }}
+          WORKDAY_USERNAME: ${{ secrets.WORKDAY_USERNAME }}
+          WORKDAY_PASSWORD: ${{ secrets.WORKDAY_PASSWORD }}
         working-directory: backend/web_scraping/verify_content_scripts
