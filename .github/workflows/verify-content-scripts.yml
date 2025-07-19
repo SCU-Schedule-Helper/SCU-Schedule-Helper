@@ -1,0 +1,37 @@
+name: Verify content scripts on Workday
+
+on:
+    workflow_dispatch: # Manual Option
+    schedule:
+        - cron: '0 0 * * *' # Run at 00:00 UTC every day.
+jobs:
+  
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+      
+      # Build the extension
+      - name: Install extension dependencies
+        run: npm ci
+        working-directory: extension
+      
+      - name: Build extension
+        run: npm run buildbuildall
+        working-directory: extension
+      
+      # Test the extension
+      - name: Install test dependencies
+        run: npm ci
+        working-directory: backend/web_scraping/verify_content_scripts
+      
+      - name: Run puppeteer script with virtual display
+        run: xvfb-run -a node index.js
+        env:
+          WORKDAY_USERNAME: ${{ secrets.ALEX_WORKDAY_USERNAME }}
+          WORKDAY_PASSWORD: ${{ secrets.ALEX_WORKDAY_PASSWORD }}
+        working-directory: backend/web_scraping/verify_content_scripts

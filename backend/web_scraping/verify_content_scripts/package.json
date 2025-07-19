@@ -1,0 +1,17 @@
+{
+  "name": "verify_content_scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Alexander Aylen",
+  "type": "module",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.14.0"
+  }
+}

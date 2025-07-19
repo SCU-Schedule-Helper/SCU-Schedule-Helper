@@ -17,7 +17,7 @@ export let termsWithinCutoff;
 
 export default async function getAndProcessNewEvals() {
   const schoolsAndTerms = await getSchoolsAndTerms();
-  deleteExpiredEvals();
+  deleteExpiredEvals(); 
   let hadNonEmptyTerm = false;
   for (const term of schoolsAndTerms.termIds) {
     if (existingTerms.has(term)) {
