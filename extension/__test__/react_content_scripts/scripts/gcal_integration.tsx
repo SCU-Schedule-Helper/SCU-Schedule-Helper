@@ -21,11 +21,13 @@ const tryInjectingButton = () => {
     // Only inject on the "View My Courses" page
     if (!titleElement?.textContent?.includes("View My Courses")) return;
     const buttonBar = document.querySelector(
-      '.WLNM.WNNM[data-automation-id="buttonBar"]'
+      'div.WM1N ul.WMIM[data-automation-id="buttonBar"]'
     );
     if (buttonBar) {
+      console.log("Injecting Google Calendar button");
       const newListItem = document.createElement("li");
-      newListItem.className = "WMNM";
+      newListItem.className = "WMIM";
+      newListItem.id = "SCU-Schedule-Helper-Google-Calendar-Button";
       newListItem.style.float = "right";
 
       const container = document.createElement("div");

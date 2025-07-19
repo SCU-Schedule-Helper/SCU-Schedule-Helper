@@ -6,7 +6,6 @@ export async function workdayLogin(page, username, password) {
 
     // Check for username field
     const usernameSelector = 'input[aria-label="Username"]';
-    
     if (await page.$(usernameSelector)) {
         await page.locator(usernameSelector).fill(username);
     } else { console.log(`Could not find username input: ${usernameSelector}`);}

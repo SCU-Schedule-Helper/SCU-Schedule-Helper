@@ -381,6 +381,7 @@
   ) {
     const overallScore = calcOverallScore(ratingInfo);
     const scoreContainer = document.createElement("div");
+    scoreContainer.id = "SCU-Schedule-Helper-Score-Container";
     scoreContainer.style.display = "flex";
     scoreContainer.style.alignItems = "center";
     scoreContainer.style.gap = "4px";

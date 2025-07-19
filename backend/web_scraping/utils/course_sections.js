@@ -29,7 +29,7 @@ export async function goToCourseSectionsPage(page, academicPeriod) {
         await searchBox[0].type(academicPeriod);
         await searchBox[0].press("Enter");
         await page.waitForSelector('input[type="checkbox"]');
-        const checkbox = await page.$('input[type="checkbox"]');
+        let checkbox = await page.$('input[type="checkbox"]');
         if(!checkbox) {
             console.error("Checkbox not found. Exiting.");
             return;
@@ -49,12 +49,10 @@ export async function goToCourseSectionsPage(page, academicPeriod) {
         await searchBox[1].click();
         await page.waitForSelector('input[type="checkbox"]');
         
-        // Press down arrow four times to select undergraduate courses.
-        await page.keyboard.press("ArrowDown");
-        await page.keyboard.press("ArrowDown");
-        await page.keyboard.press("ArrowDown");
-        await page.keyboard.press("ArrowDown");
-        await page.keyboard.press("Enter");
+        // Select undergraduate courses.
+        await searchBox[1].click();
+        await searchBox[1].type("Undergraduate");
+        await searchBox[1].press("Enter");
         
         // Proceed to the next page.
         const okButton = await page.$('button[title="OK"]');
