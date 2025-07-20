@@ -1,5 +1,5 @@
 {
-  "name": "verify_content_scripts",
+  "name": "test_content_scripts",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

@@ -1,4 +1,4 @@
-name: Verify content scripts on Workday
+name: Test content scripts on Workday
 
 on:
     workflow_dispatch: # Manual Option
@@ -27,7 +27,7 @@ jobs:
       # Test the extension
       - name: Install test dependencies
         run: npm ci
-        working-directory: backend/web_scraping/verify_content_scripts
+        working-directory: backend/web_scraping/test_content_scripts
       
       - name: Run puppeteer script with virtual display
         run: xvfb-run -a node index.js
@@ -38,4 +38,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-1'
           SNS_TOPIC_ARN: ${{ secrets.CONTENT_SCRIPTS_ERRORS_SNS }}
-        working-directory: backend/web_scraping/verify_content_scripts
+        working-directory: backend/web_scraping/test_content_scripts
