@@ -3,6 +3,9 @@ import { workdayLogin } from '../utils/authenticate.js';
 import { goToCourseSectionsPage } from '../utils/course_sections.js';
 import path from "path";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+// import dotenv from 'dotenv';
+// dotenv.config(); // for local testing of sns
+
 
 const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
@@ -10,8 +13,11 @@ const extensionPath = path.resolve('../../../extension/out')
 export const browser = await puppeteer.launch({
   headless: false,
   devtools: true,
+  slowMo: 50,
   args: [ 
     "--start-maximized",
+    `--disable-extensions-except=${extensionPath}`, 
+    `--load-extension=${extensionPath}`,
   ],
 });
 
@@ -21,6 +27,13 @@ let message = "";
 async function main() {
   try {
     closeChromeExtensionPopUp();
+    const allPages = await browser.pages();
+    if (allPages.length > 1) {
+        for (let i = 1; i < allPages.length; i++) {
+            await allPages[i].close();
+        }
+    }
+    page = allPages[0];
     await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
     await checkRaitingInjections();
     await checkCalanderButton();
@@ -58,7 +71,7 @@ async function checkRaitingInjections() {
 async function checkCalanderButton() {
   try {
     // Check to see if the calendar button shows up on view my courses page
-    await page.goto("https://www.myworkday.com/scu/d/task/2998$23771.htmld");
+    await page.goto("https://www.myworkday.com/scu/d/task/2998$28771.htmld");
     await page.waitForNetworkIdle();
     await page.waitForSelector('#SCU-Schedule-Helper-Google-Calendar-Button', { timeout: 5000 });
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
