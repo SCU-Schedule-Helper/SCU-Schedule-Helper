@@ -40,7 +40,7 @@ async function main() {
     browser.close();
   } catch (error) {
     console.error("Error during testing:", error);
-    message += `Error during testing: ${error}\n`;
+    message += `- Error during testing: ${error}\n`;
   } finally {
     browser.close();
   }
@@ -58,13 +58,13 @@ async function checkRaitingInjections() {
     await page.waitForSelector('#SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Score-Container');
     if (!ratingsExist) {
-      message += 'The Course Ratings are not injected correctly.\n';
+      message += '- The Course Ratings are not injected correctly.\n';
     } else {
       console.log('The Course Ratings are injected correctly.');
     }
   } catch (error) {
     console.log('The Course Ratings are not injected correctly.');
-    message += 'The Course Ratings are not injected correctly.\n';
+    message += '- The Course Ratings are not injected correctly.\n';
   }
 }
 
@@ -77,13 +77,13 @@ async function checkCalanderButton() {
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
     if (!ratingsExist) {
       console.log('The Google Calendar button is not injected correctly.');
-      message += 'The Google Calendar button is not injected correctly.\n';
+      message += '- The Google Calendar button is not injected correctly.\n';
     } else {
       console.log('The Google Calendar button is injected correctly.');
     }
   } catch (error) {
     console.log('The Google Calendar button is not injected correctly.');
-    message += 'The Google Calendar button is not injected correctly.\n';
+    message += '- The Google Calendar button is not injected correctly.\n';
   }
 }
 
@@ -107,7 +107,7 @@ async function closeChromeExtensionPopUp() {
 
 async function sendSnsNotification(snsmessage) {
   const params = {
-    Message: `{"Issues found:\n": ${snsmessage}}`,
+    Message: `"Issues found:\n": ${snsmessage}`,
     TopicArn: process.env.SNS_TOPIC_ARN
   };
   await snsClient.send(new PublishCommand(params));
