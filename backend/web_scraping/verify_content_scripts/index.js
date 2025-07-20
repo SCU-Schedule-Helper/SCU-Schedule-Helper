@@ -12,12 +12,11 @@ export const browser = await puppeteer.launch({
   devtools: true,
   args: [ 
     "--start-maximized",
-    `--disable-extensions-except=${extensionPath}`,
-    `--load-extension=${extensionPath}`
   ],
 });
 
-let page = await browser.newPage(); 
+let page = await browser.newPage();
+let message = "";
 
 async function main() {
   try {
@@ -28,9 +27,12 @@ async function main() {
     browser.close();
   } catch (error) {
     console.error("Error during testing:", error);
-    await sendSnsNotification(`Error during testing: ${error}`);
+    message += `Error during testing: ${error}\n`;
   } finally {
     browser.close();
+  }
+  if (message.length > 0) {
+    await sendSnsNotification(message);
   }
 }
 
@@ -43,13 +45,13 @@ async function checkRaitingInjections() {
     await page.waitForSelector('#SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Score-Container');
     if (!ratingsExist) {
-      await sendSnsNotification('The Course Ratings are not injected correctly.');
+      message += 'The Course Ratings are not injected correctly.\n';
     } else {
       console.log('The Course Ratings are injected correctly.');
     }
   } catch (error) {
     console.log('The Course Ratings are not injected correctly.');
-    await sendSnsNotification('The Course Ratings are not injected correctly.');
+    message += 'The Course Ratings are not injected correctly.\n';
   }
 }
 
@@ -62,13 +64,13 @@ async function checkCalanderButton() {
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
     if (!ratingsExist) {
       console.log('The Google Calendar button is not injected correctly.');
-      await sendSnsNotification('The Google Calendar button is not injected correctly.');
+      message += 'The Google Calendar button is not injected correctly.\n';
     } else {
       console.log('The Google Calendar button is injected correctly.');
     }
   } catch (error) {
     console.log('The Google Calendar button is not injected correctly.');
-    await sendSnsNotification('The Google Calendar button is not injected correctly.');
+    message += 'The Google Calendar button is not injected correctly.\n';
   }
 }
 
@@ -90,9 +92,9 @@ async function closeChromeExtensionPopUp() {
   }
 }
 
-async function sendSnsNotification(message) {
+async function sendSnsNotification(snsmessage) {
   const params = {
-    Message: message,
+    Message: snsmessage,
     TopicArn: process.env.SNS_TOPIC_ARN
   };
   await snsClient.send(new PublishCommand(params));
