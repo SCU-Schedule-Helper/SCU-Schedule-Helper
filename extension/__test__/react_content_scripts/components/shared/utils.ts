@@ -1,3 +1,4 @@
+/// <reference types="chrome"/>
 export const ACADEMIC_PERIOD_PATTERN = /(Winter|Spring|Summer|Fall) (\d{4})/;
 
 export interface CourseData {
@@ -91,9 +92,9 @@ function formatResults(results: CourseData[]) {
   });
 }
 
-export function getEnrolledCoursesTables(): HTMLTableElement[] {
+export function getEnrolledCoursesTables(rootElement: Element | Document = document): HTMLTableElement[] {
   return Array.from(
-    document.querySelectorAll(
+    rootElement.querySelectorAll(
       "table > caption"
     ) as NodeListOf<HTMLTableCaptionElement>
   )

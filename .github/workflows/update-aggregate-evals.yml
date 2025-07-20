@@ -2,11 +2,11 @@ name: Scrape and update aggregate evals file on AWS S3
 
 on:
   workflow_dispatch: # Manual run.
-  schedule: # Scheduled data scraping 4 times per year.
-    - cron: "47 22 14 2 *" # Pull fall quarter data at 3PM Pacific Time, February 15.
-    - cron: "47 22 14 5 *" # Pull winter quarter data at 3PM Pacific Time, May 15.
-    - cron: "47 22 29 8 *" # Pull spring quarter data at 3PM Pacific Time, August 29.
-    - cron: "47 22 23 10 *" # Pull summer quarter data at 3PM Pacific Time, October 24.
+  # Suggested run times to pull new data:
+  # - Fall quarter: February 15
+  # - Winter quarter: May 15
+  # - Spring quarter: August 29
+  # - Summer quarter: October 24
 
 jobs:
   run:

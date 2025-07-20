@@ -25,7 +25,7 @@ const MEETING_PATTERN_REGEX =
   /(.*) \| (\d{1,2}:\d{1,2} (?:AM|PM)) - (\d{1,2}:\d{1,2} (?:AM|PM)) \| (.*)/;
 const DAYS_OF_WEEK_STRINGS = ["Su", "M", "T", "W", "Th", "F", "Sa"];
 
-export default function GoogleCalendarButton() {
+export default function GoogleCalendarButton({ panel }: { panel: Element }) {
   const [status, setStatus] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -53,7 +53,7 @@ export default function GoogleCalendarButton() {
     try {
       setIsModalOpen(true);
       setStatus("Checking for courses...");
-      const courses = getRelevantCourses(setErrors);
+      const courses = getRelevantCourses(panel, setErrors);
       if (!courses || !courses.length) {
         setStatus("No courses found.");
         return;
@@ -71,6 +71,7 @@ export default function GoogleCalendarButton() {
 
       setStatus("Courses successfully added!");
     } catch (error) {
+      console.error("Error in Google Calendar integration:", error);``
       setErrors(["An unknown error occurred. Please try again."]);
     }
   };
@@ -140,22 +141,55 @@ export default function GoogleCalendarButton() {
   );
 }
 
+function findHeaderIndex(
+  headerCells: HTMLTableCellElement[],
+  headerText: string
+): number {
+  const enrolledSectionsHeaderIndex = headerCells.findIndex(
+    (header) => header.innerText.includes("Enrolled Sections")
+  );
+
+  const actualIndex = headerCells.findIndex(
+    (header) => header.innerText.includes(headerText)
+  );
+  if (actualIndex > enrolledSectionsHeaderIndex)
+    return actualIndex - 1;
+  return actualIndex;
+}
+
 function getRelevantCourses(
+  panel: Element,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>
 ): CourseEvent[] {
-  const tables = getEnrolledCoursesTables();
+  const tables = getEnrolledCoursesTables(panel);
   const courses: CourseEvent[] = [];
   for (const table of tables) {
     const rows = Array.from(
       table.querySelectorAll("tbody > tr") as NodeListOf<HTMLTableRowElement>
     );
+    const headerCells = Array.from(
+      table.querySelectorAll("thead > tr > th") as NodeListOf<HTMLTableCellElement>
+    );
+    const courseNameHeaderIndex = findHeaderIndex(headerCells, "Course Listing");
+    const meetingPatternHeaderIndex = findHeaderIndex(headerCells, "Meeting Patterns");
+    const professorHeaderIndex = findHeaderIndex(headerCells, "Instructor");
+    const startDateHeaderIndex = findHeaderIndex(headerCells, "Start Date");
+    const endDateHeaderIndex = findHeaderIndex(headerCells, "End Date");
+
+    if (courseNameHeaderIndex < 0 || meetingPatternHeaderIndex < 0 ||
+      professorHeaderIndex < 0 || startDateHeaderIndex < 0 ||
+      endDateHeaderIndex < 0) {
+      console.error("Error: Could not find all required headers in the table.");
+      return courses;
+    }
+
     for (const row of rows) {
       const tds = row.querySelectorAll("td");
-      const courseName = tds[1].innerText.trim();
-      const meetingPattern = tds[9].innerText.trim();
-      const professor = tds[10].innerText.trim();
-      const startDateMMDDYYYY = tds[11].innerText.trim();
-      const endDateMMDDYYYY = tds[12].innerText.trim();
+      const courseName = tds[courseNameHeaderIndex].innerText.trim();
+      const meetingPattern = tds[meetingPatternHeaderIndex].innerText.trim();
+      const professor = tds[professorHeaderIndex].innerText.trim();
+      const startDateMMDDYYYY = tds[startDateHeaderIndex].innerText.trim();
+      const endDateMMDDYYYY = tds[endDateHeaderIndex].innerText.trim();
 
       const meetingPatternRegexMatch = meetingPattern.match(
         MEETING_PATTERN_REGEX
@@ -180,10 +214,14 @@ function getRelevantCourses(
       startDate.setDate(
         startDate.getDate() + calcStartDateOffset(startDate, courseDaysOfWeek)
       );
-
       const endTime = meetingPatternRegexMatch[3].trim();
       const endDate = new Date(
-        `${startDate.toISOString().split("T")[0]} ${endTime}`
+        `${startDate.toLocaleString('en-CA', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          timeZone: 'America/Los_Angeles'
+        })} ${endTime}`
       );
 
       const actualCourseEndDate = getSundayBeforeDate(

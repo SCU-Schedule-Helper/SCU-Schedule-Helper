@@ -1,6 +1,11 @@
 name: Scrape and update professor name mappings on AWS S3
 
 on:
+  # Suggested run times to pull new data:
+  # - Fall quarter: February 15
+  # - Winter quarter: May 15
+  # - Spring quarter: August 29
+  # - Summer quarter: October 24
   workflow_dispatch: # Manual run.
   # The most recent academic period will be used
 
