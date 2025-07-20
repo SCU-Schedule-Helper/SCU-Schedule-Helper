@@ -8,12 +8,9 @@ const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
 // Need headfull browser for chrome extension to work
 export const browser = await puppeteer.launch({
-  headless: false,
-  devtools: true,
   slowMo: 50,
-  args: [ 
-    "--start-maximized",
-    `--disable-extensions-except=${extensionPath}`, 
+  args: [
+    `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
   ],
 });
@@ -26,9 +23,9 @@ async function main() {
     closeChromeExtensionPopUp();
     const allPages = await browser.pages();
     if (allPages.length > 1) {
-        for (let i = 1; i < allPages.length; i++) {
-            await allPages[i].close();
-        }
+      for (let i = 1; i < allPages.length; i++) {
+        await allPages[i].close();
+      }
     }
     page = allPages[0];
     await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
@@ -55,13 +52,13 @@ async function checkRatingInjections() {
     await page.waitForSelector('.SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
     const ratingsExist = await page.$('.SCU-Schedule-Helper-Score-Container');
     if (!ratingsExist) {
-      message += '- The Course Ratings are not injected correctly.\n';
+      message += '- The course ratings are not injected correctly.\n';
     } else {
-      console.log('The Course Ratings are injected correctly.');
+      console.log('The course ratings are injected correctly.');
     }
   } catch (error) {
-    console.log('The Course Ratings are not injected correctly.');
-    message += '- The Course Ratings are not injected correctly.\n';
+    console.log('The course ratings are not injected correctly.');
+    message += '- The course ratings are not injected correctly.\n';
   }
 }
 
@@ -70,8 +67,8 @@ async function checkCalendarButton() {
     // Check to see if the calendar button shows up on view my courses page
     await page.goto("https://www.myworkday.com/scu/d/task/2998$28771.htmld");
     await page.waitForNetworkIdle();
-    await page.waitForSelector('#SCU-Schedule-Helper-Google-Calendar-Button', { timeout: 5000 });
-    const ratingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
+    await page.waitForSelector('.SCU-Schedule-Helper-Google-Calendar-Button', { timeout: 5000 });
+    const ratingsExist = await page.$('.SCU-Schedule-Helper-Google-Calendar-Button');
     if (!ratingsExist) {
       console.log('The Google Calendar button is not injected correctly.');
       message += '- The Google Calendar button is not injected correctly.\n';

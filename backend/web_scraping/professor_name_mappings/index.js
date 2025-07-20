@@ -13,7 +13,6 @@ import { parseCourseSectionsXlsx } from "./utils/xlsx_to_csv.js";
 export const REQUEST_INTERVAL_MS = 50;
 export const REQUEST_MAX_RETRIES = 1;
 export const browser = await puppeteer.launch({
-  headless: false,
   args: ["--incognito"],
 });
 export const page = await browser.newPage();

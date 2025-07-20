@@ -25,7 +25,7 @@ export async function goToCourseSectionsPage(page) {
             period = `Summer ${year} Quarter`;
         }
         const academicPeriod = period;
-        console.log(`Searching for academic period: ${academicPeriod}`);
+        console.log(`Using academic period: ${academicPeriod}`);
         await searchBox[0].type(academicPeriod);
         await searchBox[0].press("Enter");
         await page.waitForSelector('input[type="checkbox"]');
