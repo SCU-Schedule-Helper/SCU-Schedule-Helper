@@ -2,7 +2,9 @@ import puppeteer from "puppeteer";
 import { workdayLogin } from '../utils/authenticate.js';
 import { goToCourseSectionsPage } from '../utils/course_sections.js';
 import path from "path";
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
+const snsClient = new SNSClient({ region: 'us-west-1' });
 const extensionPath = path.resolve('../../../extension/out')
 // Need headfull browser for chrome extension to work
 export const browser = await puppeteer.launch({
@@ -26,6 +28,7 @@ async function main() {
     browser.close();
   } catch (error) {
     console.error("Error during testing:", error);
+    await sendSnsNotification(`Error during testing: ${error}`);
   } finally {
     browser.close();
   }
@@ -40,12 +43,13 @@ async function checkRaitingInjections() {
     await page.waitForSelector('#SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Score-Container');
     if (!ratingsExist) {
-      console.log('The Course Ratings are not injected correctly.');
+      await sendSnsNotification('The Course Ratings are not injected correctly.');
     } else {
       console.log('The Course Ratings are injected correctly.');
     }
   } catch (error) {
     console.log('The Course Ratings are not injected correctly.');
+    await sendSnsNotification('The Course Ratings are not injected correctly.');
   }
 }
 
@@ -58,11 +62,13 @@ async function checkCalanderButton() {
     const ratingsExist = await page.$('#SCU-Schedule-Helper-Google-Calendar-Button');
     if (!ratingsExist) {
       console.log('The Google Calendar button is not injected correctly.');
+      await sendSnsNotification('The Google Calendar button is not injected correctly.');
     } else {
       console.log('The Google Calendar button is injected correctly.');
     }
   } catch (error) {
     console.log('The Google Calendar button is not injected correctly.');
+    await sendSnsNotification('The Google Calendar button is not injected correctly.');
   }
 }
 
@@ -82,4 +88,12 @@ async function closeChromeExtensionPopUp() {
     if (popupFound) break;
     await new Promise(res => setTimeout(res, 100)); // Wait 100ms before retrying
   }
+}
+
+async function sendSnsNotification(message) {
+  const params = {
+    Message: message,
+    TopicArn: process.env.SNS_TOPIC_ARN
+  };
+  await snsClient.send(new PublishCommand(params));
 }
