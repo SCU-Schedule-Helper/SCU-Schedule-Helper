@@ -7,10 +7,7 @@ on:
   # - Spring quarter: August 29
   # - Summer quarter: October 24
   workflow_dispatch: # Manual run.
-    inputs:
-      academic_period:
-        description: "The academic period to use within Workday (e.g. Fall 2024 Quarter)."
-        required: true
+  # The most recent academic period will be used
 
 jobs:
   run:
@@ -26,9 +23,8 @@ jobs:
       - name: Run update script
         run: node index.js
         env:
-          ACADEMIC_PERIOD: ${{ github.event.inputs.academic_period }}
-          SCU_USERNAME: ${{ secrets.SCU_USERNAME }}
-          SCU_PASSWORD: ${{ secrets.SCU_PASSWORD }}
+          WORKDAY_USERNAME: ${{ secrets.WORKDAY_USERNAME }}
+          WORKDAY_PASSWORD: ${{ secrets.WORKDAY_PASSWORD }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}

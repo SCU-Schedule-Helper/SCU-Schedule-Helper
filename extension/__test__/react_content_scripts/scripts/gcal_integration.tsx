@@ -1,10 +1,9 @@
 /// <reference lib="webworker" />
-import React from "react";
 import { createRoot } from "react-dom/client";
 import GoogleCalendarButton from "../components/gcal_integration/GoogleCalendarButton";
 
 const debounceDelay = 100;
-let debounceTimer: null | number;
+let debounceTimer: any;
 
 const isButtonAdded = () => {
   return !!document.getElementById("gcal-button-container");
@@ -21,9 +20,6 @@ const tryInjectingButton = () => {
     );
     // Only inject on the "View My Courses" page
     if (!titleElement?.textContent?.includes("View My Courses")) return;
-    const panels = document.querySelectorAll(
-      '[data-automation-id="panel"]'
-    );
     const buttonBars = document.querySelectorAll(
       '[data-automation-id="buttonBar"]'
     );
@@ -40,7 +36,8 @@ const tryInjectingButton = () => {
         return;
       }
       const newListItem = document.createElement("li");
-      newListItem.className = buttonClassName;
+      newListItem.className = "SCU-Schedule-Helper-Google-Calendar-Button ";
+      newListItem.className += buttonClassName;
       newListItem.style.float = "right";
       const container = document.createElement("div");
       container.id = "gcal-button-container";
