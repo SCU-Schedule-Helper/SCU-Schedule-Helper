@@ -3,9 +3,6 @@ import { workdayLogin } from '../utils/authenticate.js';
 import { goToCourseSectionsPage } from '../utils/course_sections.js';
 import path from "path";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
-// import dotenv from 'dotenv';
-// dotenv.config(); // for local testing of sns
-
 
 const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
@@ -35,8 +32,8 @@ async function main() {
     }
     page = allPages[0];
     await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
-    await checkRaitingInjections();
-    await checkCalanderButton();
+    await checkRatingInjections();
+    await checkCalendarButton();
     browser.close();
   } catch (error) {
     console.error("Error during testing:", error);
@@ -51,12 +48,12 @@ async function main() {
 
 main();
 
-async function checkRaitingInjections() {
+async function checkRatingInjections() {
   try {
     // Check to see if the rating shows up on the course sections page
     await goToCourseSectionsPage(page);
-    await page.waitForSelector('#SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
-    const ratingsExist = await page.$('#SCU-Schedule-Helper-Score-Container');
+    await page.waitForSelector('.SCU-Schedule-Helper-Score-Container', { timeout: 5000 });
+    const ratingsExist = await page.$('.SCU-Schedule-Helper-Score-Container');
     if (!ratingsExist) {
       message += '- The Course Ratings are not injected correctly.\n';
     } else {
@@ -68,7 +65,7 @@ async function checkRaitingInjections() {
   }
 }
 
-async function checkCalanderButton() {
+async function checkCalendarButton() {
   try {
     // Check to see if the calendar button shows up on view my courses page
     await page.goto("https://www.myworkday.com/scu/d/task/2998$28771.htmld");

@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import GoogleCalendarButton from "../components/gcal_integration/GoogleCalendarButton";
 
 const debounceDelay = 100;
-let debounceTimer: null | number;
+let debounceTimer: any;
 
 const isButtonAdded = () => {
   return !!document.getElementById("gcal-button-container");
@@ -26,13 +26,9 @@ const tryInjectingButton = () => {
     );
     if (buttonBar) {
       console.log("Injecting Google Calendar button");
-      const newListItem = document.createElement("li");
-      newListItem.className = "WMIM";
-      newListItem.id = "SCU-Schedule-Helper-Google-Calendar-Button";
-      newListItem.style.float = "right";
 
       if (!buttonBar) {
-        console.error("Button bar not found for panel: ", panel);
+        console.error("Button bar not found");
         return;
       }
       const buttonClassName = buttonBar.querySelector('li')?.className;
@@ -41,6 +37,7 @@ const tryInjectingButton = () => {
         return;
       }
       const newListItem = document.createElement("li");
+      newListItem.id = "SCU-Schedule-Helper-Google-Calendar-Button";
       newListItem.className = buttonClassName;
       newListItem.style.float = "right";
       const container = document.createElement("div");
@@ -48,6 +45,7 @@ const tryInjectingButton = () => {
       newListItem.appendChild(container);
       buttonBar.insertBefore(newListItem, buttonBar.firstChild);
       const root = createRoot(container);
+      const panel = document.body;
       root.render(<GoogleCalendarButton panel={panel!} />);
     }
   }, debounceDelay);
