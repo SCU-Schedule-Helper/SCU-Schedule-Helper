@@ -1,8 +1,6 @@
 import puppeteer from "puppeteer";
-import authPkg from '../utils/authenticate.js';
-const { workdayLogin } = authPkg;
-import courseSectionsPkg from '../utils/course_sections.js';
-const { goToCourseSectionsPage } = courseSectionsPkg;
+import { workdayLogin } from '../utils/authenticate.js';
+import { goToCourseSectionsPage } from '../utils/course_sections.js';
 import path from "path";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
@@ -10,12 +8,9 @@ const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
 // Need headfull browser for chrome extension to work
 export const browser = await puppeteer.launch({
-  headless: false,
-  devtools: true,
   slowMo: 50,
-  args: [ 
-    "--start-maximized",
-    `--disable-extensions-except=${extensionPath}`, 
+  args: [
+    `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
   ],
 });

@@ -1,6 +1,6 @@
 const LOGIN_PAGE = "https://www.myworkday.com/wday/authgwy/scu/login.htmld?redirect=n";
 
-async function workdayLogin(page, username, password) {
+export async function workdayLogin(page, username, password) {
     await page.goto(LOGIN_PAGE);
     await page.waitForNetworkIdle();
 
@@ -34,5 +34,3 @@ async function workdayLogin(page, username, password) {
     waitUntil: "load",
     });
 }
-
-module.exports = { workdayLogin };
