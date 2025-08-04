@@ -19,19 +19,31 @@ const applicationServerKey = urlB64ToUint8Array(SERVER_PUBLIC_KEY);
  * @returns {Promise<PushSubscription>}
  */
 export async function subscribe() {
-  const existingSubscription =
-    await self.registration.pushManager.getSubscription();
-  if (existingSubscription) {
-    return existingSubscription;
-  }
   try {
-    let subscription = await self.registration.pushManager.subscribe({
-      userVisibleOnly: false,
+    let registration;
+    
+    // Detect context and get registration accordingly
+    if (typeof self !== 'undefined' && self.registration) {
+      registration = self.registration; // Service worker context
+    } else if (typeof navigator !== 'undefined' && navigator.serviceWorker) {
+      registration = await navigator.serviceWorker.ready; // Regular context
+    } else {
+      throw new Error("No service worker registration available");
+    }
+    
+    const existingSubscription = await registration.pushManager.getSubscription();
+    if (existingSubscription) {
+      return existingSubscription;
+    }
+    
+    let subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true, 
       applicationServerKey,
     });
     return subscription;
   } catch (error) {
     console.error("Subscribe error: ", error);
+    throw error;
   }
 }
 
