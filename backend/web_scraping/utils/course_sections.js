@@ -1,6 +1,6 @@
 const FIND_COURSE_SECTIONS_URL =
   "https://www.myworkday.com/scu/d/task/1422$3915.htmld";
-export async function goToCourseSectionsPage(page) {
+async function goToCourseSectionsPage(page) {
         await page.goto(FIND_COURSE_SECTIONS_URL);
         await page.waitForNetworkIdle();
 
@@ -59,3 +59,5 @@ export async function goToCourseSectionsPage(page) {
         const okButton = await page.$('button[title="OK"]');
         await okButton.click();
 }
+
+module.exports = { goToCourseSectionsPage };
