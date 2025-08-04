@@ -8,7 +8,7 @@ const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
 // Need headfull browser for chrome extension to work
 export const browser = await puppeteer.launch({
-  slowMo: 50,
+  slowMo: 15,
   args: [
     `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
@@ -101,7 +101,7 @@ async function closeChromeExtensionPopUp() {
 
 async function sendSnsNotification(snsmessage) {
   const params = {
-    Message: `"Issues found:\n": ${snsmessage}`,
+    Message: `Issues found:\n: ${snsmessage}`,
     TopicArn: process.env.SNS_TOPIC_ARN
   };
   await snsClient.send(new PublishCommand(params));
