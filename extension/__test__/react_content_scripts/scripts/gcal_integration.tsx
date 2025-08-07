@@ -20,6 +20,7 @@ const tryInjectingButton = () => {
     );
     // Only inject on the "View My Courses" page
     if (!titleElement?.textContent?.includes("View My Courses")) return;
+
     const buttonBars = document.querySelectorAll(
       '[data-automation-id="buttonBar"]'
     );
@@ -27,7 +28,7 @@ const tryInjectingButton = () => {
       const panel = buttonBar.closest('[data-automation-id="panel"]');
 
       if (!buttonBar) {
-        console.error("Button bar not found for panel: ", panel);
+        console.error("Button bar not found");
         return;
       }
       const buttonClassName = buttonBar.querySelector('li')?.className;
@@ -36,14 +37,17 @@ const tryInjectingButton = () => {
         return;
       }
       const newListItem = document.createElement("li");
+
       newListItem.className = "SCU-Schedule-Helper-Google-Calendar-Button ";
       newListItem.className += buttonClassName;
+
       newListItem.style.float = "right";
       const container = document.createElement("div");
       container.id = "gcal-button-container";
       newListItem.appendChild(container);
       buttonBar.insertBefore(newListItem, buttonBar.firstChild);
       const root = createRoot(container);
+      const panel = document.body;
       root.render(<GoogleCalendarButton panel={panel!} />);
     }
   }, debounceDelay);

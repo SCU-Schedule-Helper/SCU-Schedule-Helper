@@ -1,5 +1,5 @@
 import { subscribe } from "./notifications.js";
-import { PROD_AUTH_TOKEN_ENDPOINT, PROD_USER_ENDPOINT } from "./constants.js";
+import { PROD_AUTH_TOKEN_ENDPOINT, PROD_USER_ENDPOINT, WEB_AUTH_CLIENT_ID } from "./constants.js";
 import {
   downloadEvals,
   downloadProfessorNameMappings,
@@ -15,23 +15,39 @@ const sizePattern = /(.*)=s\d+-c/;
 export async function signIn() {
   let oAuthToken;
   try {
-    await chrome.identity.clearAllCachedAuthTokens();
-    const getAuthTokenResult = await chrome.identity.getAuthToken({
+    const responseUrl = await chrome.identity.launchWebAuthFlow({
+      url: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${WEB_AUTH_CLIENT_ID}&redirect_uri=${chrome.identity.getRedirectURL()}&response_type=token&scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&prompt=select_account`,
       interactive: true,
-      scopes: [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-      ],
     });
-    oAuthToken = getAuthTokenResult.token;
+    if (!responseUrl) { return "Authorization cancelled."; }
+
+    const urlParams = new URLSearchParams(responseUrl.split("#")[1]);
+    oAuthToken = urlParams.get("access_token");
+
+    if (!oAuthToken) { return "Failed to get access token."; }
   } catch (error) {
+    console.error("OAuth error:", error);
     return "Authorization cancelled.";
   }
 
-  let subscription =
-    (await self.registration.pushManager.getSubscription()) || null;
-  if (!subscription) {
-    subscription = await subscribe();
+  let subscription = null;
+  try {
+    // Request notification permission (different methods for different contexts)
+    let permission = 'default';
+    if (typeof Notification !== 'undefined' && Notification.requestPermission) {
+      
+      permission = await Notification.requestPermission(); // Regular context
+    } else if (typeof self !== 'undefined' && self.registration) {
+      permission = 'granted'; // Service worker context
+    }
+    
+    if (permission === 'granted') {
+      subscription = await subscribe();
+    } else {
+      console.warn("Notification permission denied, continuing without push notifications");
+    }
+  } catch (error) {
+    console.warn("Push notifications not available:", error.message);
   }
 
   let response = await fetch(PROD_AUTH_TOKEN_ENDPOINT, {
@@ -203,8 +219,6 @@ export async function signOut(sendNotification = false) {
 }
 
 export async function getCalendarOAuthToken() {
-  const WEB_AUTH_CLIENT_ID =
-    "583521775185-u0dt149h8j3cfbo676j455h73sj2vrbb.apps.googleusercontent.com";
   try {
     const responseUrl = await chrome.identity.launchWebAuthFlow({
       url: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${WEB_AUTH_CLIENT_ID}&redirect_uri=${chrome.identity.getRedirectURL()}&response_type=token&scope=https://www.googleapis.com/auth/calendar.events&prompt=select_account`,
