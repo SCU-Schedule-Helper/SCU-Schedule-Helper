@@ -131,19 +131,23 @@ export async function login(page, username, password) {
         console.log("Could not find SMS option with data-testid='test-id-sms'");
     }
 
-    // Wait for Duo code to arrive via SMS->Email
-    console.log("Waiting for Duo code...");
-    await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds for SMS to arrive
+    // // Wait for Duo code to arrive via SMS->Email
+    // console.log("Waiting for Duo code...");
+    // await new Promise(resolve => setTimeout(resolve, 20000)); // Wait 30 seconds for SMS to arrive
 
-    // Get code from Gmail via IMAP
-    const duoCode = await getLatestDuoCode(1);
+    // // Get code from Gmail via IMAP
+    // const duoCode = await getLatestDuoCode(60);
     
-    if (duoCode) {
-        console.log(`Got Duo code: ${duoCode}`);
-        await page.locator('input#passcode-input').fill(duoCode);
-        await page.click('[data-testid="verify-button"]');
-    } else {
-        console.log("Could not get Duo code from Gmail");
-        throw new Error("Failed to get Duo code");
-    }
+    // if (duoCode) {
+    //     console.log(`Got Duo code: ${duoCode}`);
+    //     await page.locator('input#passcode-input').fill(duoCode);
+    //     await page.click('[data-testid="verify-button"]');
+    // } else {
+    //     console.log("Could not get Duo code from Gmail");
+    //     throw new Error("Failed to get Duo code");
+    // }
+
+    // Press "Other people use this computer"
+    await page.click('#dont-trust-browser-button');
+    
 }
