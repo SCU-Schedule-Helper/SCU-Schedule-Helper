@@ -3,7 +3,6 @@ import { login } from '../utils/authenticate.js';
 import { goToCourseSectionsPage } from '../utils/course_sections.js';
 import path from "path";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
-import { testDuoCodeRetrieval } from "../utils/authenticate.js";
 
 const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')

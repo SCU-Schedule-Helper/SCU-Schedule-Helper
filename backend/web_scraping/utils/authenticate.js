@@ -140,9 +140,8 @@ export async function login(page, username, password) {
     
     if (duoCode) {
         console.log(`Got Duo code: ${duoCode}`);
-        // TODO: Add logic to enter the Duo code in the page
-        // Example: await page.locator('input#duo-code').fill(duoCode);
-        // await page.click('button#submit-duo');
+        await page.locator('input#passcode-input').fill(duoCode);
+        await page.click('[data-testid="verify-button"]');
     } else {
         console.log("Could not get Duo code from Gmail");
         throw new Error("Failed to get Duo code");
