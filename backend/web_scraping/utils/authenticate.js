@@ -1,8 +1,8 @@
-// import { ImapFlow } from 'imapflow';
+import { ImapFlow } from 'imapflow';
 
 const LOGIN_PAGE = "https://www.myworkday.com/wday/authgwy/scu/login.htmld";
 
-async function getLatestDuoCode(maxAgeMinutes = 1) {
+async function getLatestDuoCode(maxAgeMinutes) {
     console.log("Getting Duo code");
     const client = new ImapFlow({
         host: 'imap.gmail.com',
@@ -10,11 +10,12 @@ async function getLatestDuoCode(maxAgeMinutes = 1) {
         secure: true,
         auth: {
             user: process.env.GMAIL_USERNAME,
-            pass: process.env.GMAIL_APP_PASSWORD
+            pass: process.env.GMAIL_PASSWORD
         },
         tls: { rejectUnauthorized: false },
         connectionTimeout: 10000,
-        greetingTimeout: 3000
+        greetingTimeout: 3000,
+        logger: false
     });
 
     try {
@@ -22,19 +23,19 @@ async function getLatestDuoCode(maxAgeMinutes = 1) {
         await client.connect();
         
         // Select INBOX
-        await client.mailboxOpen('INBOX');
+        let mailbox = await client.mailboxOpen('INBOX');
         
         // Search for recent emails from SMS service
         const searchDate = new Date(Date.now() - maxAgeMinutes * 60 * 1000);
         const searchDateStr = searchDate.toISOString().split('T')[0];
-        const searchCriteria = {
-            from: 'sms2email@voixware.com',
-            since: searchDateStr
-        };
         
         console.log(`Searching for emails from sms2email@voixware.com since ${searchDateStr}...`);
         
-        const messages = await client.search(searchCriteria, { uid: true });
+        // Search without UID first to get sequence numbers
+        const messages = await client.search({
+            from: 'sms2email@voixware.com',
+            since: searchDateStr
+        });
         
         if (messages.length === 0) {
             console.log('No recent SMS emails found');
@@ -43,12 +44,16 @@ async function getLatestDuoCode(maxAgeMinutes = 1) {
         }
         
         console.log(`Found ${messages.length} recent SMS email(s)`);
+        console.log("Message sequence numbers:", messages);
         
-        // Fetch the most recent message
-        const sortedMessages = messages.sort((a, b) => b.uid - a.uid);
-        const latestMessage = await client.fetchOne(`${sortedMessages[0].uid}`, {
+        // Get the highest sequence number (most recent)
+        const latestSeqNum = Math.max(...messages);
+        
+        // Fetch the latest message
+        const latestMessage = await client.fetchOne(latestSeqNum, {
             source: true,
-            envelope: true
+            envelope: true,
+            bodyStructure: true
         });
         
         const bodyText = latestMessage.source.toString();
@@ -131,15 +136,15 @@ export async function login(page, username, password) {
     await new Promise(resolve => setTimeout(resolve, 15000)); // Wait 15 seconds for SMS to arrive
 
     // Get code from Gmail via IMAP
-    // const duoCode = await getLatestDuoCode(1);
+    const duoCode = await getLatestDuoCode(1);
     
-    // if (duoCode) {
-    //     console.log(`Got Duo code: ${duoCode}`);
-    //     // TODO: Add logic to enter the Duo code in the page
-    //     // Example: await page.locator('input#duo-code').fill(duoCode);
-    //     // await page.click('button#submit-duo');
-    // } else {
-    //     console.log("Could not get Duo code from Gmail");
-    //     throw new Error("Failed to get Duo code");
-    // }
+    if (duoCode) {
+        console.log(`Got Duo code: ${duoCode}`);
+        // TODO: Add logic to enter the Duo code in the page
+        // Example: await page.locator('input#duo-code').fill(duoCode);
+        // await page.click('button#submit-duo');
+    } else {
+        console.log("Could not get Duo code from Gmail");
+        throw new Error("Failed to get Duo code");
+    }
 }
