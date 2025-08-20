@@ -29,15 +29,15 @@ async function main() {
       }
     }
     page = allPages[0];
-    await login(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
-    // await checkRatingInjections();
-    // await checkCalendarButton();
-    // browser.close();
+    await login(page, process.env.SCU_USERNAME, process.env.SCU_PASSWORD);
+    await checkRatingInjections();
+    await checkCalendarButton();
+    browser.close();
   } catch (error) {
     console.error("Error during testing:", error);
     message += `- Error during testing: ${error}\n`;
   } finally {
-    // browser.close();
+    browser.close();
   }
   if (message.length > 0) {
     // await sendSnsNotification(message);
