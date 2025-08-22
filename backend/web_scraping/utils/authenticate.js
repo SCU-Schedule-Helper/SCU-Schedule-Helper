@@ -2,7 +2,7 @@ import { ImapFlow } from 'imapflow';
 
 const LOGIN_PAGE = "https://www.myworkday.com/wday/authgwy/scu/login.htmld";
 
-async function getLatestDuoCode(maxAgeMinutes) {
+async function getLatestDuoCode() {
     console.log("Getting Duo code");
     const client = new ImapFlow({
         host: 'imap.gmail.com',
@@ -25,15 +25,16 @@ async function getLatestDuoCode(maxAgeMinutes) {
         // Select INBOX
         let mailbox = await client.mailboxOpen('INBOX');
         
-        // Search for recent emails from SMS service
-        const searchDate = new Date(Date.now() - maxAgeMinutes * 60 * 1000);
-        const searchDateStr = searchDate.toISOString().split('T')[0];
+        // Search for emails from the past 2 days
+        const searchDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+        const searchDateStr = searchDate.toLocaleDateString('en-CA');
         
-        console.log(`Searching for emails from sms2email@voixware.com since ${searchDateStr}...`);
+        console.log(`Searching for emails from noreply@mailer*.forward-sms.com since ${searchDateStr}...`);
         
         // Search without UID first to get sequence numbers
+        // Search for emails from forward-sms.com domain (IMAP doesn't support regex)
         const messages = await client.search({
-            from: 'sms2email@voixware.com',
+            from: 'forward-sms.com',
             since: searchDateStr
         });
         
@@ -62,7 +63,7 @@ async function getLatestDuoCode(maxAgeMinutes) {
         await client.logout();
         
         if (duoCode) {
-            console.log('Found Duo code');
+            console.log('Found Duo code', duoCode);
         } else {
             console.log('Could not extract Duo code');
             console.log('Email preview:', bodyText.substring(0, 200));
@@ -133,10 +134,10 @@ export async function login(page, username, password) {
 
     // Wait for Duo code to arrive via SMS->Email
     console.log("Waiting for Duo code...");
-    await new Promise(resolve => setTimeout(resolve, 20000)); // Wait 30 seconds for SMS to arrive
+    await new Promise(resolve => setTimeout(resolve, 25000)); // Wait 25 seconds for SMS to arrive
 
     // Get code from Gmail via IMAP
-    const duoCode = await getLatestDuoCode(60);
+    const duoCode = await getLatestDuoCode();
     
     if (duoCode) {
         console.log(`Got Duo code: ${duoCode}`);
@@ -147,7 +148,8 @@ export async function login(page, username, password) {
         throw new Error("Failed to get Duo code");
     }
 
-    // Press "Other people use this computer"
+    // Wait for the next page to load before pressing "Other people use this computer"
+    await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
     await page.click('#dont-trust-browser-button');
 
     // Skip the "Remember this device" page if it appears.
@@ -159,3 +161,5 @@ export async function login(page, username, password) {
     });
     
 }
+
+
