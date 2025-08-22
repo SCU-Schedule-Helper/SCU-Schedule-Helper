@@ -39,4 +39,6 @@ jobs:
           AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
           SCU_SCHEDULE_HELPER_BUCKET_NAME: ${{ vars.SCU_SCHEDULE_HELPER_BUCKET_NAME }}
           PROFESSOR_NAME_MAPPINGS_JSON_OBJECT_KEY: ${{ vars.PROFESSOR_NAME_MAPPINGS_JSON_OBJECT_KEY }}
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
         working-directory: backend/web_scraping/professor_name_mappings

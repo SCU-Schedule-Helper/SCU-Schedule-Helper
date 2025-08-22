@@ -38,5 +38,7 @@ jobs:
           SCU_SCHEDULE_HELPER_BUCKET_NAME: ${{ vars.SCU_SCHEDULE_HELPER_BUCKET_NAME }}
           AGGREGATE_EVALS_JSON_GZ_OBJECT_KEY: ${{ vars.AGGREGATE_EVALS_JSON_GZ_OBJECT_KEY }}
           EVALS_AND_TERMS_JSON_GZ_OBJECT_KEY: ${{ vars.EVALS_AND_TERMS_JSON_GZ_OBJECT_KEY }}
+          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
 
         working-directory: backend/web_scraping/evals_data
