@@ -8,7 +8,7 @@ const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
 // Need headfull browser for chrome extension to work
 export const browser = await puppeteer.launch({
-  slowMo: 15,
+  slowMo: 40,
   headless: false,
   args: [
     `--disable-extensions-except=${extensionPath}`,
