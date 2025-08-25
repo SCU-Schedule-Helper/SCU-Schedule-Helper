@@ -121,44 +121,65 @@ export async function login(page, username, password) {
     } else {
         console.log("Could not find other options button");
     }
+    
+    // List out available authentication methods
+    await page.waitForSelector("ul, ol");
+
+    const listClasses = await page.$$eval("ul, ol", lists =>
+    lists.map(list => list.className.trim())
+    );
+
+    listClasses.forEach(cls => console.log(cls));
+
+    await page.waitForSelector(".all-auth-methods-list .auth-method-wrapper");
+
+    const items = await page.$$eval(".all-auth-methods-list .auth-method-wrapper", els =>
+    els.map(el => {
+        const name = el.querySelector(".method-label")?.innerText.trim();
+        const testId = el.getAttribute("data-testid");
+        return testId ? `${name} (${testId})` : name;
+    })
+    );
+
+    items.forEach(item => console.log(item));
 
     // Click the send text message option
-    const smsOption = await page.waitForSelector('li[data-testid="test-id-sms"]', { timeout: 5000 }).catch(() => null);
-    if (smsOption) {
-        const link = await smsOption.$('a.auth-method');
-        if (link) await link.click();
-        console.log("Clicked SMS option");
-    } else {
-        console.log("Could not find SMS option with data-testid='test-id-sms'");
-    }
+    // const smsOption = await page.waitForSelector('li[data-testid="test-id-sms"]', { timeout: 5000 }).catch(() => null);
+    // if (smsOption) {
+    //     const link = await smsOption.$('a.auth-method');
+    //     if (link) await link.click();
+    //     console.log("Clicked SMS option");
+    // } else {
+    //     console.log("Could not find SMS option with data-testid='test-id-sms'");
+    // }
 
-    // Wait for Duo code to arrive via SMS->Email
-    console.log("Waiting for Duo code...");
-    await new Promise(resolve => setTimeout(resolve, 25000)); // Wait 25 seconds for SMS to arrive
+    // // Wait for Duo code to arrive via SMS->Email
+    // console.log("Waiting for Duo code...");
+    // await new Promise(resolve => setTimeout(resolve, 25000)); // Wait 25 seconds for SMS to arrive
 
-    // Get code from Gmail via IMAP
-    const duoCode = await getLatestDuoCode();
+    // // Get code from Gmail via IMAP
+    // const duoCode = await getLatestDuoCode();
     
-    if (duoCode) {
-        console.log(`Got Duo code: ${duoCode}`);
-        await page.locator('input#passcode-input').fill(duoCode);
-        await page.click('[data-testid="verify-button"]');
-    } else {
-        console.log("Could not get Duo code from Gmail");
-        throw new Error("Failed to get Duo code");
-    }
+    // if (duoCode) {
+    //     console.log(`Got Duo code: ${duoCode}`);
+    //     await page.locator('input#passcode-input').fill(duoCode);
+    //     await page.click('[data-testid="verify-button"]');
+    // } else {
+    //     console.log("Could not get Duo code from Gmail");
+    //     throw new Error("Failed to get Duo code");
+    // }
 
-    // Wait for the next page to load before pressing "Other people use this computer"
-    await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
-    await page.click('#dont-trust-browser-button');
+    // // Wait for the next page to load before pressing "Other people use this computer"
+    // await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
+    // await page.click('#dont-trust-browser-button');
 
-    // Skip the "Remember this device" page if it appears.
-    await page.waitForSelector('[data-automation-id="linkButton"]');
-    const skipButton = await page.$('[data-automation-id="linkButton"]');
-    await skipButton.click();
-    await page.waitForNavigation({
-    waitUntil: "load",
-    });
+    // // Skip the "Remember this device" page if it appears.
+    // await page.waitForSelector('[data-automation-id="linkButton"]');
+    // const skipButton = await page.$('[data-automation-id="linkButton"]');
+    // await skipButton.click();
+    // await page.waitForNavigation({
+    // waitUntil: "load",
+    // });
     
 }
 
