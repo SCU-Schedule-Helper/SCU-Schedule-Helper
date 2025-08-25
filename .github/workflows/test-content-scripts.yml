@@ -2,7 +2,7 @@ name: Test content scripts on Workday
 
 on:
     workflow_dispatch: # Manual Option
-    schedule:
+    # schedule:
       # - cron: '0 14 * * *' # Run at 06:00 PST (14:00 UTC) every day.
 jobs:
   
