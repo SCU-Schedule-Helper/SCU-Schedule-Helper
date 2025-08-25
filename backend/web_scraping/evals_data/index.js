@@ -5,7 +5,8 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
-import { authenticate } from "./utils/authentication.js";
+import { login } from "../utils/authenticate.js";
+import puppeteer from "puppeteer";
 import zlib from "zlib";
 import fs from "fs";
 import path from "path";
@@ -37,9 +38,36 @@ const s3 =
 
 export default async function main() {
   await initDirectoriesAndFiles();
-  await authenticate(process.env.SCU_USERNAME, process.env.SCU_PASSWORD);
-  await getAndProcessNewEvals();
-  await generateAggregateEvalsFile();
+  
+  // Create browser and page for login
+  const browser = await puppeteer.launch({ args: ["--incognito"] });
+  const page = await browser.newPage();
+  
+  try {
+    await login(page, process.env.SCU_USERNAME, process.env.SCU_PASSWORD);
+    
+    // Get auth cookies after successful login
+    const cookies = await page.cookies();
+    const SimpleSAML = cookies.find(
+      (cookie) => cookie.name === "SimpleSAML",
+    )?.value;
+    const SimpleSAMLAuthToken = cookies.find(
+      (cookie) => cookie.name === "SimpleSAMLAuthToken",
+    )?.value;
+    
+    if (SimpleSAML && SimpleSAMLAuthToken) {
+      console.log("Successfully retrieved auth cookies");
+      process.env.SIMPLE_SAML = SimpleSAML;
+      process.env.SIMPLE_SAML_AUTH_TOKEN = SimpleSAMLAuthToken;
+    } else {
+      throw new Error("Failed to retrieve authentication cookies");
+    }
+    
+    await getAndProcessNewEvals();
+    await generateAggregateEvalsFile();
+  } finally {
+    await browser.close();
+  }
 }
 
 async function initDirectoriesAndFiles() {

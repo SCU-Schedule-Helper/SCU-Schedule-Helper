@@ -6,7 +6,7 @@ import {
 import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
-import { workdayLogin } from "../utils/authenticate.js";
+import { login } from "../utils/authenticate.js";
 import { goToCourseSectionsPage } from "../utils/course_sections.js";
 import { parseCourseSectionsXlsx } from "./utils/xlsx_to_csv.js";
 
@@ -34,7 +34,7 @@ export default async function main() {
   );
   try {
     await initDirectoriesAndFiles();
-    await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
+    await login(page, process.env.SCU_USERNAME, process.env.SCU_PASSWORD);
     await goToCourseSectionsPage(page);
     await getAndProcessNameMappings();
     await writeMappings();
