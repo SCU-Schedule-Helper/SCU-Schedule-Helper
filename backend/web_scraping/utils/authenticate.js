@@ -159,7 +159,7 @@ export async function login(page, username, password) {
     if (otherOptionsSelector) {
         // await injectDuoTrust(page);
         // console.log("Injected Duo trust data");
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        // await new Promise(resolve => setTimeout(resolve, 20000));
         await otherOptionsSelector.click();
         console.log("Clicked other options");
     } else {
