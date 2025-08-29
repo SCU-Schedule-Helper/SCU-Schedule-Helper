@@ -44,6 +44,4 @@ jobs:
           SNS_TOPIC_ARN: ${{ secrets.CONTENT_SCRIPTS_ERRORS_SNS }}
           GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
-          DUO_COOKIES: ${{ secrets.DUO_COOKIES }}
-          DUO_LOCALSTORAGE: ${{ secrets.DUO_LOCALSTORAGE }}
         working-directory: backend/web_scraping/test_content_scripts
