@@ -127,9 +127,7 @@ async function injectDuoTrust(page) {
 
 export async function login(page, username, password) {
     await page.goto(LOGIN_PAGE);
-    await injectDuoTrust(page);
     await page.waitForNetworkIdle();
-    
 
     // Check for username field
     const usernameSelector = 'input#username';
@@ -151,6 +149,7 @@ export async function login(page, username, password) {
     const buttonSelector = 'button.login_btn';
     if (await page.$(buttonSelector)) {
         await page.click(buttonSelector);
+        console.log("Clicked login button");
     } else {
         console.log(`Could not find login button: ${buttonSelector}`);
     }
@@ -158,6 +157,7 @@ export async function login(page, username, password) {
     // Click other options button if it exists
     const otherOptionsSelector = await page.waitForSelector('button.other-options-link', { timeout: 5000 }).catch(() => null);
     if (otherOptionsSelector) {
+        await injectDuoTrust(page);
         await otherOptionsSelector.click();
         console.log("Clicked other options");
     } else {
