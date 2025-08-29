@@ -157,7 +157,9 @@ export async function login(page, username, password) {
     // Click other options button if it exists
     const otherOptionsSelector = await page.waitForSelector('button.other-options-link', { timeout: 5000 }).catch(() => null);
     if (otherOptionsSelector) {
-        await injectDuoTrust(page);
+        // await injectDuoTrust(page);
+        // console.log("Injected Duo trust data");
+        await new Promise(resolve => setTimeout(resolve, 20000));
         await otherOptionsSelector.click();
         console.log("Clicked other options");
     } else {
