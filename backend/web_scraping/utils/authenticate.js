@@ -85,9 +85,50 @@ function extractDuoCode(emailBody) {
     return match ? match[1] : null;
 }
 
+async function injectDuoTrust(page) {
+    if (!process.env.DUO_COOKIES) {
+        console.warn("DUO_COOKIES secret not found");
+        return;
+    }
+
+    // --- Cookies ---
+    const duoCookies = JSON.parse(process.env.DUO_COOKIES);
+
+    const puppeteerCookies = duoCookies.map(c => ({
+        name: c.name,
+        value: c.value,
+        domain: c.domain,
+        path: c.path,
+        httpOnly: c.httpOnly,
+        secure: c.secure,
+        expires: c.expirationDate ? Math.floor(c.expirationDate) : -1,
+    }));
+
+    await page.setCookie(...puppeteerCookies);
+    console.log(`Injected ${puppeteerCookies.length} Duo cookies`);
+
+    // --- LocalStorage ---
+    if (process.env.DUO_LOCALSTORAGE) {
+        const duoLocalStorage = JSON.parse(process.env.DUO_LOCALSTORAGE);
+
+        // You need to be on the right origin before you can set localStorage
+        await page.goto("https://api-d5645899.duosecurity.com", { waitUntil: "domcontentloaded" });
+
+        await page.evaluate((data) => {
+            for (const [k, v] of Object.entries(data)) {
+                localStorage.setItem(k, v);
+            }
+        }, duoLocalStorage);
+
+        console.log(`Injected ${Object.keys(duoLocalStorage).length} Duo localStorage keys`);
+    }
+}
+
+
 export async function login(page, username, password) {
     await page.goto(LOGIN_PAGE);
     await page.waitForNetworkIdle();
+    await injectDuoTrust(page);
 
     // Check for username field
     const usernameSelector = 'input#username';
