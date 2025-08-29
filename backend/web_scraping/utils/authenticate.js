@@ -127,8 +127,9 @@ async function injectDuoTrust(page) {
 
 export async function login(page, username, password) {
     await page.goto(LOGIN_PAGE);
-    await page.waitForNetworkIdle();
     await injectDuoTrust(page);
+    await page.waitForNetworkIdle();
+    
 
     // Check for username field
     const usernameSelector = 'input#username';
