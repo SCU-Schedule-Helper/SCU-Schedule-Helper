@@ -29,12 +29,12 @@ async function getLatestDuoCode() {
         const searchDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
         const searchDateStr = searchDate.toLocaleDateString('en-CA');
         
-        console.log(`Searching for emails from noreply@mailer*.forward-sms.com since ${searchDateStr}...`);
+        console.log(`Searching for emails from sms2email@voxiware.com since ${searchDateStr}...`);
         
         // Search without UID first to get sequence numbers
-        // Search for emails from forward-sms.com domain (IMAP doesn't support regex)
+        // Search for emails from sms2email@voxiware.com (IMAP doesn't support regex)
         const messages = await client.search({
-            from: 'forward-sms.com',
+            from: 'sms2email@voxiware.com',
             since: searchDateStr
         });
         
