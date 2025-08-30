@@ -85,46 +85,6 @@ function extractDuoCode(emailBody) {
     return match ? match[1] : null;
 }
 
-async function injectDuoTrust(page) {
-    if (!process.env.DUO_COOKIES) {
-        console.warn("DUO_COOKIES secret not found");
-        return;
-    }
-
-    // --- Cookies ---
-    const duoCookies = JSON.parse(process.env.DUO_COOKIES);
-
-    const puppeteerCookies = duoCookies.map(c => ({
-        name: c.name,
-        value: c.value,
-        domain: c.domain,
-        path: c.path,
-        httpOnly: c.httpOnly,
-        secure: c.secure,
-        expires: c.expirationDate ? Math.floor(c.expirationDate) : -1,
-    }));
-
-    await page.setCookie(...puppeteerCookies);
-    console.log(`Injected ${puppeteerCookies.length} Duo cookies`);
-
-    // --- LocalStorage ---
-    if (process.env.DUO_LOCALSTORAGE) {
-        const duoLocalStorage = JSON.parse(process.env.DUO_LOCALSTORAGE);
-
-        // You need to be on the right origin before you can set localStorage
-        await page.goto("https://api-d5645899.duosecurity.com", { waitUntil: "domcontentloaded" });
-
-        await page.evaluate((data) => {
-            for (const [k, v] of Object.entries(data)) {
-                localStorage.setItem(k, v);
-            }
-        }, duoLocalStorage);
-
-        console.log(`Injected ${Object.keys(duoLocalStorage).length} Duo localStorage keys`);
-    }
-}
-
-
 export async function login(page, username, password) {
     await page.goto(LOGIN_PAGE);
     await page.waitForNetworkIdle();
@@ -157,9 +117,6 @@ export async function login(page, username, password) {
     // Click other options button if it exists
     const otherOptionsSelector = await page.waitForSelector('button.other-options-link', { timeout: 5000 }).catch(() => null);
     if (otherOptionsSelector) {
-        // await injectDuoTrust(page);
-        // console.log("Injected Duo trust data");
-        
         await otherOptionsSelector.click();
         console.log("Clicked other options");
     } else {
@@ -185,50 +142,45 @@ export async function login(page, username, password) {
     })
     );
 
-    items.forEach(item => console.log(item));
-    // Get all cookies from the current page
-    const cookies = await page.cookies();
-    console.log("All cookies:", JSON.stringify(cookies, null, 2));
-    
-    await new Promise(resolve => setTimeout(resolve, 20000));
+    items.forEach(item => console.log(item));    
 
     // Click the send text message option
-    // const smsOption = await page.waitForSelector('li[data-testid="test-id-sms"]', { timeout: 5000 }).catch(() => null);
-    // if (smsOption) {
-    //     const link = await smsOption.$('a.auth-method');
-    //     if (link) await link.click();
-    //     console.log("Clicked SMS option");
-    // } else {
-    //     console.log("Could not find SMS option with data-testid='test-id-sms'");
-    // }
+    const smsOption = await page.waitForSelector('li[data-testid="test-id-sms"]', { timeout: 5000 }).catch(() => null);
+    if (smsOption) {
+        const link = await smsOption.$('a.auth-method');
+        if (link) await link.click();
+        console.log("Clicked SMS option");
+    } else {
+        console.log("Could not find SMS option with data-testid='test-id-sms'");
+    }
 
-    // // Wait for Duo code to arrive via SMS->Email
-    // console.log("Waiting for Duo code...");
-    // await new Promise(resolve => setTimeout(resolve, 25000)); // Wait 25 seconds for SMS to arrive
+    // Wait for Duo code to arrive via SMS->Email
+    console.log("Waiting for Duo code...");
+    await new Promise(resolve => setTimeout(resolve, 25000)); // Wait 25 seconds for SMS to arrive
 
-    // // Get code from Gmail via IMAP
-    // const duoCode = await getLatestDuoCode();
+    // Get code from Gmail via IMAP
+    const duoCode = await getLatestDuoCode();
     
-    // if (duoCode) {
-    //     console.log(`Got Duo code: ${duoCode}`);
-    //     await page.locator('input#passcode-input').fill(duoCode);
-    //     await page.click('[data-testid="verify-button"]');
-    // } else {
-    //     console.log("Could not get Duo code from Gmail");
-    //     throw new Error("Failed to get Duo code");
-    // }
+    if (duoCode) {
+        console.log(`Got Duo code: ${duoCode}`);
+        await page.locator('input#passcode-input').fill(duoCode);
+        await page.click('[data-testid="verify-button"]');
+    } else {
+        console.log("Could not get Duo code from Gmail");
+        throw new Error("Failed to get Duo code");
+    }
 
-    // // Wait for the next page to load before pressing "Other people use this computer"
-    // await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
-    // await page.click('#dont-trust-browser-button');
+    // Wait for the next page to load before pressing "Other people use this computer"
+    await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
+    await page.click('#dont-trust-browser-button');
 
-    // // Skip the "Remember this device" page if it appears.
-    // await page.waitForSelector('[data-automation-id="linkButton"]');
-    // const skipButton = await page.$('[data-automation-id="linkButton"]');
-    // await skipButton.click();
-    // await page.waitForNavigation({
-    // waitUntil: "load",
-    // });
+    // Skip the "Remember this device" page if it appears.
+    await page.waitForSelector('[data-automation-id="linkButton"]');
+    const skipButton = await page.$('[data-automation-id="linkButton"]');
+    await skipButton.click();
+    await page.waitForNavigation({
+    waitUntil: "load",
+    });
     
 }
 
