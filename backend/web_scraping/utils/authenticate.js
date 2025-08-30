@@ -159,7 +159,7 @@ export async function login(page, username, password) {
     if (otherOptionsSelector) {
         // await injectDuoTrust(page);
         // console.log("Injected Duo trust data");
-        // await new Promise(resolve => setTimeout(resolve, 20000));
+        
         await otherOptionsSelector.click();
         console.log("Clicked other options");
     } else {
@@ -186,6 +186,11 @@ export async function login(page, username, password) {
     );
 
     items.forEach(item => console.log(item));
+    // Get all cookies from the current page
+    const cookies = await page.cookies();
+    console.log("All cookies:", JSON.stringify(cookies, null, 2));
+    
+    await new Promise(resolve => setTimeout(resolve, 20000));
 
     // Click the send text message option
     // const smsOption = await page.waitForSelector('li[data-testid="test-id-sms"]', { timeout: 5000 }).catch(() => null);
