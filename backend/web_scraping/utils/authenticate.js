@@ -28,13 +28,13 @@ async function getLatestDuoCode() {
         // Search for emails from the past 2 days
         const searchDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
         const searchDateStr = searchDate.toLocaleDateString('en-CA');
-        
-        console.log(`Searching for emails from sms2email@voxiware.com since ${searchDateStr}...`);
-        
+
+        console.log(`Searching for emails from sms2email@voixware.com since ${searchDateStr}...`);
+
         // Search without UID first to get sequence numbers
-        // Search for emails from sms2email@voxiware.com (IMAP doesn't support regex)
+        // Search for emails from sms2email@voixware.com (IMAP doesn't support regex)
         const messages = await client.search({
-            from: 'sms2email@voxiware.com',
+            from: 'sms2email@voixware.com',
             since: searchDateStr
         });
         
@@ -156,7 +156,7 @@ export async function login(page, username, password) {
 
     // Wait for Duo code to arrive via SMS->Email
     console.log("Waiting for Duo code...");
-    await new Promise(resolve => setTimeout(resolve, 25000)); // Wait 25 seconds for SMS to arrive
+    await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds for SMS to arrive
 
     // Get code from Gmail via IMAP
     const duoCode = await getLatestDuoCode();
