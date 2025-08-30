@@ -1,4 +1,4 @@
-import { authenticate, getWithCookies } from "./authentication.js";
+import { getWithCookies } from "./http_utils.js";
 import { extractEvalDataFromPdf } from "./parse_eval_pdf.js";
 import {
   EVALUATIONS_URL,

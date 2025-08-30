@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { workdayLogin } from '../utils/authenticate.js';
+import { login } from '../utils/authenticate.js';
 import { goToCourseSectionsPage } from '../utils/course_sections.js';
 import path from "path";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
@@ -8,7 +8,8 @@ const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 const extensionPath = path.resolve('../../../extension/out')
 // Need headfull browser for chrome extension to work
 export const browser = await puppeteer.launch({
-  slowMo: 15,
+  slowMo: 40,
+  headless: false,
   args: [
     `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
@@ -28,7 +29,7 @@ async function main() {
       }
     }
     page = allPages[0];
-    await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
+    await login(page, process.env.SCU_USERNAME, process.env.SCU_PASSWORD);
     await checkRatingInjections();
     await checkCalendarButton();
     browser.close();
@@ -39,7 +40,7 @@ async function main() {
     browser.close();
   }
   if (message.length > 0) {
-    await sendSnsNotification(message);
+    // await sendSnsNotification(message);
   }
 }
 
