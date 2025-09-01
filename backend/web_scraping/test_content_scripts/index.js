@@ -40,7 +40,7 @@ async function main() {
     browser.close();
   }
   if (message.length > 0) {
-    await sendSnsNotification(message);
+    // await sendSnsNotification(message);
   }
 }
 

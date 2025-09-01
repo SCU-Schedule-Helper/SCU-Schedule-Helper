@@ -116,12 +116,37 @@ export async function login(page, username, password) {
 
     // Click other options button if it exists
     const otherOptionsSelector = await page.waitForSelector('button.other-options-link', { timeout: 5000 }).catch(() => null);
+    const buttonClassNames = await page.$$eval('button', btns => btns.map(btn => btn.className.trim()));
+    console.log('Button class names:', buttonClassNames);
     if (otherOptionsSelector) {
         await otherOptionsSelector.click();
         console.log("Clicked other options");
     } else {
         console.log("Could not find other options button");
+        // Try to dismiss Windows Hello popup first if it appears
+        try {
+            const windowsHelloCancel = await page.waitForSelector('[data-testid="windows-hello-cancel"], .cancel-button, button[aria-label*="Cancel"], button:has-text("Cancel")', { timeout: 2000 });
+            if (windowsHelloCancel) {
+                await windowsHelloCancel.click();
+                console.log("Dismissed Windows Hello popup");
+                // Wait a moment for the page to update
+                await page.waitForTimeout(1000);
+            }
+        } catch (error) {
+            console.log("No Windows Hello popup found or already dismissed");
+        } finally {
+            const otherOptionsSelector = await page.waitForSelector('button.other-options-link', { timeout: 5000 }).catch(() => null);
+            const buttonClassNames = await page.$$eval('button', btns => btns.map(btn => btn.className.trim()));
+            console.log('Button class names:', buttonClassNames);
+            if (otherOptionsSelector) {
+                await otherOptionsSelector.click();
+                console.log("Clicked other options");
+            } else {
+                console.log("Could not find other options button again");
+            }
+        }
     }
+
     
     // List out available authentication methods
     await page.waitForSelector("ul, ol");
@@ -144,12 +169,17 @@ export async function login(page, username, password) {
 
     items.forEach(item => console.log(item));    
 
-    // Click the send text message option
+    // Click the send text message option or "Duo Push"
     const smsOption = await page.waitForSelector('li[data-testid="test-id-sms"]', { timeout: 5000 }).catch(() => null);
+    const duoPushOption = await page.waitForSelector('li[data-testid="test-id-duo-push"]', { timeout: 5000 }).catch(() => null);
     if (smsOption) {
         const link = await smsOption.$('a.auth-method');
         if (link) await link.click();
         console.log("Clicked SMS option");
+    } else if (duoPushOption) {
+        const link = await duoPushOption.$('a.auth-method');
+        if (link) await link.click();
+        console.log("Clicked Duo Push option");
     } else {
         console.log("Could not find SMS option with data-testid='test-id-sms'");
     }
