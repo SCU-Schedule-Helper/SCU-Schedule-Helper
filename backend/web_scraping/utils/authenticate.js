@@ -171,16 +171,25 @@ export async function login(page, username, password) {
     }
 
     // Wait for the next page to load before pressing "Other people use this computer"
-    await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
-    await page.click('#dont-trust-browser-button');
+    try {
+        await page.waitForSelector('#dont-trust-browser-button', { timeout: 10000 });
+        await page.click('#dont-trust-browser-button');
+    } catch (error) {
+        console.log("Could not find 'Other people use this computer' button");
+    }
 
     // Skip the "Remember this device" page if it appears.
-    await page.waitForSelector('[data-automation-id="linkButton"]');
-    const skipButton = await page.$('[data-automation-id="linkButton"]');
-    await skipButton.click();
-    await page.waitForNavigation({
-    waitUntil: "load",
-    });
+    try{
+        await page.waitForSelector('[data-automation-id="linkButton"]');
+        const skipButton = await page.$('[data-automation-id="linkButton"]');
+        await skipButton.click();
+        await page.waitForNavigation({
+        waitUntil: "load",
+        });
+    } catch (error) {
+        console.log("Could not find 'Remember this device' button");
+    }
+    
     
 }
 
