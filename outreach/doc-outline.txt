@@ -1,0 +1,3 @@
+amazon ses
+
+aws iam user with ses perm and aws read perms
