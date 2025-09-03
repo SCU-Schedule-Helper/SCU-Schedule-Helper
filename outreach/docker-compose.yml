@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "5679:5679"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5679
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5679/
+      - N8N_USER_FOLDER=/home/node/.n8n
+      - N8N_TEMPLATES_ENABLED=true
+      - N8N_PAYLOAD_SIZE_MAX=16 
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
+    driver: local
