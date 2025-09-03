@@ -24,7 +24,7 @@ export const supportEmail = "swdean@scu.edu";
 export default function Menu({ navigateToPage, openLandingPage }) {
   const [activeMenu, setActiveMenu] = useState("main");
   const [friendNotificationCount, setFriendNotificationCount] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
     async function updateFriendNotificationCount() {
@@ -422,7 +422,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
               borderTop: "2px solid #d1d1d1",
               py: 1,
               px: 2,
-              maxWidth: "500px",
+              maxWidth: "90%",
               mx: "auto",
             }}
           >

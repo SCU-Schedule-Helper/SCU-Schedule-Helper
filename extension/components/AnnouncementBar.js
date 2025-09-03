@@ -33,7 +33,7 @@ export default function AnnouncementBar() {
             fontSize: "0.875rem",
           }}
         >
-          Check out our latest features and updates!
+          Check out the export to gcal button in Workday!
         </Typography>
       </Box>
     </Box>

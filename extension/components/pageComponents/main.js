@@ -67,7 +67,7 @@ export default function Main({ }) {
 
   return (
     <AuthWrapper>
-      <Box ref={boxRef} sx={{ padding: 2, overflow: "auto", pb: 0 }}>
+      <Box ref={boxRef} sx={{ padding: 2, overflow: "auto", pb: 0, height: "100%" }}>
         <Box
           sx={{
             mb: 3,
@@ -75,10 +75,11 @@ export default function Main({ }) {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            height: "100%",
           }}
         >
           <QueryPageTitle handleBackButton={handleBackButton} handleDialogOpen={handleDialogOpen} stack={stack} />
-          <Box sx={{ width: "100%", maxWidth: "420px" }}>
+          <Box sx={{ width: "100%", maxWidth: "90%", flex: 1 }}>
             <ProfCourseSearch
               scrollToTop={scrollToTop}
               query={query}

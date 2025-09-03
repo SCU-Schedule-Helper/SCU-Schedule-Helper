@@ -21,6 +21,18 @@ import {
   updateUser,
 } from "./utils/user.js";
 
+// Handle extension icon click to open in new window
+chrome.action.onClicked.addListener((tab) => {
+  const extensionUrl = chrome.runtime.getURL("index.html");
+  chrome.windows.create({
+    url: extensionUrl,
+    type: "popup",
+    width: 500,
+    height: 525,
+    focused: true
+  });
+});
+
 chrome.runtime.onInstalled.addListener(async (object) => {
   let internalUrl = chrome.runtime.getURL("landing_page/index.html");
 
