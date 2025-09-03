@@ -12,7 +12,6 @@ import {
   Tune,
   PersonAdd,
   Close,
-  CalendarMonth,
   ExpandMore,
   ExpandLess,
   Settings,
@@ -74,12 +73,6 @@ export default function Menu({ navigateToPage, openLandingPage }) {
       id: "preferences",
       label: "Preferences",
       action: () => navigateToPage("preferences"),
-    },
-    {
-      icon: <CalendarMonth />,
-      id: "courseplanner",
-      label: "Course Planner",
-      action: () => navigateToPage("courseplanner"),
     },
   ];
 
