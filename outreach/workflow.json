@@ -1,0 +1,183 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "20a6e393-e689-4d6e-9d23-1eebeffb66ae",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "subject": "\"SCU Schedule Helper\" <scuschedulehelper@gmail.com>",
+        "fromEmail": "scuschedulehelper@gmail.com",
+        "toAddresses": [
+          "={{ $json.email }}"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        640,
+        0
+      ],
+      "id": "2d146447-6adc-40ba-ac5b-7a8fd95a2121",
+      "name": "Send an email",
+      "credentials": {
+        "aws": {
+          "id": "fFP9aQXT9PMYySD8",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableName": "SCU-Schedule-Helper",
+        "scan": true,
+        "limit": null,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.awsDynamoDb",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e80c5b22-d490-4467-af68-05883de2c19f",
+      "name": "Get entries",
+      "credentials": {
+        "aws": {
+          "id": "fFP9aQXT9PMYySD8",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const emails = [];\nfor (const item of $input.all()) {\n  if (item.json.email) {\n    emails.push(item.json.email);\n  }\n}\nreturn emails.map(email => ({ json: { email } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0c8f0b34-d8c5-496f-b066-9c92e11e16bb",
+      "name": "Extract emails"
+    },
+    {
+      "parameters": {
+        "isBodyHtml": true,
+        "subject": "test",
+        "body": "hello i am god",
+        "fromEmail": "=\"SCU Schedule Helper\" <scuschedulehelper@gmail.com>",
+        "toAddresses": [
+          "={{ $json.email }}"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        192,
+        240
+      ],
+      "id": "689047f5-eae2-4afe-b2c5-6a64b2a0891b",
+      "name": "test node",
+      "credentials": {
+        "aws": {
+          "id": "fFP9aQXT9PMYySD8",
+          "name": "AWS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"email\": \"dduong2@scu.edu\"\n  },\n  {\n    \"email\": \"dustinduongg@gmail.com\"\n  },\n  {\n    \"email\": \"ddustinduong@gmail.com\"\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        240
+      ],
+      "id": "d10aea9c-7b5b-4274-8ba0-8fccaeb5755b",
+      "name": "test"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get entries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get entries": {
+      "main": [
+        [
+          {
+            "node": "Extract emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract emails": {
+      "main": [
+        [
+          {
+            "node": "Send an email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "test node": {
+      "main": [
+        []
+      ]
+    },
+    "Send an email": {
+      "main": [
+        []
+      ]
+    },
+    "test": {
+      "main": [
+        [
+          {
+            "node": "test node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05a70f2d-8a8d-43f4-9a9c-81d02da9aa68",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "03c86360b43e0c99a78ebcc0b93d2dc7dd0dbe039721d80cc59fbb5debaf88a9"
+  },
+  "id": "tWHWMeROn6sb4l1H",
+  "tags": []
+}
