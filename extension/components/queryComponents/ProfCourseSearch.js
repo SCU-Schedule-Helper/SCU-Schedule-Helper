@@ -203,9 +203,10 @@ export default function ProfCourseSearch({
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search Courses and Professors"
+              placeholder="Enter professor or course name"
               variant="outlined"
               size="small"
+              InputLabelProps={{ shrink: false }}
               slotProps={{
                 input: {
                   ...params.InputProps,
