@@ -178,7 +178,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
   );
 
   return (
-    <Box sx={{ mb: 1 }}>
+    <Box sx={{ mb: 1, width: "100%" }}>
       {/* Announcement Bar */}
       <AnnouncementBar />
 
@@ -188,10 +188,12 @@ export default function Menu({ navigateToPage, openLandingPage }) {
           backgroundColor: "white",
           boxShadow: "none",
           borderBottom: "2px solid #d1d1d1",
+          width: "100%",
         }}
       >
         {/* Top Row: SCU Schedule Helper, Menu Toggle, and Close Button */}
         <Toolbar
+          disableGutters
           sx={{
             display: "flex",
             justifyContent: "space-between",
@@ -414,23 +416,24 @@ export default function Menu({ navigateToPage, openLandingPage }) {
               backgroundColor: "#fafafa",
               borderTop: "2px solid #d1d1d1",
               py: 1,
-              px: 2,
-              maxWidth: "90%",
-              mx: "auto",
+              px: 0,
+              width: "100%",
             }}
           >
-            {/* All Navigation Buttons */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1.5,
-                flexWrap: "wrap",
-                alignItems: "flex-start",
-                justifyContent: "center",
-                rowGap: 0.5,
-              }}
-            >
-              {[...topRowItems, ...bottomRowItems].map((item) => renderMenuButton(item, true))}
+            <Box sx={{ maxWidth: "90%", mx: "auto", px: 2 }}>
+              {/* All Navigation Buttons */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1.5,
+                  flexWrap: "wrap",
+                  alignItems: "flex-start",
+                  justifyContent: "center",
+                  rowGap: 0.5,
+                }}
+              >
+                {[...topRowItems, ...bottomRowItems].map((item) => renderMenuButton(item, true))}
+              </Box>
             </Box>
           </Box>
         )}
