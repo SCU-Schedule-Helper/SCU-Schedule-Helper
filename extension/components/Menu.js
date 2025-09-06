@@ -14,7 +14,6 @@ import {
   Close,
   ExpandMore,
   ExpandLess,
-  Settings,
 } from "@mui/icons-material";
 import AnnouncementBar from "./AnnouncementBar";
 
@@ -58,12 +57,6 @@ export default function Menu({ navigateToPage, openLandingPage }) {
       id: "friends",
       label: "Friends",
       action: () => navigateToPage("friends"),
-    },
-    {
-      icon: <AccountCircle />,
-      id: "profile",
-      label: "Profile",
-      action: () => navigateToPage("profile"),
     },
   ];
 
@@ -202,6 +195,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
             minHeight: "56px",
           }}
         >
+          <Box sx={{ width: "100%", maxWidth: "92%", mx: "auto", px: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Button
             sx={{
               position: "relative",
@@ -319,11 +313,10 @@ export default function Menu({ navigateToPage, openLandingPage }) {
                 <ExpandMore sx={{ fontSize: 16 }} />
               )}
             </Button>
-
             <Button
               onClick={() => {
-                setActiveMenu("settings");
-                navigateToPage("settings");
+                setActiveMenu("profile");
+                navigateToPage("profile");
               }}
               sx={{
                 minWidth: "auto",
@@ -351,7 +344,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
                   backgroundColor: "transparent",
                   transition: "background-color 0.3s, width 0.3s",
                 },
-                ...(activeMenu === "settings" && {
+                ...(activeMenu === "profile" && {
                   "&::after": {
                     backgroundColor: "#703331",
                     width: "100%",
@@ -359,10 +352,10 @@ export default function Menu({ navigateToPage, openLandingPage }) {
                 }),
               }}
             >
-              <Settings
+              <AccountCircle
                 sx={{
                   fontSize: 24,
-                  color: activeMenu === "settings" ? "#703331" : "#d1d1d1",
+                  color: activeMenu === "profile" ? "#703331" : "#d1d1d1",
                   transition: "color 0.3s",
                 }}
               />
@@ -406,6 +399,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
                 }}
               />
             </Button>
+          </Box>
           </Box>
         </Toolbar>
 
