@@ -40,13 +40,9 @@ Import the workflow
 
 Run the workflow
 1. Setup AWS Credential
-    a. Click the + in the top left
-    b. Click create Credential and select AWS
-    c. Login to AWS Console and navigate to IAM
-    d. Go to users and then n8n-newsletter-user
-    e. Get access key 1 and 2 for the respective fields in AWS Credential
-    f. Add the credential to the AWS SES node
-
+    a. Tap into the "Get users" node
+    b. Under "Credential to connect with" tap create new credential, and select AWS
+    c. Use the credentials for n8n-newsletter-user in the Google Drive "Other Secrets" doc
 2. Write/copy paste message into the "body field" in the SES node
 3. Click execute workflow
 
@@ -56,4 +52,3 @@ Docker start URL: `http://localhost:5679` (per `docker-compose.yml`).
 npx start URL: `http://localhost:5678` by default.
 
 To use a different port with npx: `N8N_PORT=5680 npx -y n8n@latest start` and open `http://localhost:5680`.
-

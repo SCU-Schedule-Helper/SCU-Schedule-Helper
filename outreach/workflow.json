@@ -99,6 +99,17 @@
           "name": "AWS account"
         }
       }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "80cf4f59-92f1-48af-9972-7dbc93c05b48",
+      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "pinData": {},
@@ -124,13 +135,24 @@
           }
         ]
       ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0f22dd15-52b8-4766-b1a2-af09cf6cdb1e",
+  "versionId": "a7436706-ae80-4783-834d-80b3e79fccf3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "80ad25ce9c4e75cdd644e81e8d1a41aa9f5860e54748b0fe0f8c6a6b3134087e"
