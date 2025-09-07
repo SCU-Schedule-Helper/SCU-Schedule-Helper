@@ -3,6 +3,7 @@ export const PROD_USER_ENDPOINT = `${PROD_SERVER_URL}/user`;
 export const PROD_AUTH_TOKEN_ENDPOINT = `${PROD_SERVER_URL}/auth_token`;
 export const PROD_EVALS_ENDPOINT = `${PROD_SERVER_URL}/evals`;
 export const PROD_NAME_MAPPINGS_ENDPOINT = `${PROD_SERVER_URL}/name_mappings`;
+export const WEB_AUTH_CLIENT_ID = "583521775185-u0dt149h8j3cfbo676j455h73sj2vrbb.apps.googleusercontent.com";
 export const COURSE_TAKEN_PATTERN = /P{(.*?)}C{(.*?)}T{(.*?)}/; // P{profName}C{courseCode}T{termName}
 export const COURSE_CODE_PATTERN = /^[A-Z]{4}\d+$/;
 export const INTERESTED_SECTION_PATTERN = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}
