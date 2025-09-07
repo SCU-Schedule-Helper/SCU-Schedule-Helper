@@ -1,6 +1,58 @@
 {
-  "name": "outreach",
+  "name": "SCU Schedule Helper Outreach",
   "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const emails = [];\nfor (const item of $input.all()) {\n  if (item.json.email) {\n    emails.push(item.json.email);\n  }\n}\nreturn emails.map(email => ({ json: { email } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "80a557cd-4a65-4e7c-ac04-f807d9347dbb",
+      "name": "Extract emails"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    \"email\": \"swdean@scu.edu\"\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        240
+      ],
+      "id": "55bb7dab-329b-4311-82f8-9d9f5c37c3ab",
+      "name": "Test emails"
+    },
+    {
+      "parameters": {
+        "isBodyHtml": true,
+        "subject": "Updates to SCU Schedule Helper",
+        "body": "Hey! Here's a test email from SCU Schedule Helper.",
+        "fromEmail": "=\"Stevie\" <stevie@scu-schedule-helper.me>",
+        "toAddresses": [
+          "={{ $json.email }}"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        384,
+        240
+      ],
+      "id": "90a96d34-54db-4634-ba21-7e35aefb8304",
+      "name": "Test send",
+      "credentials": {
+        "aws": {
+          "id": "I30Aj9zmbfbseBot",
+          "name": "AWS account"
+        }
+      }
+    },
     {
       "parameters": {
         "subject": "\"SCU Schedule Helper\" <scuschedulehelper@gmail.com>",
@@ -13,14 +65,14 @@
       "type": "n8n-nodes-base.awsSes",
       "typeVersion": 1,
       "position": [
-        448,
+        640,
         0
       ],
-      "id": "2d146447-6adc-40ba-ac5b-7a8fd95a2121",
-      "name": "Send an email",
+      "id": "5a7babb2-9312-437f-b681-f792b72958ee",
+      "name": "Send email",
       "credentials": {
         "aws": {
-          "id": "fFP9aQXT9PMYySD8",
+          "id": "I30Aj9zmbfbseBot",
           "name": "AWS account"
         }
       }
@@ -36,126 +88,37 @@
       "type": "n8n-nodes-base.awsDynamoDb",
       "typeVersion": 1,
       "position": [
-        0,
-        0
-      ],
-      "id": "e80c5b22-d490-4467-af68-05883de2c19f",
-      "name": "Get entries",
-      "credentials": {
-        "aws": {
-          "id": "fFP9aQXT9PMYySD8",
-          "name": "AWS account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const emails = [];\nfor (const item of $input.all()) {\n  if (item.json.email) {\n    emails.push(item.json.email);\n  }\n}\nreturn emails.map(email => ({ json: { email } }));"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        208,
-        0
-      ],
-      "id": "0c8f0b34-d8c5-496f-b066-9c92e11e16bb",
-      "name": "Extract emails"
-    },
-    {
-      "parameters": {
-        "isBodyHtml": true,
-        "subject": "test",
-        "body": "test",
-        "fromEmail": "=\"SCU Schedule Helper\" <scuschedulehelper@gmail.com>",
-        "toAddresses": [
-          "={{ $json.email }}"
-        ],
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.awsSes",
-      "typeVersion": 1,
-      "position": [
         192,
-        240
+        0
       ],
-      "id": "689047f5-eae2-4afe-b2c5-6a64b2a0891b",
-      "name": "test node",
+      "id": "c23fc93c-9029-47cf-af3e-2d74c55b504d",
+      "name": "Get users",
       "credentials": {
         "aws": {
-          "id": "fFP9aQXT9PMYySD8",
+          "id": "I30Aj9zmbfbseBot",
           "name": "AWS account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "return [\n  {\n    \"email\": \"dduong2@scu.edu\"\n  },\n  {\n    \"email\": \"dustinduongg@gmail.com\"\n  },\n];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        0,
-        240
-      ],
-      "id": "d10aea9c-7b5b-4274-8ba0-8fccaeb5755b",
-      "name": "test"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -192,
-        0
-      ],
-      "id": "e9f9b31f-d442-4e80-8306-92f18fc905a3",
-      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "pinData": {},
   "connections": {
-    "Get entries": {
+    "Test emails": {
+      "main": [
+        [
+          {
+            "node": "Test send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get users": {
       "main": [
         [
           {
             "node": "Extract emails",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract emails": {
-      "main": [
-        []
-      ]
-    },
-    "test node": {
-      "main": [
-        []
-      ]
-    },
-    "Send an email": {
-      "main": [
-        []
-      ]
-    },
-    "test": {
-      "main": [
-        [
-          {
-            "node": "test node",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Get entries",
             "type": "main",
             "index": 0
           }
@@ -167,11 +130,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "56e81e7e-d91b-43ce-9338-36850b350718",
+  "versionId": "0f22dd15-52b8-4766-b1a2-af09cf6cdb1e",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "03c86360b43e0c99a78ebcc0b93d2dc7dd0dbe039721d80cc59fbb5debaf88a9"
+    "instanceId": "80ad25ce9c4e75cdd644e81e8d1a41aa9f5860e54748b0fe0f8c6a6b3134087e"
   },
-  "id": "tWHWMeROn6sb4l1H",
+  "id": "6t71PMMcEyeTBNoN",
   "tags": []
 }

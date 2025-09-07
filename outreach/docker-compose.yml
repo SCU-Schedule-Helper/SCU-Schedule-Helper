@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   n8n:
     image: n8nio/n8n:latest
@@ -19,4 +17,4 @@ services:
 
 volumes:
   n8n_data:
-    driver: localdev
+    driver: local
