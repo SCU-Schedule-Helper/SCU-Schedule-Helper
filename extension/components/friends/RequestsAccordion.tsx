@@ -11,12 +11,7 @@ import {
   AlertColor,
 } from "@mui/material";
 import { ExpandMore, Check, Close } from "@mui/icons-material";
-
-interface FriendRequest {
-  id: string;
-  name: string;
-  photoUrl: string;
-}
+import { FriendRequest } from "../utils/types";
 
 export default function RequestsAccordion({
   requestsIn = [] as FriendRequest[],

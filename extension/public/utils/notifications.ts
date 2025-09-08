@@ -16,11 +16,17 @@ const SERVER_PUBLIC_KEY =
   "BLMxe4dFTN6sJ7U-ZFXgHUyhlI5udo11b4curIyRfCdGZMYjDx4kFoV3ejHzDf4hNZQOmW3UP6_dgyYTdg3LDIE";
 const applicationServerKey = urlB64ToUint8Array(SERVER_PUBLIC_KEY);
 
+type NotificationType = {
+  notificationType: string;
+  data: any;
+}
+
+
 /**
  * Subscribes the user to push notifications from the production server.
  * @returns {Promise<PushSubscription>}
  */
-export async function subscribe() {
+export async function subscribe(): Promise<PushSubscription | undefined> {
   const existingSubscription =
     await self.registration.pushManager.getSubscription();
   if (existingSubscription) {
@@ -41,7 +47,7 @@ export async function subscribe() {
  * Respond to a notification received from the server.
  * @param {*} notification A JSON notification object received from the server with a notificationType and data field. 
  */
-export async function handleNotification(notification) {
+export async function handleNotification(notification: NotificationType) {
   const { notificationType, data } = notification;
   switch (notificationType) {
     case "FriendRequestAccepted":
@@ -73,7 +79,7 @@ export async function handleNotification(notification) {
   }
 }
 
-async function handleFriendRequestAccepted(friendId) {
+async function handleFriendRequestAccepted(friendId: string) {
   const addFriendError = await addFriendLocally(friendId, "outgoing", "FriendRequestAccepted");
   if (addFriendError) {
     console.error("Error adding friend: ", addFriendError);
@@ -81,7 +87,7 @@ async function handleFriendRequestAccepted(friendId) {
   }
 }
 
-async function handleFriendProfileUpdated(friendId) {
+async function handleFriendProfileUpdated(friendId: string) {
   const friendProfileResponse = await fetchWithAuth(
     `${PROD_USER_ENDPOINT}/${friendId}`,
   );
@@ -99,7 +105,7 @@ async function handleFriendProfileUpdated(friendId) {
   });
   await clearFriendCourseAndSectionIndexes(friendId);
   await updateFriendCourseAndSectionIndexes(friendId, friendProfile.coursesTaken, friendProfile.interestedSections);
-  await chrome.notifications.create(
+  chrome.notifications.create(
     {
       type: "basic",
       iconUrl: "/images/icon-128.png",
@@ -110,7 +116,7 @@ async function handleFriendProfileUpdated(friendId) {
   );
 }
 
-function urlB64ToUint8Array(base64String) {
+function urlB64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
 

@@ -1,10 +1,11 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import CurrentCourseImporter from "../components/current_courses/CurrentCourseImporter";
+import CourseHistoryImporter from "../components/course_history/CourseHistoryImporter.tsx";
 
 let messageReceived = false;
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  if (message !== "importCurrentCourses" || messageReceived) {
+  if (message !== "importCourseHistory" || messageReceived) {
     return false;
   }
   messageReceived = true;
@@ -22,7 +23,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   root.render(
     <React.StrictMode>
-      <CurrentCourseImporter sendResponse={sendResponse} />
+      <CourseHistoryImporter sendResponse={sendResponse} />
     </React.StrictMode>,
   );
   return true;

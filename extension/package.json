@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "next build && node out.js",
-    "buildall": "next build && node out.js && npm run build --prefix __test__/react_content_scripts",
-    "refreshcs": "npm run build --prefix __test__/react_content_scripts",
+    "buildall": "next build && node out.js && npm run build --prefix react_content_scripts",
+    "refreshcs": "npm run build --prefix react_content_scripts",
     "refreshpb": "node refreshPublic.cjs",
     "start": "next start",
     "run": "next start",

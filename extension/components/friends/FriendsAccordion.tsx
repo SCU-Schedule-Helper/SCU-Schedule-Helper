@@ -23,18 +23,10 @@ import {
   parseTakenCourses,
 } from "../utils/user.ts";
 import {
+  FriendProfile,
   ParsedCourseTaken,
   ParsedInterestedSection
 } from "../utils/types.ts";
-
-interface FriendProfile {
-  id: string;
-  email: string;
-  name: string;
-  photoUrl: string;
-  interestedSections: string[];
-  coursesTaken: string[];
-}
 
 interface TransformedFriendProfile {
   id: string;

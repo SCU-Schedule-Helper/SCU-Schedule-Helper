@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { RRule, Weekday } from "rrule";
-import { getEnrolledCoursesTables } from "../shared/utils";
+import { getEnrolledCoursesTables } from "../shared/utils.ts";
 import { Modal, Box, Typography, IconButton } from "@mui/material";
 import Close from "@mui/icons-material/Close";
 

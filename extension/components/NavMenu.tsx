@@ -13,9 +13,14 @@ import {
   Close,
 } from "@mui/icons-material";
 
+interface NavMenuProps {
+  navigateToPage: (page: string) => void;
+  openLandingPage: () => void;
+}
+
 export const supportEmail = "swdean@scu.edu";
 
-export default function NavMenu({ navigateToPage, openLandingPage }) {
+export default function NavMenu({ navigateToPage, openLandingPage } : NavMenuProps) {
   const [activeMenu, setActiveMenu] = useState("main");
   const [friendNotificationCount, setFriendNotificationCount] = useState(0);
 

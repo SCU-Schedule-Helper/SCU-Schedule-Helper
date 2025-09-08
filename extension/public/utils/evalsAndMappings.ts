@@ -8,7 +8,7 @@ import {
  * Fetches the evals object from the server, then decodes, decompresses, and stores it in local storage.
  * @returns {Promise<void>}
  */
-export async function downloadEvals() {
+export async function downloadEvals(): Promise<void> {
   const evalsLastModifiedDate = (
     await chrome.storage.local.get("evalsLastModifiedDate")
   ).evalsLastModifiedDate;
@@ -55,16 +55,16 @@ export async function downloadProfessorNameMappings() {
   });
 }
 
-async function decodeAndDecompress(base64EncodedGzippedData) {
+async function decodeAndDecompress(base64EncodedGzippedData: string): Promise<any> {
   const binaryString = atob(base64EncodedGzippedData);
   const binaryData = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
     binaryData[i] = binaryString.charCodeAt(i);
   }
 
-  const decompressedStream = new Response(binaryData).body.pipeThrough(
-    new DecompressionStream("gzip")
-  );
+  const body = new Response(binaryData).body;
+  if (!body) throw new Error("Failed to create response body for decompression");
+  const decompressedStream = body.pipeThrough(new DecompressionStream("gzip"));
   const decompressedText = await new Response(decompressedStream).text();
   const jsonData = JSON.parse(decompressedText);
   return jsonData;

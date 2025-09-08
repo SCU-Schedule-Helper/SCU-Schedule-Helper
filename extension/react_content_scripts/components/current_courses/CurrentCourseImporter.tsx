@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Fade } from "@mui/material";
-import ProgressCard from "../shared/ProgressCard";
+import ProgressCard from "../shared/ProgressCard.tsx";
 import {
   ACADEMIC_PERIOD_PATTERN,
   CourseData,
   updateUserCourseData,
   getEnrolledCoursesTables,
-} from "../shared/utils";
+} from "../shared/utils.ts";
 
 export default function CurrentCourseImporter({
   sendResponse = (response?: any) => {},

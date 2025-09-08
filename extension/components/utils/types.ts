@@ -10,7 +10,27 @@ export interface UserProfile {
   preferences: UserPreferences;
   interestedSections: string[];
   coursesTaken: string[];
+  friends: FriendProfile[];
+  friendRequests: FriendRequest[];
 }
+
+export interface FriendProfile {
+  id: string;
+  email: string;
+  name: string;
+  photoUrl: string;
+  interestedSections: string[];
+  coursesTaken: string[];
+}
+
+export interface FriendRequest {
+  id: string;
+  name: string;
+  photoUrl: string;
+  type: FriendRequestType;
+}
+
+export type FriendRequestType = 'incoming' | 'outgoing';
 
 export type EvalsData = {
   departmentStatistics: {

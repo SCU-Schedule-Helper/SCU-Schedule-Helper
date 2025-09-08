@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Fade } from "@mui/material";
-import ProgressCard from "../shared/ProgressCard";
+import ProgressCard from "../shared/ProgressCard.tsx";
 import {
   ACADEMIC_PERIOD_PATTERN,
   CourseData,
@@ -9,7 +9,7 @@ import {
   updateUserCourseData,
   waitForSelector,
   waitForSelectorGone,
-} from "../shared/utils";
+} from "../shared/utils.ts";
 
 export default function CourseHistoryImporter({
   sendResponse = (response?: any) => {},

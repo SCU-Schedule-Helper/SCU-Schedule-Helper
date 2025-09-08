@@ -16,7 +16,6 @@ function updateManifests() {
     const outManifestPath = path.join(
       __dirname,
       "..",
-      "..",
       "out",
       "manifest.json",
     );
@@ -50,7 +49,7 @@ function updateManifests() {
     );
     // Copy the assets folder from dist to out
     const assetsPath = path.join(__dirname, "dist", "assets");
-    const outAssetsPath = path.join(__dirname, "..", "..", "out", "assets");
+    const outAssetsPath = path.join(__dirname, "..", "out", "assets");
     fs.rmSync(outAssetsPath, { recursive: true, force: true });
     fs.mkdirSync(outAssetsPath, { recursive: true });
     fs.cpSync(assetsPath, outAssetsPath, { recursive: true });

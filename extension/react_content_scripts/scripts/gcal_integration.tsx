@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import { createRoot } from "react-dom/client";
-import GoogleCalendarButton from "../components/gcal_integration/GoogleCalendarButton";
+import GoogleCalendarButton from "../components/gcal_integration/GoogleCalendarButton.tsx";
 
 const debounceDelay = 100;
 let debounceTimer: any;

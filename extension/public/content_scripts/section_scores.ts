@@ -1,11 +1,12 @@
 (async function () {
   await chrome.runtime.sendMessage("runStartupChecks");
 
-  const FetchStatus = Object.freeze({
-    NotFetched: 0,
-    Fetching: 1,
-    Fetched: 2,
-  });
+  type FetchStatusType = 0 | 1 | 2;
+  const FetchStatus = {
+    NotFetched: 0 as const,
+    Fetching: 1 as const,
+    Fetched: 2 as const,
+  };
 
   const Difficulty = Object.freeze({
     VeryEasy: 0,
@@ -19,28 +20,59 @@
   const interestedSectionPattern = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
   const debounceDelay = 100;
 
-  let evalsData = {};
-  let userInfo = {};
+  type ScoreWeighting = { scuEvals?: number; rmp?: number };
+  type TimeRange = { startHour: number; startMinute: number; endHour: number; endMinute: number };
+  interface UserPreferences {
+    difficulty?: number;
+    showRatings?: boolean;
+    scoreWeighting?: ScoreWeighting;
+    preferredSectionTimeRange?: TimeRange;
+  }
+  interface UserInfo {
+    id?: string;
+    name?: string;
+    preferences?: UserPreferences;
+    [k: string]: any;
+  }
+  interface Friend { name: string }
+  interface RatingInfo {
+    rmpLink: string;
+    rmpQuality?: number;
+    rmpDifficulty?: number;
+    scuEvalsQuality?: number | null;
+    scuEvalsDifficulty?: number | null;
+    scuEvalsWorkload?: number | null;
+    scuEvalsQualityPercentile?: number | null;
+    scuEvalsDifficultyPercentile?: number | null;
+    scuEvalsWorkloadPercentile?: number | null;
+    matchesTimePreference?: boolean;
+    meetingPattern?: string | null;
+    friendsTaken: string[];
+    friendsInterested: string[];
+  }
+
+  let evalsData: Record<string, any> = {};
+  let userInfo: UserInfo = {};
   let inTooltip = false;
   let inButton = false;
-  let friendInterestedSections = {};
-  let friendCoursesTaken = {};
-  let friends = {};
+  let friendInterestedSections: Record<string, Record<string, string>> = {};
+  let friendCoursesTaken: Record<string, Record<string, string>> = {};
+  let friends: Record<string, Friend> = {};
   let currentUrl = window.location.href;
-  let enrollmentStatsStatus = FetchStatus.NotFetched;
-  let enrollmentStats = {};
-  let debounceTimer;
-  let prefferedDifficulty = Difficulty.VeryEasy;
+  let enrollmentStatsStatus: FetchStatusType = FetchStatus.NotFetched;
+  let enrollmentStats: Record<string, string> = {};
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let prefferedDifficulty: number = Difficulty.VeryEasy;
   let preferredDifficultyPercentile = prefferedDifficulty / 4;
 
-  const observer = new MutationObserver(checkPage);
+  const observer = new MutationObserver(checkPage as MutationCallback);
   observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
 
   async function checkPage() {
-    clearTimeout(debounceTimer);
+    if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
       if (currentUrl !== window.location.href) {
         currentUrl = window.location.href;
@@ -49,7 +81,7 @@
         inTooltip = false;
         inButton = false;
       }
-      const pageTitle = document.querySelector(
+      const pageTitle = document.querySelector<HTMLElement>(
         '[data-automation-id="pageHeaderTitleText"]'
       );
       const isSavedSchedulePage =
@@ -68,7 +100,7 @@
           "friendCoursesTaken",
           "friends",
         ]);
-        userInfo = data.userInfo || {};
+        userInfo = (data.userInfo as UserInfo) || {};
         if (userInfo.preferences && userInfo.preferences.difficulty) {
           prefferedDifficulty = userInfo.preferences.difficulty;
           preferredDifficultyPercentile = prefferedDifficulty / 4;
@@ -79,10 +111,12 @@
         ) {
           if (!userInfo.preferences.showRatings) return;
         }
-        evalsData = data.evals || {};
-        friendInterestedSections = data.friendInterestedSections || {};
-        friendCoursesTaken = data.friendCoursesTaken || {};
-        friends = data.friends || {};
+        evalsData = (data.evals as Record<string, any>) || {};
+        friendInterestedSections =
+          (data.friendInterestedSections as Record<string, Record<string, string>>) || {};
+        friendCoursesTaken =
+          (data.friendCoursesTaken as Record<string, Record<string, string>>) || {};
+        friends = (data.friends as Record<string, Friend>) || {};
       }
       if (isFindCoursesPage) {
         await handleFindSectionsGrid();
@@ -101,16 +135,18 @@
   }
 
   async function handleFindSectionsGrid() {
-    const courseSectionRows = document.querySelectorAll("table tbody tr");
+    const courseSectionRows = document.querySelectorAll<HTMLTableRowElement>(
+      "table tbody tr"
+    );
 
     await Promise.all(
-      Array.from(courseSectionRows).map(async (row) => {
-        const courseSectionCell = row.cells[0];
+      Array.from(courseSectionRows).map(async (row: HTMLTableRowElement) => {
+        const courseSectionCell = row.cells[0] as HTMLTableCellElement;
         let courseText = courseSectionCell.innerText.trim();
         if (courseText === "" || courseSectionCell.hasAttribute("has-ratings"))
           return;
         courseSectionCell.setAttribute("has-ratings", "true");
-        const instructorCell = row.cells[6];
+        const instructorCell = row.cells[6] as HTMLTableCellElement;
         let professorName = instructorCell.innerText.trim().split("\n")[0];
         const courseTitleHeight = courseSectionCell.firstElementChild
           ? window.getComputedStyle(courseSectionCell.firstElementChild).height
@@ -128,16 +164,16 @@
   }
 
   async function handleSavedSchedulePageGrid() {
-    const courses = document.querySelectorAll('[data-testid="table"] tbody tr');
+    const courses = document.querySelectorAll<HTMLTableRowElement>('[data-testid="table"] tbody tr');
 
     await Promise.all(
-      Array.from(courses).map(async (courseRow) => {
-        const courseCell = courseRow.cells[0];
+      Array.from(courses).map(async (courseRow: HTMLTableRowElement) => {
+        const courseCell = courseRow.cells[0] as HTMLTableCellElement;
         let courseText = courseCell.innerText.trim();
         if (courseText === "" || courseRow.cells.length < 10) return;
         if (courseCell.hasAttribute("has-ratings")) return;
         courseCell.setAttribute("has-ratings", "true");
-        const instructorCell = courseRow.cells[6];
+        const instructorCell = courseRow.cells[6] as HTMLTableCellElement;
         let professorName = instructorCell.innerText.trim().split("\n")[0];
         const pushDown = document.createElement("div");
         pushDown.style.height = "100px";
@@ -155,10 +191,10 @@
   }
 
   async function displayProfessorDifficulty(
-    courseSectionCell,
-    mainSectionRow,
-    professorName,
-    isSavedSchedulePage
+    courseSectionCell: HTMLTableCellElement,
+    mainSectionRow: HTMLTableRowElement,
+    professorName: string,
+    isSavedSchedulePage: boolean
   ) {
     const difficultyContainer = document.createElement("div");
     difficultyContainer.style.fontSize = "1em";
@@ -187,25 +223,25 @@
       .replace(/\s/g, "");
     const department = courseText.substring(0, courseText.indexOf(" "));
     if (evalsData[prof]?.[courseCode]) {
-      ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } =
-        getScuEvalsAvgMetric(evalsData[prof][courseCode]));
+      const avg = getScuEvalsAvgMetric(evalsData[prof][courseCode]);
+      if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
     } else if (evalsData[prof]?.[department]) {
-      ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } =
-        getScuEvalsAvgMetric(evalsData[prof][department]));
+      const avg = getScuEvalsAvgMetric(evalsData[prof][department]);
+      if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
     } else if (evalsData[prof]?.overall) {
-      ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } =
-        getScuEvalsAvgMetric(evalsData[prof].overall));
+      const avg = getScuEvalsAvgMetric(evalsData[prof].overall);
+      if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
     } else if (evalsData[courseCode]) {
-      ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } =
-        getScuEvalsAvgMetric(evalsData[courseCode]));
+      const avg = getScuEvalsAvgMetric(evalsData[courseCode]);
+      if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
     }
 
     // Decide which cell to get meeting pattern from
-    let meetingPattern = null;
+    let meetingPattern: string | null = null;
     if (isSavedSchedulePage) {
-      meetingPattern = mainSectionRow.cells[9].textContent.trim();
+      meetingPattern = (mainSectionRow.cells[9].textContent || "").trim();
     } else {
-      meetingPattern = mainSectionRow.cells[8].textContent.trim();
+      meetingPattern = (mainSectionRow.cells[8].textContent || "").trim();
     }
 
     const timeMatch = meetingPattern.match(
@@ -219,7 +255,7 @@
       }
     }
 
-    const friendsTaken = [];
+    const friendsTaken: string[] = [];
     for (const friend in friendCoursesTaken[courseCode]) {
       const match =
         friendCoursesTaken[courseCode][friend].match(courseTakenPattern);
@@ -233,7 +269,7 @@
       }
     }
 
-    const friendsInterested = [];
+    const friendsInterested: string[] = [];
     for (const friend in friendInterestedSections[courseCode]) {
       if (friendInterestedSections[courseCode][friend].includes(prof)) {
         const match = friendInterestedSections[courseCode][friend].match(
@@ -289,7 +325,9 @@
     });
   }
 
-  function getScuEvalsAvgMetric(rating) {
+  function getScuEvalsAvgMetric(
+    rating: any
+  ): { scuEvalsQuality: number; scuEvalsDifficulty: number; scuEvalsWorkload: number } | null {
     if (
       !rating ||
       !rating.qualityTotal ||
@@ -307,7 +345,7 @@
     };
   }
 
-  function calcOverallScore(scores) {
+  function calcOverallScore(scores: RatingInfo): number | null {
     let { scuEvals = 50, rmp = 50 } =
       userInfo?.preferences?.scoreWeighting || {};
     let {
@@ -328,9 +366,9 @@
 
     if (nullOrUndefined(rmpQuality) || nullOrUndefined(rmpDifficulty)) {
       return scuEvalsScore(
-        scuEvalsQualityPercentile,
-        scuEvalsDifficultyPercentile,
-        scuEvalsWorkloadPercentile
+        (scuEvalsQualityPercentile ?? 0),
+        (scuEvalsDifficultyPercentile ?? 0),
+        (scuEvalsWorkloadPercentile ?? 0)
       );
     }
     if (
@@ -338,24 +376,24 @@
       nullOrUndefined(scuEvalsDifficultyPercentile) ||
       nullOrUndefined(scuEvalsWorkloadPercentile)
     ) {
-      return rmpScore(rmpQuality, rmpDifficulty);
+      return rmpScore(rmpQuality as number, rmpDifficulty as number);
     }
     return (
       scuEvalsScore(
-        scuEvalsQualityPercentile,
-        scuEvalsDifficultyPercentile,
-        scuEvalsWorkloadPercentile
+        scuEvalsQualityPercentile as number,
+        scuEvalsDifficultyPercentile as number,
+        scuEvalsWorkloadPercentile as number
       ) *
       (scuEvals / 100) +
-      rmpScore(rmpQuality, rmpDifficulty) * (rmp / 100)
+      rmpScore(rmpQuality as number, rmpDifficulty as number) * (rmp / 100)
     );
   }
 
   function scuEvalsScore(
-    qualityPercentile,
-    difficultyPercentile,
-    workloadPercentile
-  ) {
+    qualityPercentile: number,
+    difficultyPercentile: number,
+    workloadPercentile: number
+  ): number {
     const qualityScore = qualityPercentile * 100;
     const difficultyScore =
       100 -
@@ -365,7 +403,7 @@
     return ((qualityScore + difficultyScore + workloadScore) / 300) * 10;
   }
 
-  function rmpScore(quality, difficulty) {
+  function rmpScore(quality: number, difficulty: number): number {
     // Ranges go from 1 to 5, so we normalize them to 0 to 4.
     quality -= 1;
     difficulty -= 1;
@@ -375,9 +413,9 @@
   }
 
   async function appendRatingInfoToCell(
-    tdElement,
-    isSavedSchedulePage,
-    ratingInfo
+    tdElement: HTMLTableCellElement,
+    isSavedSchedulePage: boolean,
+    ratingInfo: RatingInfo
   ) {
     const overallScore = calcOverallScore(ratingInfo);
     const scoreContainer = document.createElement("div");
@@ -390,7 +428,7 @@
     const scoreText = document.createElement("div");
     scoreText.innerHTML = `
         <span style="font-size: 24px; font-weight: bold; color: ${getRatingColor(
-      overallScore,
+      overallScore ?? undefined,
       0,
       10,
       true
@@ -423,7 +461,7 @@
         z-index: 1000;
         pointer-events: auto; 
       `;
-    tooltipSignIn = tooltip.querySelector(".ssh-sign-in");
+    const tooltipSignIn = tooltip.querySelector<HTMLElement>(".ssh-sign-in");
     if (tooltipSignIn) {
       tooltipSignIn.addEventListener("click", async () => {
         sshSignIn(tooltipSignIn);
@@ -577,7 +615,7 @@
     }
   }
 
-  function createRatingToolTip(ratingInfo) {
+  function createRatingToolTip(ratingInfo: RatingInfo): HTMLElement {
     let {
       rmpLink,
       rmpQuality,
@@ -591,8 +629,12 @@
     } = ratingInfo;
     const ratingDiv = document.createElement("div");
 
+    const rmpDiffValue =
+      typeof rmpDifficulty === "number"
+        ? Math.abs(prefferedDifficulty - (rmpDifficulty - 1))
+        : undefined;
     const rmpDifficultyColor = getRatingColor(
-      Math.abs(prefferedDifficulty - rmpDifficulty + 1),
+      rmpDiffValue,
       0,
       4,
       false
@@ -719,24 +761,24 @@
     return ratingDiv;
   }
 
-  async function sshSignIn(signInButton) {
+  async function sshSignIn(signInButton: HTMLElement) {
     const errorDiv = signInButton.nextElementSibling;
-    errorDiv.textContent = ""; // Clear previous errors
+    if (errorDiv) (errorDiv as HTMLElement).textContent = ""; // Clear previous errors
     try {
       const response = await chrome.runtime.sendMessage("signIn");
       if (response?.text) {
-        errorDiv.textContent = response.text; // Display error message
+        if (errorDiv) (errorDiv as HTMLElement).textContent = response.text; // Display error message
       } else {
-        errorDiv.style.color = "green";
-        errorDiv.textContent =
+        if (errorDiv) (errorDiv as HTMLElement).setAttribute("style", "color: green");
+        if (errorDiv) (errorDiv as HTMLElement).textContent =
           "Sign in successful. Please reload the page for changes to take effect.";
       }
     } catch (error) {
-      errorDiv.textContent = "An error occurred during sign in.";
+      if (errorDiv) (errorDiv as HTMLElement).textContent = "An error occurred during sign in.";
     }
   }
 
-  function createFriendsToolTip(friendsTakenOrInterested) {
+  function createFriendsToolTip(friendsTakenOrInterested: string[]): HTMLElement {
     const friendsTooltipDiv = document.createElement("div");
     friendsTooltipDiv.innerHTML = `
         <div style="
@@ -772,61 +814,66 @@
     return friendsTooltipDiv;
   }
 
-  function getProfName(profName, usePreferred = false) {
+  function getProfName(profName: string, usePreferred = false): string {
     if (profName.includes("|")) {
       return profName.split("|")[+usePreferred].trim();
     }
     return profName;
   }
 
-  function getRatingColor(rating, ratingMin, ratingMax, goodValuesAreHigher) {
+  function getRatingColor(
+    rating: number | undefined,
+    ratingMin: number,
+    ratingMax: number,
+    goodValuesAreHigher: boolean
+  ): string {
     if (nullOrUndefined(rating)) return "rgba(0, 0, 0, 0.5)";
-    if (rating < ratingMin) rating = ratingMin;
-    if (rating > ratingMax) rating = ratingMax;
-    const greenShade = [66, 134, 67];
-    const yellowShade = [255, 165, 0];
-    const redShade = [194, 59, 34];
+    if (rating! < ratingMin) rating = ratingMin;
+    if (rating! > ratingMax) rating = ratingMax;
+    const greenShade: [number, number, number] = [66, 134, 67];
+    const yellowShade: [number, number, number] = [255, 165, 0];
+    const redShade: [number, number, number] = [194, 59, 34];
     const ratingMid = ratingMin + (ratingMax - ratingMin) / 2;
-    if (rating <= ratingMid && goodValuesAreHigher) {
+    if ((rating as number) <= ratingMid && goodValuesAreHigher) {
       return interpolateColor(
         redShade,
         yellowShade,
-        (rating - ratingMin) / (ratingMid - ratingMin)
+        ((rating as number) - ratingMin) / (ratingMid - ratingMin)
       );
     }
-    if (rating <= ratingMid && !goodValuesAreHigher) {
+    if ((rating as number) <= ratingMid && !goodValuesAreHigher) {
       return interpolateColor(
         greenShade,
         yellowShade,
-        (rating - ratingMin) / (ratingMid - ratingMin)
+        ((rating as number) - ratingMin) / (ratingMid - ratingMin)
       );
     }
     if (goodValuesAreHigher) {
       return interpolateColor(
         yellowShade,
         greenShade,
-        (rating - ratingMid) / (ratingMax - ratingMid)
+        ((rating as number) - ratingMid) / (ratingMax - ratingMid)
       );
     }
     return interpolateColor(
       yellowShade,
       redShade,
-      (rating - ratingMid) / (ratingMax - ratingMid)
+      ((rating as number) - ratingMid) / (ratingMax - ratingMid)
     );
   }
 
-  function interpolateColor(color1, color2, ratio) {
+  function interpolateColor(color1: [number, number, number], color2: [number, number, number], ratio: number): string {
     const r = Math.round(color1[0] + ratio * (color2[0] - color1[0]));
     const g = Math.round(color1[1] + ratio * (color2[1] - color1[1]));
     const b = Math.round(color1[2] + ratio * (color2[2] - color1[2]));
     return `rgba(${r}, ${g}, ${b}, 1)`;
   }
 
-  function isTimeWithinPreference(meetingTime) {
+  function isTimeWithinPreference(meetingTime: string): boolean {
     if (!meetingTime || !userInfo?.preferences) return false;
 
     const { startHour, startMinute, endHour, endMinute } =
-      userInfo.preferences.preferredSectionTimeRange;
+      userInfo.preferences.preferredSectionTimeRange as TimeRange;
 
     const [startTimeStr, endTimeStr] = meetingTime
       .split("-")
@@ -842,7 +889,7 @@
     );
   }
 
-  function parseTime(timeString) {
+  function parseTime(timeString: string): { hours: number; minutes: number } {
     const [time, period] = timeString.trim().split(/\s+/);
     let [hours, minutes] = time.split(":").map(Number);
 
@@ -852,12 +899,12 @@
     return { hours, minutes };
   }
 
-  function getPercentile(value, array) {
+  function getPercentile(value: number | null | undefined, array?: number[] | null): number | null {
     if (!value || !array || array.length === 0) return null;
     return bsFind(array, value) / array.length;
   }
 
-  function bsFind(sortedArray, target) {
+  function bsFind(sortedArray: number[], target: number): number {
     let left = 0;
     let right = sortedArray.length - 1;
     while (left <= right) {
@@ -869,7 +916,7 @@
     return left;
   }
 
-  async function findEnrollmentStatistics() {
+  async function findEnrollmentStatistics(): Promise<void> {
     const currentUrl = window.location.href;
     if (!currentUrl.includes("scu/d/inst")) {
       console.error("Page URL did not include /d/ :", currentUrl);
@@ -884,12 +931,12 @@
       }
       const data = await response.json();
       const coursesData = data?.body?.children?.find(
-        (child) => child.widget === "grid" && child.label === "Courses")?.rows;
-      let courseSections = [];
+        (child: any) => child.widget === "grid" && child.label === "Courses")?.rows as any[] | undefined;
+      let courseSections: Array<{ meetingPattern: string | undefined; uri: string }> = [];
 
-      for (const row of coursesData) {
+      for (const row of (coursesData || [])) {
         const courseSectionData = findObjectByPropertyValue(row.cellsMap, "label", "Section");
-        const sectionMeetingPattern = findObjectByPropertyValue(row.cellsMap, "label", "Meeting Patterns")?.instances[0]?.text;
+        const sectionMeetingPattern = findObjectByPropertyValue(row.cellsMap, "label", "Meeting Patterns")?.instances?.[0]?.text as string | undefined;
         if (courseSectionData) {
           if (courseSectionData.selfUriTemplate) {
             courseSections.push({
@@ -921,14 +968,14 @@
               sectionData,
               "label",
               "Seats Available"
-            )?.value;
+            )?.value as string | undefined;
 
             if (enrolledStats) {
               if (enrolledStats.match(/\-?\d+ of \d+/)) {
                 let [enrolled, total] = enrolledStats.split(" of ");
                 enrolledStats = `${enrolled}/${total}`;
               }
-              enrollmentStats[meetingPattern] = enrolledStats;
+              if (meetingPattern) enrollmentStats[meetingPattern] = enrolledStats;
             }
           } catch (error) {
             console.error("Error fetching section data:", error);
@@ -940,7 +987,7 @@
     }
   }
 
-  function findObjectByPropertyValue(obj, key, value) {
+  function findObjectByPropertyValue(obj: any, key: string, value: string): any | null {
     if (typeof obj !== "object" || obj === null) {
       return null;
     }
@@ -970,7 +1017,7 @@
     return null;
   }
 
-  function nullOrUndefined(object) {
+  function nullOrUndefined(object: any): boolean {
     return object === null || object === undefined || isNaN(object);
   }
 })();

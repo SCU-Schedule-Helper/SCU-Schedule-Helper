@@ -8,20 +8,35 @@ import {
 } from "./constants.ts";
 
 import { fetchWithAuth, signOut } from "./authorization.ts";
+import { FriendProfile, FriendRequest, FriendRequestType, UserProfile } from "../../components/utils/types.ts";
 
-export async function refreshUserData(items = []) {
+interface ErrorResponse {
+  message: string;
+}
+
+interface FriendMap {
+  [id : string] : FriendProfile;
+}
+
+interface FriendRequestMap {
+  [id : string] : FriendRequest;
+}
+
+export async function refreshUserData(items:string[] = []) {
   const itemsQuery = items.length > 0 ? `?items=${items.join(",")}` : "";
   const response = await fetchWithAuth(`${PROD_USER_ENDPOINT}/me${itemsQuery}`);
   if (!response) {
     return "Unknown error fetching user data. Please try again later.";
   }
-  const data = await response.json();
+  let data : UserProfile | ErrorResponse = await response.json();
   if (!response.ok) {
+    data = data as ErrorResponse;
     return `Error fetching user data: ${data.message}`;
   }
+  data = data as UserProfile;
 
   if (items.includes("friends") || items.length === 0) {
-    const friends = {};
+    const friends: FriendMap = {};
     await chrome.storage.local.set({
       friendCoursesTaken: {},
       friendInterestedSections: {},
@@ -39,8 +54,8 @@ export async function refreshUserData(items = []) {
     });
   }
   if (items.includes("friendRequests") || items.length === 0) {
-    const friendRequestsIn = {};
-    const friendRequestsOut = {};
+    const friendRequestsIn: FriendRequestMap = {};
+    const friendRequestsOut: FriendRequestMap = {};
     for (const friendReqObj of data.friendRequests) {
       if (friendReqObj.type === "incoming") {
         friendRequestsIn[friendReqObj.id] = friendReqObj;
@@ -78,7 +93,7 @@ export async function refreshUserData(items = []) {
   return null;
 }
 
-export async function updateUser(updateItems, allowLocalOnly = false) {
+export async function updateUser(updateItems: any, allowLocalOnly = false) {
   const response = await fetchWithAuth(PROD_USER_ENDPOINT, {
     method: "PUT",
     body: JSON.stringify(updateItems),
@@ -110,7 +125,7 @@ export async function updateUser(updateItems, allowLocalOnly = false) {
   };
 }
 
-async function updateLocalCache(updateItems) {
+async function updateLocalCache(updateItems: any) {
   const userInfo = (await chrome.storage.local.get("userInfo")).userInfo || {};
   if (updateItems.personal) {
     if (updateItems.personal.name) userInfo.name = updateItems.personal.name;
@@ -209,7 +224,7 @@ export async function deleteAccount() {
   return null;
 }
 
-export async function addFriendLocally(friendId, friendReqType, notificationType = "") {
+export async function addFriendLocally(friendId: string, friendReqType: FriendRequestType, notificationType = "") {
   const getFriendProfileResponse = await fetchWithAuth(
     `${PROD_USER_ENDPOINT}/${friendId}`,
   );
@@ -243,7 +258,7 @@ export async function addFriendLocally(friendId, friendReqType, notificationType
     [friendReqsKey]: currentFriendRequests,
   });
   if (notificationType === "FriendRequestAccepted") {
-    await chrome.notifications.create({
+    chrome.notifications.create({
       type: "basic",
       iconUrl: "/images/icon-128.png",
       title: "Friend Request Accepted",
@@ -255,9 +270,9 @@ export async function addFriendLocally(friendId, friendReqType, notificationType
 }
 
 export async function updateFriendCourseAndSectionIndexes(
-  friendId,
-  coursesTaken,
-  interestedSections,
+  friendId: string,
+  coursesTaken: string[],
+  interestedSections: string[],
 ) {
   coursesTaken = coursesTaken || [];
   interestedSections = interestedSections || {};
@@ -308,7 +323,7 @@ export async function updateFriendCourseAndSectionIndexes(
   });
 }
 
-export async function clearFriendCourseAndSectionIndexes(friendId) {
+export async function clearFriendCourseAndSectionIndexes(friendId: string) {
   const friendCoursesTaken =
     (await chrome.storage.local.get("friendCoursesTaken")).friendCoursesTaken ||
     {};
@@ -341,7 +356,7 @@ export async function clearFriendCourseAndSectionIndexes(friendId) {
   });
 }
 
-export async function addFriendRequestLocally(friendId, type, notificationType = "") {
+export async function addFriendRequestLocally(friendId: string, type: FriendRequestType, notificationType = "") {
   const getUserPublicProfileResponse = await fetchWithAuth(
     `${PROD_USER_ENDPOINT}/${friendId}`,
   );
@@ -365,7 +380,7 @@ export async function addFriendRequestLocally(friendId, type, notificationType =
   });
   if(notificationType === "FriendRequestReceived") {
     console.log("creating chrome notification");
-    await chrome.notifications.create({
+    chrome.notifications.create({
       type: "basic",
       iconUrl: "/images/icon-128.png",
       title: "Friend Request Received",
@@ -375,7 +390,7 @@ export async function addFriendRequestLocally(friendId, type, notificationType =
   }
 }
 
-export async function removeFriendLocally(friendId) {
+export async function removeFriendLocally(friendId: string) {
   const currentFriends =
     (await chrome.storage.local.get("friends")).friends || {};
   delete currentFriends[friendId];
@@ -383,7 +398,7 @@ export async function removeFriendLocally(friendId) {
   await clearFriendCourseAndSectionIndexes(friendId);
 }
 
-export async function removeFriendRequestLocally(friendId, type) {
+export async function removeFriendRequestLocally(friendId: string, type: FriendRequestType) {
   const friendRequestsKey =
     type === "incoming" ? "friendRequestsIn" : "friendRequestsOut";
   const existingFriendRequests =
@@ -412,7 +427,7 @@ export async function refreshInterestedSections() {
   await updateUser({ interestedSections: { remove: sectionsToRemove } });
 }
 
-export async function queryUserByName(name) {
+export async function queryUserByName(name: string) {
   const response = await fetchWithAuth(
     `${PROD_USER_ENDPOINT}/query?name=${encodeURIComponent(name)}`,
   );
@@ -440,10 +455,10 @@ export async function importCourseHistory() {
   );
 }
 
-async function openTabAndSendMessage(url, message) {
+async function openTabAndSendMessage(url: string, message: string) {
   const createdTab = await chrome.tabs.create({ url });
 
-  async function tabListener(tabId, changeInfo, tab) {
+  async function tabListener(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
     if (tabId === createdTab.id && changeInfo.status === "complete") {
       try {
         const response = await chrome.tabs.sendMessage(createdTab.id, message);
@@ -456,7 +471,7 @@ async function openTabAndSendMessage(url, message) {
   chrome.tabs.onUpdated.addListener(tabListener);
 }
 
-function getS3PhotoUrl(userId) {
+function getS3PhotoUrl(userId: string) {
   return `https://scu-schedule-helper.s3.amazonaws.com/u%23${userId}/photo`;
 }
 

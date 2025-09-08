@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Card, CardContent, Typography } from "@mui/material";
-import LinearWithValueLabel from "./LinearWithValueLabel";
+import LinearWithValueLabel from "./LinearWithValueLabel.tsx";
 
 interface ProgressCardProps {
   title: string;

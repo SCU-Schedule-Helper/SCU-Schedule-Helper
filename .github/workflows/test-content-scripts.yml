@@ -17,7 +17,7 @@ jobs:
       
       # Build the extension
       - name: Install extension dependencies
-        run: npm ci; cd __test__/react_content_scripts && npm ci --legacy-peer-deps
+        run: npm ci; cd react_content_scripts && npm ci --legacy-peer-deps
         working-directory: extension
       
       - name: Build extension

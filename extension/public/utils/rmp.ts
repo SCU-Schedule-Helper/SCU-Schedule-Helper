@@ -20,7 +20,7 @@ const edgecases = {
   actual_mismatches: new Set(["eun park"]),
 };
 
-function findClosingBrace(str, openingBraceIndex) {
+function findClosingBrace(str: string, openingBraceIndex: number) {
   let closingBraceIndex = openingBraceIndex + 1;
   let braceCount = 1;
   while (braceCount > 0 && closingBraceIndex < str.length) {
@@ -31,12 +31,12 @@ function findClosingBrace(str, openingBraceIndex) {
   return closingBraceIndex;
 }
 
-async function getHtml(url) {
+async function getHtml(url: string) {
   const response = await fetch(url);
   return await response.text();
 }
 
-async function scrapeProfessorPage(profId, debuggingEnabled = false) {
+async function scrapeProfessorPage(profId: string | number, debuggingEnabled = false) {
   if (typeof profId === "number") profId = profId.toString();
   const url = `https://www.ratemyprofessors.com/professor/${profId}`;
   if (debuggingEnabled) console.log("Querying " + url + "...");
@@ -66,10 +66,10 @@ async function scrapeProfessorPage(profId, debuggingEnabled = false) {
   return teacherData;
 }
 
-async function scrapeRmpRatings(profName, debuggingEnabled = false) {
+async function scrapeRmpRatings(profName: string, debuggingEnabled = false) {
   profName = profName.replace(" ", "%20");
   const url = `https://www.ratemyprofessors.com/search/professors/882?q=${profName}`;
-  let teachers = [];
+  let teachers:any[] = [];
   if (debuggingEnabled) console.log("Querying " + url + "...");
 
   const html = await getHtml(url);
@@ -121,7 +121,7 @@ async function scrapeRmpRatings(profName, debuggingEnabled = false) {
   return teachers;
 }
 
-export async function getRmpRatings(rawProfName, debuggingEnabled = false) {
+export async function getRmpRatings(rawProfName: string, debuggingEnabled = false) {
   let profName = rawProfName.trim();
   // Empirical testing showed that including middle names in the query does not improve accuracy.
   // Therefore, we only query by the first first name and the last last name.
@@ -161,7 +161,7 @@ export async function getRmpRatings(rawProfName, debuggingEnabled = false) {
   if (edgecases.name_transformations.has(realFirstName + lastName)) {
     const transformedName = edgecases.name_transformations.get(
       realFirstName + lastName
-    );
+    ) as string;
     data = await scrapeRmpRatings(transformedName, debuggingEnabled);
     realFirstName = transformedName
       .substring(0, transformedName.indexOf(" "))

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import NavMenu from "../components/NavMenu.js";
+import NavMenu from "../components/NavMenu";
 import SearchPage from "../components/search/SearchPage";
 import PreferencesPage from "../components/preferences/PreferencesPage";
 import FriendsPage from "../components/friends/FriendsPage";

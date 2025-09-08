@@ -31,10 +31,11 @@ export async function signIn(): Promise<string | null> {
     return "Authorization cancelled.";
   }
 
-  let subscription =
+  let subscription: PushSubscription | null =
     (await self.registration.pushManager.getSubscription()) || null;
   if (!subscription) {
-    subscription = await subscribe();
+    const sub = await subscribe();
+    if (sub) subscription = sub;
   }
 
   let response = await fetch(PROD_AUTH_TOKEN_ENDPOINT, {
@@ -51,7 +52,7 @@ export async function signIn(): Promise<string | null> {
     });
     await fetch(
       `https://oauth2.googleapis.com/revoke?token=${encodeURIComponent(
-        oAuthToken
+        oAuthToken || ""
       )}`,
       {
         headers: {
@@ -90,7 +91,7 @@ export async function signIn(): Promise<string | null> {
     body: JSON.stringify({
       name: data.oAuthInfo.name,
       photoUrl: data.oAuthInfo.photoUrl,
-      subscription: JSON.stringify(subscription),
+      subscription: JSON.stringify(subscription ?? undefined),
     }),
   });
   const createdUserData = await createdUser.json();
@@ -99,7 +100,7 @@ export async function signIn(): Promise<string | null> {
     createdUserData.message === "You already have an account."
   ) {
     const updateError = await updateSubscriptionAndRefreshUserData(
-      JSON.stringify(subscription)
+      JSON.stringify(subscription ?? undefined)
     );
     if (!updateError) {
       if (chrome.runtime.setUninstallURL) {
@@ -108,7 +109,7 @@ export async function signIn(): Promise<string | null> {
           "unknown";
         await chrome.runtime.setUninstallURL(
           `https://scu-schedule-helper.me/uninstall?u=${userId}&sub=${encodeURIComponent(
-            subscription.endpoint
+            subscription?.endpoint || ""
           )}`
         );
       }
@@ -134,10 +135,10 @@ export async function signIn(): Promise<string | null> {
     friendInterestedSections: {},
   });
 
-  await chrome.runtime.setUninstallURL(
+  chrome.runtime.setUninstallURL(
     `https://scu-schedule-helper.me/uninstall?u=${
       createdUserData.id
-    }&sub=${encodeURIComponent(subscription.endpoint)}`
+    }&sub=${encodeURIComponent(subscription?.endpoint || "")}`
   );
   return null;
 }
@@ -196,7 +197,7 @@ export async function signOut(sendNotification = false) {
     userInfo: currentUserInfo,
   });
   if(sendNotification) {
-    await chrome.notifications.create({
+    chrome.notifications.create({
       type: "basic",
       iconUrl: "/images/icon-128.png",
       title: "Login Expired",

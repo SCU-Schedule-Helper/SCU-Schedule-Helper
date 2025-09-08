@@ -1,11 +1,11 @@
 // Automatically tracks courses and sections that the user is interested in, if feature is enabled.
-let debounceTimer: number | undefined;
+let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 const debounceDelay: number = 100;
 const expDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 45);
 const sentInterestedSections = new Set();
 const checkForInterestedSections = function (mutationsList: MutationRecord[]): void {
   // Clear the previous debounce timer
-  clearTimeout(debounceTimer);
+  if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     const element = document.querySelector(
       '[data-automation-id="pageHeaderTitleText"]',
