@@ -28,7 +28,7 @@ export default function ProfessorRecencyIndicator({ lastTaughtQuarter }: Profess
 
 function getRecencyIndicator(lastTaughtQuarter: string) {
     const lastSeasonTaught = lastTaughtQuarter.split(" ")[0];
-    const lastYearTaught = parseInt(lastTaughtQuarter.split(" ")[1]);
+    const lastYearTaught = parseInt(lastTaughtQuarter.split(" ")[1]!);
     const lastMonthTaught =
         lastSeasonTaught === "Winter"
             ? 3

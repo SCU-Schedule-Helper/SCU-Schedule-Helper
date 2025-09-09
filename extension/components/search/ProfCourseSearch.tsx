@@ -104,6 +104,7 @@ export default function ProfCourseSearch({
               value.courseName || "Unnamed Course"
             }`,
             groupLabel: "Courses",
+            type: "course",
             ...value,
           });
         } else if (value?.type === "prof") {
@@ -111,6 +112,7 @@ export default function ProfCourseSearch({
             id: key,
             label: key,
             groupLabel: "Professors",
+            type: "prof",
             ...value,
           });
         }

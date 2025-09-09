@@ -38,18 +38,19 @@ export default function SearchPage() {
 
   function handleDialogClose() {
     setDialogOpen(false);
-    useEffect(() => {
-      if (query !== null) {
-        setStack((prevStack) => {
-          if (prevStack[prevStack.length - 1] !== query) {
-            const newStack = [...prevStack, query];
-            return newStack;
-          }
-          return prevStack;
-        });
-      }
-    }, [query]);
   }
+
+  useEffect(() => {
+    if (query !== null) {
+      setStack((prevStack) => {
+        if (prevStack[prevStack.length - 1] !== query) {
+          const newStack = [...prevStack, query];
+          return newStack;
+        }
+        return prevStack;
+      });
+    }
+  }, [query]);
 
   function handleBackButton() {
     setStack((prevStack) => {

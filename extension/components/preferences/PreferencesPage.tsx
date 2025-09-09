@@ -20,9 +20,9 @@ import {
 } from "../utils/types.js";
 
 export default function PreferencesPage() {
-  const [userPrefs, setUserPrefs] = useState(null as UserPreferences | null);
+  const [userPrefs, setUserPrefs] = useState<UserPreferences | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<null | string>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -218,7 +218,6 @@ export default function PreferencesPage() {
               <PercentSlider
                 initValue={[userPrefs.scoreWeighting.scuEvals]}
                 onChangeCommitted={handlePercentagePreferenceChange}
-                // sx={{ width: "90%" }}
               />
             </>
           )}

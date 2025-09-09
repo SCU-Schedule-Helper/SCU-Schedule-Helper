@@ -125,7 +125,7 @@ export async function updateUser(updateItems: any, allowLocalOnly = false): Prom
   };
 }
 
-async function updateLocalCache(updateItems: any) {
+async function updateLocalCache(updateItems: any): Promise<string | null> {
   const userInfo = (await chrome.storage.local.get("userInfo")).userInfo || {};
   if (updateItems.personal) {
     if (updateItems.personal.name) userInfo.name = updateItems.personal.name;
@@ -357,7 +357,7 @@ export async function clearFriendCourseAndSectionIndexes(friendId: string) {
   });
 }
 
-export async function addFriendRequestLocally(friendId: string, type: FriendRequestType, notificationType = "") {
+export async function addFriendRequestLocally(friendId: string, type: FriendRequestType, notificationType = ""): Promise<string | null> {
   const getUserPublicProfileResponse = await fetchWithAuth(
     `${PROD_USER_ENDPOINT}/${friendId}`,
   );

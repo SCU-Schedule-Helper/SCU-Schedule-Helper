@@ -50,11 +50,9 @@ export default function ProfCourseCard({
   if (!selected || !data) return null;
   const [rmpData, setRmpData] = useState(null);
   const [isLoadingRmp, setIsLoadingRmp] = useState(true);
-  const [friendData, setFriendData] = useState(null as FriendData | null);
-  const [profDepts, setProfDepts] = useState([] as string[]);
-  const [sortingMetric, setSortingMetric] = useState(
-    SortingMetrics.overall as string
-  );
+  const [friendData, setFriendData] = useState<FriendData | null>(null);
+  const [profDepts, setProfDepts] = useState<string[]>([]);
+  const [sortingMetric, setSortingMetric] = useState<string>(SortingMetrics.overall);
   const [sortDescending, setSortDescending] = useState(true);
   const [profDeptAvgs, setProfDeptAvgs] = useState({
     qualityAvgs: [] as number[],
@@ -66,10 +64,12 @@ export default function ProfCourseCard({
     difficulty: 0,
     workload: 0,
   });
-  const [sortedCourses, setSortedCourses] = useState(
-    [] as [string, Evaluation | ProfessorCourseEvaluation][]
-  );
-  const [sortedProfs, setSortedProfs] = useState([] as [string, CourseData][]);
+  const [sortedCourses, setSortedCourses] = useState<
+    [string, Evaluation | ProfessorCourseEvaluation][]
+  >([]);
+  const [sortedProfs, setSortedProfs] = useState<
+    [string, CourseData][]
+  >([]);
 
   // Fetch friend data and preferred percentiles on component mount.
   useEffect(() => {
@@ -143,7 +143,7 @@ export default function ProfCourseCard({
     if (selected.type === "prof") {
       const ratingsToSort = Object.entries(
         data[selected.id]! as ProfessorData
-      ).filter(([key]) => key !== "overall" && key !== "type") as [
+      ).filter(([key]) => key !== "overall" && key.length > 4) as [
         string,
         Evaluation | ProfessorCourseEvaluation
       ][];
@@ -174,7 +174,7 @@ export default function ProfCourseCard({
   ) {
     const aggregatedAvgs = [];
     for (const dept of profDepts) {
-    if (data!.departmentStatistics[dept]![`${type}Avgs`].length > 0) {
+      if (data!.departmentStatistics[dept]![`${type}Avgs`].length > 0) {
         aggregatedAvgs.push(...data!.departmentStatistics[dept]![`${type}Avgs`]);
       }
     }
@@ -214,12 +214,11 @@ export default function ProfCourseCard({
           const match = section.match(interestedSectionPattern);
           if (!match) continue;
           const meetingPatternMatch = match[3].match(/(.*) \| (.*) \| (.*)/);
-          const meetingPattern = `${
-            meetingPatternMatch[1]
-          } at ${meetingPatternMatch[2]
-            .replaceAll(" ", "")
-            .replaceAll(":00", "")
-            .toLowerCase()}`;
+          const meetingPattern = `${meetingPatternMatch[1]
+            } at ${meetingPatternMatch[2]
+              .replaceAll(" ", "")
+              .replaceAll(":00", "")
+              .toLowerCase()}`;
           const courseCode = match[2]
             .substring(0, match[2].indexOf("-"))
             .replace(" ", "");
@@ -249,12 +248,11 @@ export default function ProfCourseCard({
         const match = course.match(interestedSectionPattern);
         if (!match) continue;
         const meetingPatternMatch = match[3].match(/(.*) \| (.*) \| (.*)/);
-        const meetingPattern = `${
-          meetingPatternMatch[1]
-        } at ${meetingPatternMatch[2]
-          .replaceAll(" ", "")
-          .replaceAll(":00", "")
-          .toLowerCase()}`;
+        const meetingPattern = `${meetingPatternMatch[1]
+          } at ${meetingPatternMatch[2]
+            .replaceAll(" ", "")
+            .replaceAll(":00", "")
+            .toLowerCase()}`;
         friendInterestedInfos.push(
           `${friendName} wants to take with ${match[1]} on ${meetingPattern}`
         );
@@ -493,9 +491,10 @@ export default function ProfCourseCard({
           </Typography>
           {(
             Object.entries(selected).filter(
-              ([key, value] : [string, any]) =>
+              ([key, value]: [string, any]) =>
                 typeof value === "object" &&
                 value.qualityTotal !== undefined &&
+                key !== "overall" &&
                 key.length === 4
             ) as [string, Evaluation][]
           ).map(([dept, stats], index) => (
@@ -510,7 +509,7 @@ export default function ProfCourseCard({
               />
               {index <
                 Object.keys(selected).filter((key) => key.length === 4).length -
-                  2 && <Divider sx={{ my: 2 }} />}
+                2 && <Divider sx={{ my: 2 }} />}
             </Box>
           ))}
         </CardContent>

@@ -1,5 +1,5 @@
 import  { Fragment } from "react";
-import { Card, CardContent, Typography, Stack, Divider } from "@mui/material";
+import { Card, CardContent, Typography, Stack, Divider, List, ListItem } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import BookIcon from "@mui/icons-material/Book";
 import { ParsedInterestedSection, ParsedCourseTaken } from "./types";
@@ -68,11 +68,12 @@ export default function CourseDetailsCard({
               Taken Courses
             </Typography>
             {courses.taken.length > 0 ? (
-              courses.taken.map((course, index) => (
-                <li key={index}>
-                  <Stack>
-                    <Typography variant="body2">
-                      {(course.courseCode &&
+              <List>
+                {courses.taken.map((course, index) => (
+                  <ListItem key={index}>
+                    <Stack>
+                      <Typography variant="body2">
+                        {(course.courseCode &&
                         `${course.courseCode} - ${course.courseName}`) ||
                         course.courseName}
                     </Typography>
@@ -83,8 +84,9 @@ export default function CourseDetailsCard({
                     </Typography>
                   </Stack>
                   {index < courses.taken.length - 1 && <Divider />}
-                </li>
-              ))
+                </ListItem>
+              ))}
+              </List>
             ) : (
               <Typography variant="body2" color="text.secondary">
                 No taken courses

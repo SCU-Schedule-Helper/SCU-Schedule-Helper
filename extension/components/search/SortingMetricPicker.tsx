@@ -13,17 +13,17 @@ interface SortingMetricPickerProps {
   handleMetricChange: (metric: string) => void;
 }
 export default function SortingMetricPicker({ sortingMetric, sortDescending, handleMetricChange }: SortingMetricPickerProps) {
-
-// Removed duplicate untyped function signature
+    // Header row aligned to 4 equal columns (Overall + 3 metrics)
     return <Box
         sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignContent: "right",
-            width: "275px",
-            marginLeft: "auto",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) repeat(4, 90px)",
+            alignItems: "center",
+            width: "100%",
         }}
     >
+        {/* empty first column to align over the label column */}
+        <Box />
         {[
             {
                 metric: SortingMetrics.overall,

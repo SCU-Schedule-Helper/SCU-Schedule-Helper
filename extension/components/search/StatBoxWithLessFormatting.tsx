@@ -20,13 +20,13 @@ export default function StatBoxWithLessFormatting({
     if (isRmpRating) {
       if (label === "quality") return getRatingColor(value, 1, 5, true);
       const diffScore = Math.abs(
-        preferredPercentiles.difficulty * 4 - value + 1,
+        preferredPercentiles.difficulty! * 4 - value + 1,
       );
       return getRatingColor(diffScore, 0, 4, false);
     }
     // Assume deptStats always contains data; assert non-null
     const percentile = getPercentile(value, deptStats)!;
-    const score = 100 - Math.abs(preferredPercentiles[label] - percentile) * 100;
+    const score = 100 - Math.abs(preferredPercentiles[label]! - percentile) * 100;
     return getRatingColor(score, 0, 100, true);
   }
 

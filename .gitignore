@@ -9,3 +9,4 @@ out
 *.zip
 *.next
 **/.DS_Store
+.vscode/**
