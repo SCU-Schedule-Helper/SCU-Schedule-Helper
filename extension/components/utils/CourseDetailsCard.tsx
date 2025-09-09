@@ -68,12 +68,11 @@ export default function CourseDetailsCard({
               Taken Courses
             </Typography>
             {courses.taken.length > 0 ? (
-              <List>
-                {courses.taken.map((course, index) => (
-                  <ListItem key={index}>
-                    <Stack>
-                      <Typography variant="body2">
-                        {(course.courseCode &&
+              courses.taken.map((course, index) => (
+                <Fragment key={index}>
+                  <Stack>
+                    <Typography variant="body2">
+                      {(course.courseCode &&
                         `${course.courseCode} - ${course.courseName}`) ||
                         course.courseName}
                     </Typography>
@@ -84,9 +83,8 @@ export default function CourseDetailsCard({
                     </Typography>
                   </Stack>
                   {index < courses.taken.length - 1 && <Divider />}
-                </ListItem>
-              ))}
-              </List>
+                </Fragment>
+              ))  
             ) : (
               <Typography variant="body2" color="text.secondary">
                 No taken courses

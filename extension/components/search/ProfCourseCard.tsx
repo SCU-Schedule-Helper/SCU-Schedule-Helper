@@ -632,7 +632,7 @@ export default function ProfCourseCard({
                       marginLeft="0.75rem"
                     >
                       <StatsWithLessFormatting
-                        flexGap={"2.75rem"}
+                        flexGap={"2.5rem"}
                         stats={profCourseStats}
                         deptStats={
                           data.departmentStatistics[selected.id.substring(0, 4)]!

@@ -3,20 +3,19 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
 (async function () {
   await chrome.runtime.sendMessage("runStartupChecks");
 
-  type FetchStatusType = 0 | 1 | 2;
-  const FetchStatus = {
-    NotFetched: 0 as const,
-    Fetching: 1 as const,
-    Fetched: 2 as const,
-  };
+  enum FetchStatus {
+    NotFetched,
+    Fetching,
+    Fetched,
+  }
 
-  const Difficulty = Object.freeze({
-    VeryEasy: 0,
-    Easy: 1,
-    Medium: 2,
-    Hard: 3,
-    VeryHard: 4,
-  });
+  enum Difficulty {
+    VeryEasy,
+    Easy,
+    Medium,
+    Hard,
+    VeryHard,
+  }
 
   const courseTakenPattern = /P{(.*?)}C{(.*?)}T{(.*?)}/; // P{profName}C{courseCode}T{termName}
   const interestedSectionPattern = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
@@ -54,9 +53,9 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
   let friendCoursesTaken: Record<string, Record<string, string>> = {};
   let friends: Record<string, Friend> = {};
   let currentUrl = window.location.href;
-  let enrollmentStatsStatus: FetchStatusType = FetchStatus.NotFetched;
+  let enrollmentStatsStatus: FetchStatus = FetchStatus.NotFetched;
   let enrollmentStats: Record<string, string> = {};
-  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let debounceTimer: number;
   let prefferedDifficulty: number = Difficulty.VeryEasy;
   let preferredDifficultyPercentile = prefferedDifficulty / 4;
 
@@ -68,7 +67,7 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
 
   async function checkPage() {
     if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(async () => {
+    debounceTimer = window.setTimeout(async () => {
       if (currentUrl !== window.location.href) {
         currentUrl = window.location.href;
         enrollmentStatsStatus = FetchStatus.NotFetched;

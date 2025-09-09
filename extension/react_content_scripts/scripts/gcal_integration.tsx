@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import GoogleCalendarButton from "../components/gcal_integration/GoogleCalendarButton";
 
 const debounceDelay = 100;
-let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+let debounceTimer: number;
 
 const isButtonAdded = () => {
   return !!document.getElementById("gcal-button-container");
