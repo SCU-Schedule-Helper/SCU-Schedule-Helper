@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
-    "target": "es2016", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "target": "es2016",
     "lib": [
       "esnext",
       "DOM"
-    ], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
-    "jsx": "preserve", /* Specify what JSX code is generated. Use React 17+ automatic JSX runtime. */
-    "jsxImportSource": "react", /* Specify module specifier for automatic JSX runtime. */
-    "module": "esnext", /* Specify what module code is generated. */
-    "moduleResolution": "node", /* Specify how TypeScript looks up a file from a given module specifier. */
-    "allowImportingTsExtensions": true, /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
-    "allowJs": true, /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+    ],
+    "jsx": "preserve",
+    "jsxImportSource": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
     "checkJs": true,
-    "noEmit": true, /* Disable emitting files from a compilation. */
-    "esModuleInterop": true, /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
-    "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
-    "strict": true, /* Enable all strict type-checking options. */
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
@@ -30,8 +30,8 @@
       "react",
       "react-dom",
       "chrome"
-    ], /* Include type definitions for React and Chrome APIs */
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+    ],
+    "skipLibCheck": true,
     "incremental": false,
     "resolveJsonModule": true,
     "isolatedModules": true
