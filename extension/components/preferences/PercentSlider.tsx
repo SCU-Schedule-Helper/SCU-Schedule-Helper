@@ -32,7 +32,7 @@ const theme = createTheme({
 
 interface Props {
   initValue: number[];
-  onChangeCommitted: (newValue: number[]) => void;
+  onChangeCommitted: (_newValue: number[]) => void;
 }
 
 export default function PercentSlider({ initValue, onChangeCommitted }: Props) {
@@ -42,7 +42,7 @@ export default function PercentSlider({ initValue, onChangeCommitted }: Props) {
     setSliderValue(initValue);
   }, [initValue]);
 
-  function handleChange(event: Event, newValue: number | number[]) {
+  function handleChange(_event: Event, newValue: number | number[]) {
     if (typeof newValue === "number") {
       console.error("Invalid value type:", newValue);
       return;
@@ -51,7 +51,7 @@ export default function PercentSlider({ initValue, onChangeCommitted }: Props) {
   }
 
   function handleChangeCommitted(
-    event: SyntheticEvent | Event,
+    _event: SyntheticEvent | Event,
     newValue: number | number[]
   ) {
     if (typeof newValue === "number") {

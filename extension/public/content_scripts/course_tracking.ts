@@ -3,7 +3,7 @@ let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 const debounceDelay: number = 100;
 const expDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 45);
 const sentInterestedSections = new Set();
-const checkForInterestedSections = function (mutationsList: MutationRecord[]): void {
+const checkForInterestedSections = function (): void {
   // Clear the previous debounce timer
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -16,18 +16,18 @@ const checkForInterestedSections = function (mutationsList: MutationRecord[]): v
     ) {
       const tables = document.querySelectorAll("table");
       if (tables.length !== 1) return;
-      const table = tables[0];
+      const table = tables[0]!;
       const data = table.querySelectorAll("td");
       const add: Record<string, string> = {};
-      let curSection = null;
-      let curProf = null;
-      let curMeetingPatterns = null;
+      let curSection: string | null = null;
+      let curProf: string | null = null;
+      let curMeetingPatterns: string | null = null;
       for (let i = 0; i < data.length; i++) {
         if (i % 10 === 3) {
-          curSection = data[i].innerText;
+          curSection = data[i]!.innerText;
         }
         if (i % 10 === 6) {
-          curProf = data[i].innerText;
+          curProf = data[i]!.innerText;
           const profIndexOfPipe = curProf.indexOf("|");
           if (profIndexOfPipe !== -1) {
             // Removes the preferred name.
@@ -36,7 +36,7 @@ const checkForInterestedSections = function (mutationsList: MutationRecord[]): v
           curProf = curProf.replace("\n\n\n", " & ");
         }
         if (i % 10 === 9) {
-          curMeetingPatterns = data[i].innerText;
+          curMeetingPatterns = data[i]!.innerText;
           if (curSection && curProf && curMeetingPatterns) {
             const interestedSectionString = `P{${curProf}}S{${curSection}}M{${curMeetingPatterns}}`;
             if (!sentInterestedSections.has(interestedSectionString)) {

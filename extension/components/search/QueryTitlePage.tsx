@@ -5,11 +5,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 interface QueryPageTitleProps {
   handleBackButton: () => void;
   handleDialogOpen: () => void;
-  showBackButton: any;
+  showBackButton: boolean;
 }
 
 export default function QueryPageTitle({ handleBackButton, handleDialogOpen, showBackButton }: QueryPageTitleProps) {
-    if (showBackButton.length === 0) {
+    if (showBackButton) {
       return (
         <Box sx={{
           mb: "1rem"

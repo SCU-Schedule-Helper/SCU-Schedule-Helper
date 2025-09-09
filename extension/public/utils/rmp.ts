@@ -1,3 +1,5 @@
+import { RmpTeacher } from "./types.ts";
+
 const edgecases = {
   not_mismatches: new Set([
     "dongsoo shin",
@@ -36,7 +38,7 @@ async function getHtml(url: string) {
   return await response.text();
 }
 
-async function scrapeProfessorPage(profId: string | number, debuggingEnabled = false) {
+async function scrapeProfessorPage(profId: string | number, debuggingEnabled = false): Promise<RmpTeacher> {
   if (typeof profId === "number") profId = profId.toString();
   const url = `https://www.ratemyprofessors.com/professor/${profId}`;
   if (debuggingEnabled) console.log("Querying " + url + "...");
@@ -46,18 +48,18 @@ async function scrapeProfessorPage(profId: string | number, debuggingEnabled = f
   }
 
   const html = await getHtml(url);
-  let indexOfTeacher = html.indexOf('"__typename":"Teacher"');
-  let openingBraceIndex = html.lastIndexOf("{", indexOfTeacher);
+  const indexOfTeacher = html.indexOf('"__typename":"Teacher"');
+  const openingBraceIndex = html.lastIndexOf("{", indexOfTeacher);
   // Find closing brace that matches the opening brace
-  let closingBraceIndex = findClosingBrace(html, openingBraceIndex);
-  let teacherInfoString = html.substring(
+  const closingBraceIndex = findClosingBrace(html, openingBraceIndex);
+  const teacherInfoString = html.substring(
     openingBraceIndex,
     closingBraceIndex + 1
   );
-  let teacherData = JSON.parse(teacherInfoString);
-  if (teacherData.firstName)
+  const teacherData: RmpTeacher = JSON.parse(teacherInfoString);
+  if (typeof teacherData.firstName === "string")
     teacherData.firstName = teacherData.firstName.toLowerCase().trim();
-  if (teacherData.lastName)
+  if (typeof teacherData.lastName === "string")
     teacherData.lastName = teacherData.lastName.toLowerCase().trim();
   if (debuggingEnabled) console.log(teacherData);
   chrome.storage.local.set({
@@ -66,27 +68,27 @@ async function scrapeProfessorPage(profId: string | number, debuggingEnabled = f
   return teacherData;
 }
 
-async function scrapeRmpRatings(profName: string, debuggingEnabled = false) {
+async function scrapeRmpRatings(profName: string, debuggingEnabled = false): Promise<RmpTeacher[]> {
   profName = profName.replace(" ", "%20");
   const url = `https://www.ratemyprofessors.com/search/professors/882?q=${profName}`;
-  let teachers:any[] = [];
+  const teachers: RmpTeacher[] = [];
   if (debuggingEnabled) console.log("Querying " + url + "...");
 
   const html = await getHtml(url);
   let indexOfTeacher = html.indexOf('"__typename":"Teacher"');
   let indexOfSchool = html.indexOf('"__typename":"School"');
   // Find SCU school id.
-  let schoolId = -1;
+  let schoolId: string | -1 = -1;
   while (indexOfSchool != -1) {
-    let openingBraceIndex = html.lastIndexOf("{", indexOfSchool);
-    let closingBraceIndex = findClosingBrace(html, openingBraceIndex);
-    let schoolInfoString = html.substring(
+    const openingBraceIndex = html.lastIndexOf("{", indexOfSchool);
+    const closingBraceIndex = findClosingBrace(html, openingBraceIndex);
+    const schoolInfoString = html.substring(
       openingBraceIndex,
       closingBraceIndex + 1
     );
-    let schoolData = JSON.parse(schoolInfoString);
+    const schoolData = JSON.parse(schoolInfoString) as { id?: string; name?: string };
     if (schoolData.name == "Santa Clara University") {
-      schoolId = schoolData.id;
+      schoolId = schoolData.id as string;
       break;
     }
     indexOfSchool = html.indexOf('"__typename":"School"', indexOfSchool + 1);
@@ -97,17 +99,17 @@ async function scrapeRmpRatings(profName: string, debuggingEnabled = false) {
   }
   while (indexOfTeacher != -1) {
     // Extract teacher info into JSON object.
-    let openingBraceIndex = html.lastIndexOf("{", indexOfTeacher);
-    let indexOfSaved = html.indexOf("isSaved", indexOfTeacher);
-    let closingBraceIndex = html.indexOf("}", indexOfSaved);
-    let teacherInfoString = html.substring(
+    const openingBraceIndex = html.lastIndexOf("{", indexOfTeacher);
+    const indexOfSaved = html.indexOf("isSaved", indexOfTeacher);
+    const closingBraceIndex = html.indexOf("}", indexOfSaved);
+    const teacherInfoString = html.substring(
       openingBraceIndex,
       closingBraceIndex + 1
     );
-    let teacherData = JSON.parse(teacherInfoString);
+    let teacherData = JSON.parse(teacherInfoString) as RmpTeacher;
     if (debuggingEnabled) console.log(teacherData);
     // Check if teacher is from SCU.
-    if (teacherData.school.__ref == schoolId) {
+    if (teacherData.school && teacherData.school.__ref == schoolId) {
       // Get the most updated data for the teacher.
       teacherData = await scrapeProfessorPage(
         teacherData.legacyId,
@@ -121,11 +123,11 @@ async function scrapeRmpRatings(profName: string, debuggingEnabled = false) {
   return teachers;
 }
 
-export async function getRmpRatings(rawProfName: string, debuggingEnabled = false) {
+export async function getRmpRatings(rawProfName: string, debuggingEnabled = false): Promise<RmpTeacher | undefined> {
   let profName = rawProfName.trim();
   // Empirical testing showed that including middle names in the query does not improve accuracy.
   // Therefore, we only query by the first first name and the last last name.
-  let nameMappings = (await chrome.storage.local.get("professorNameMappings"))
+  const nameMappings = (await chrome.storage.local.get("professorNameMappings"))
     .professorNameMappings;
   if (nameMappings?.[profName]) {
     profName = nameMappings[profName];
@@ -141,49 +143,51 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
   if (debuggingEnabled)
     console.log("Querying RMP for " + realFirstName + " " + lastName);
   // If realFirst + lastName is a key in cached_ids, return the cached data.
-  let key = realFirstName + lastName;
-  let cachedId = (await chrome.storage.local.get(key))[key];
+  const key = realFirstName + lastName;
+  const cachedId = (await chrome.storage.local.get(key))[key];
   if (cachedId) {
     return scrapeProfessorPage(cachedId, debuggingEnabled);
   }
   // Find preferred first name, if it exists.
   let preferredFirstName = "";
-  let barIndex = profName.indexOf("|");
+  const barIndex = profName.indexOf("|");
   if (barIndex != -1) {
     preferredFirstName = profName
       .substring(barIndex + 1, profName.indexOf(" ", barIndex + 2))
       .trim()
       .toLowerCase();
   }
-  let data = null;
+  let data: RmpTeacher[] | null = null;
 
   // If this is a special case, query instead by the special name in the edge cases file.
   if (edgecases.name_transformations.has(realFirstName + lastName)) {
     const transformedName = edgecases.name_transformations.get(
       realFirstName + lastName
-    ) as string;
-    data = await scrapeRmpRatings(transformedName, debuggingEnabled);
-    realFirstName = transformedName
-      .substring(0, transformedName.indexOf(" "))
-      .trim();
-    lastName = transformedName
-      .substring(transformedName.lastIndexOf(" "))
-      .trim();
+    ) as string | undefined;
+    if (transformedName) {
+      data = await scrapeRmpRatings(transformedName, debuggingEnabled);
+      realFirstName = transformedName
+        .substring(0, transformedName.indexOf(" "))
+        .trim();
+      lastName = transformedName
+        .substring(transformedName.lastIndexOf(" "))
+        .trim();
+    }
   }
 
   // Otherwise, query first by last name.
   data =
     data == null ? await scrapeRmpRatings(lastName, debuggingEnabled) : data;
-  let entry = null;
+  let entry: RmpTeacher | undefined = undefined;
   if (debuggingEnabled) console.log("Received " + JSON.stringify(data));
   if (data.length == 1) entry = data[0];
   if (data.length > 1) {
     if (debuggingEnabled) console.log("Error: too much data!");
     for (let j = 0; j < data.length; j++) {
       if (
-        (data[j].firstName == realFirstName ||
-          data[j].firstName == preferredFirstName) &&
-        data[j].lastName == lastName
+        (data[j]!.firstName == realFirstName ||
+          data[j]!.firstName == preferredFirstName) &&
+        data[j]!.lastName == lastName
       ) {
         entry = data[j];
         break;
@@ -204,8 +208,8 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
         console.log("Multiple data after using preferred first name!");
       for (let j = 0; j < data.length; j++) {
         if (
-          data[j].firstName == preferredFirstName &&
-          data[j].lastName == lastName
+          data[j]!.firstName == preferredFirstName &&
+          data[j]!.lastName == lastName
         ) {
           if (debuggingEnabled)
             console.log("Fixed by using preferred first name!");
@@ -229,8 +233,8 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
         console.log("Multiple data after using real first name!");
       for (let j = 0; j < data.length; j++) {
         if (
-          data[j].firstName == realFirstName &&
-          data[j].lastName == lastName
+          data[j]!.firstName == realFirstName &&
+          data[j]!.lastName == lastName
         ) {
           if (debuggingEnabled) console.log("Fixed by using real first name!");
           entry = data[j];
@@ -245,8 +249,8 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
 
   // Check for first name or last name mismatches, and do not return if there is a mismatch.
   if (entry != null) {
-    const firstNameReceived = entry.firstName;
-    const lastNameReceived = entry.lastName;
+    const firstNameReceived = entry.firstName || "";
+    const lastNameReceived = entry.lastName || "";
     if (
       !firstNameReceived.includes(realFirstName) &&
       !realFirstName.includes(firstNameReceived) &&
@@ -266,7 +270,7 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
           firstNameReceived,
           lastNameReceived
         );
-      entry = null;
+      entry = undefined;
     }
     if (
       !lastNameReceived.includes(lastName) &&
@@ -283,13 +287,13 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
           firstNameReceived,
           lastNameReceived
         );
-      entry = null;
+      entry = undefined;
     }
     if (edgecases.actual_mismatches.has(realFirstName + " " + lastName)) {
-      entry = null;
+      entry = undefined;
     }
   }
-  if (entry != null) {
+  if (entry) {
     chrome.storage.local.set({ [key]: entry.legacyId });
   }
   return entry;

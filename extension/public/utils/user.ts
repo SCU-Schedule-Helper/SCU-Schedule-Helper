@@ -8,7 +8,7 @@ import {
 } from "./constants.ts";
 
 import { fetchWithAuth, signOut } from "./authorization.ts";
-import { FriendProfile, FriendRequest, FriendRequestType, UserProfile } from "../../components/utils/types.ts";
+import { FriendProfile, FriendRequest, FriendRequestType, UserProfile } from "./types.ts";
 
 interface ErrorResponse {
   message: string;
@@ -93,7 +93,7 @@ export async function refreshUserData(items:string[] = []) {
   return null;
 }
 
-export async function updateUser(updateItems: any, allowLocalOnly = false) {
+export async function updateUser(updateItems: any, allowLocalOnly = false): Promise<{ message: string; ok: boolean }> {
   const response = await fetchWithAuth(PROD_USER_ENDPOINT, {
     method: "PUT",
     body: JSON.stringify(updateItems),
@@ -207,6 +207,7 @@ async function updateLocalCache(updateItems: any) {
       ...userInfo,
     },
   });
+  return null;
 }
 
 export async function deleteAccount() {
@@ -271,8 +272,8 @@ export async function addFriendLocally(friendId: string, friendReqType: FriendRe
 
 export async function updateFriendCourseAndSectionIndexes(
   friendId: string,
-  coursesTaken: string[],
-  interestedSections: string[],
+  coursesTaken: string[] | null | undefined,
+  interestedSections: { [key: string]: string } | null | undefined,
 ) {
   coursesTaken = coursesTaken || [];
   interestedSections = interestedSections || {};
@@ -284,9 +285,9 @@ export async function updateFriendCourseAndSectionIndexes(
     if (!courseMatch) {
       continue;
     }
-    const profName = courseMatch[1];
-    const courseCode = courseMatch[2]
-      .substring(0, courseMatch[2].indexOf("-"))
+    const profName: string = courseMatch[1] as string;
+    const courseCode: string = (courseMatch[2] as string)
+      .substring(0, (courseMatch[2] as string).indexOf("-"))
       .replace(/\s/g, "");
     if (!courseCode.match(COURSE_CODE_PATTERN)) continue;
     const curCourseIndex = friendCoursesTaken[courseCode] || {};
@@ -305,9 +306,9 @@ export async function updateFriendCourseAndSectionIndexes(
     if (!sectionMatch) {
       continue;
     }
-    const profName = sectionMatch[1];
-    const courseCode = sectionMatch[2]
-      .substring(0, sectionMatch[2].indexOf("-"))
+    const profName: string = sectionMatch[1] as string;
+    const courseCode: string = (sectionMatch[2] as string)
+      .substring(0, (sectionMatch[2] as string).indexOf("-"))
       .replace(/\s/g, "");
     const curCourseIndex = friendInterestedSections[courseCode] || {};
     const curProfIndex = friendInterestedSections[profName] || {};
@@ -388,6 +389,7 @@ export async function addFriendRequestLocally(friendId: string, type: FriendRequ
       priority: 2,
     });
   }
+  return null;
 }
 
 export async function removeFriendLocally(friendId: string) {
@@ -414,7 +416,7 @@ export async function refreshInterestedSections() {
   // Check the expiration date of the interestedSections, delete if expired, and also delete from the remote server.
   const userInfo = (await chrome.storage.local.get("userInfo")).userInfo || {};
   const interestedSections = userInfo.interestedSections || {};
-  const sectionsToRemove = [];
+  const sectionsToRemove: string[] = [];
   for (const section in interestedSections) {
     const expirationDate = interestedSections[section];
     if (new Date() > new Date(expirationDate)) {
@@ -458,13 +460,15 @@ export async function importCourseHistory() {
 async function openTabAndSendMessage(url: string, message: string) {
   const createdTab = await chrome.tabs.create({ url });
 
-  async function tabListener(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
+  async function tabListener(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, _tab: chrome.tabs.Tab) {
     if (tabId === createdTab.id && changeInfo.status === "complete") {
       try {
         const response = await chrome.tabs.sendMessage(createdTab.id, message);
         chrome.tabs.onUpdated.removeListener(tabListener);
         return response;
-      } catch (ignore) { }
+      } catch (_ignore) { 
+        // Ignore the error.
+       }
     }
     return true;
   }
@@ -474,4 +478,3 @@ async function openTabAndSendMessage(url: string, message: string) {
 function getS3PhotoUrl(userId: string) {
   return `https://scu-schedule-helper.s3.amazonaws.com/u%23${userId}/photo`;
 }
-

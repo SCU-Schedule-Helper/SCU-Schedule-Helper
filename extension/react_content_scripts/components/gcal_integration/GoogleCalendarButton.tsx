@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { RRule, Weekday } from "rrule";
-import { getEnrolledCoursesTables } from "../shared/utils.ts";
+import { getEnrolledCoursesTables } from "../shared/utils";
 import { Modal, Box, Typography, IconButton } from "@mui/material";
 import Close from "@mui/icons-material/Close";
 
@@ -71,7 +71,7 @@ export default function GoogleCalendarButton({ panel }: { panel: Element }) {
 
       setStatus("Courses successfully added!");
     } catch (error) {
-      console.error("Error in Google Calendar integration:", error);``
+      console.error("Error in Google Calendar integration:", error);
       setErrors(["An unknown error occurred. Please try again."]);
     }
   };

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, ReactElement } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import ProfCourseSearch from "./ProfCourseSearch";
 import { SelectedProfOrCourse } from "./ProfCourseCard";
@@ -6,7 +6,7 @@ import AuthWrapper from "../utils/AuthWrapper";
 import QueryDialog from "./QueryDialog";
 import QueryPageTitle from "./QueryTitlePage";
 
-export default function SearchPage({}) {
+export default function SearchPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const boxRef = useRef(null as HTMLElement | null);
   const [query, setQuery] = useState(null as string | null);
@@ -58,14 +58,10 @@ export default function SearchPage({}) {
       if (newStack.length === 0) {
         setQuery(null);
       } else {
-        setQuery(newStack[newStack.length - 1]);
+        setQuery(newStack[newStack.length - 1]!);
       }
       return newStack;
     });
-  }
-
-  function onQueryChange(query: string) {
-    setQuery(query);
   }
 
   return (

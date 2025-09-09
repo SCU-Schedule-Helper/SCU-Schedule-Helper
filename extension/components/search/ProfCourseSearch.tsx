@@ -60,7 +60,7 @@ export default function ProfCourseSearch({
         setEvalsData(data.evals);
       }
       setIsLoading(data.isDownloadingEvals || false);
-    } catch (ignore) {
+    } catch (_ignore) {
       setIsLoading(false);
     }
   }
@@ -82,14 +82,14 @@ export default function ProfCourseSearch({
 
   const allOptions = useMemo(() => {
     if (!evalsData) return [];
-    const options = [] as any[];
+    const options: any[] = [];
     try {
       if (evalsData === null) {
         console.error("Stored data is not a valid object", evalsData);
         return [];
       }
 
-      Object.entries(evalsData).forEach(([key, value]) => {
+      Object.entries(evalsData).forEach(([key, value]: [string, any]) => {
         if (value?.type === "course") {
           const regexMatch = key.match(/([a-zA-Z]{0,5})(\d+[A-Z]*)/);
           if (!regexMatch) {
@@ -157,7 +157,7 @@ export default function ProfCourseSearch({
       const [, dept, courseNum] = regexMatch!;
       onSelectionChange({
         id: newPageKey,
-        label: `${dept} ${courseNum} - ${newPageData.courseName}`,
+        label: `${dept} ${courseNum} - ${newPageData!.courseName}`,
         groupLabel: "Courses",
         ...newPageData,
       } as SelectedProfOrCourse);
@@ -212,7 +212,7 @@ export default function ProfCourseSearch({
           groupBy={(option) => option.groupLabel}
           value={selectedProfessorOrCourse}
           loading={isLoading}
-          onChange={(e, newValue) => {
+          onChange={(_event, newValue) => {
             onSelectionChange(newValue);
           }}
           renderInput={(params) => (

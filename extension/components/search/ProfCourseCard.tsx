@@ -114,7 +114,7 @@ export default function ProfCourseCard({
         });
 
         setRmpData(rmpRating);
-      } catch (error) {
+      } catch (_ignore) {
         setRmpData(null);
       }
       setIsLoadingRmp(false);
@@ -149,7 +149,7 @@ export default function ProfCourseCard({
       ][];
       setSortedCourses(sortItems(ratingsToSort));
     } else {
-      const ratingsToSort = selected.professors.map((item) => [
+      const ratingsToSort = selected.professors.map((item: any) => [
         item,
         (data[item] as ProfessorData)[selected.id] as CourseData,
       ]) as [string, CourseData][];
@@ -454,7 +454,7 @@ export default function ProfCourseCard({
                           </Typography>
                         </RecentTermsToolTip>
                         <ProfessorRecencyIndicator
-                          lastTaughtQuarter={courseStats.recentTerms[0]}
+                          lastTaughtQuarter={courseStats.recentTerms[0]!}
                         ></ProfessorRecencyIndicator>
                       </>
                     )}
@@ -469,7 +469,7 @@ export default function ProfCourseCard({
                       flexGap={"2.5rem"}
                       stats={courseStats}
                       deptStats={
-                        data.departmentStatistics[courseCode.substring(0, 4)]
+                        data.departmentStatistics[courseCode.substring(0, 4)]!
                       }
                       preferredPercentiles={preferredPercentiles}
                     />
@@ -493,7 +493,7 @@ export default function ProfCourseCard({
           </Typography>
           {(
             Object.entries(selected).filter(
-              ([key, value]) =>
+              ([key, value] : [string, any]) =>
                 typeof value === "object" &&
                 value.qualityTotal !== undefined &&
                 key.length === 4
@@ -505,7 +505,7 @@ export default function ProfCourseCard({
               </Typography>
               <EvalStats
                 stats={stats}
-                deptStats={data.departmentStatistics[dept]}
+                deptStats={data.departmentStatistics[dept]!}
                 preferredPercentiles={preferredPercentiles}
               />
               {index <
@@ -544,7 +544,7 @@ export default function ProfCourseCard({
           </Typography>
           <EvalStats
             stats={selected}
-            deptStats={data.departmentStatistics[selected.id.substring(0, 4)]}
+            deptStats={data.departmentStatistics[selected.id.substring(0, 4)]!}
             preferredPercentiles={preferredPercentiles}
           />
           <Divider sx={{ mt: 2 }} />
@@ -623,7 +623,7 @@ export default function ProfCourseCard({
                         </Typography>
                       </RecentTermsToolTip>
                       <ProfessorRecencyIndicator
-                        lastTaughtQuarter={profCourseStats.recentTerms[0]}
+                        lastTaughtQuarter={profCourseStats.recentTerms[0]!}
                       ></ProfessorRecencyIndicator>
                     </Box>
                     <Box
@@ -636,7 +636,7 @@ export default function ProfCourseCard({
                         flexGap={"2.75rem"}
                         stats={profCourseStats}
                         deptStats={
-                          data.departmentStatistics[selected.id.substring(0, 4)]
+                          data.departmentStatistics[selected.id.substring(0, 4)]!
                         }
                         preferredPercentiles={preferredPercentiles}
                       />

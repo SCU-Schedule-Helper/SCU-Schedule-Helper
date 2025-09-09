@@ -12,21 +12,19 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Divider,
-  AlertColor,
+  Divider
 } from "@mui/material";
 import { Edit, ExpandMore } from "@mui/icons-material";
-import { parseInterestedSections, parseTakenCourses } from "../utils/user.ts";
-import CourseAccordionSection from "./CourseAccordionSection.tsx";
+import { parseInterestedSections, parseTakenCourses } from "../utils/user";
+import CourseAccordionSection from "./CourseAccordionSection";
 import {
   CourseData,
   EvalsData,
   ParsedCourseTaken,
   ParsedInterestedSection,
-  ProfessorData,
   SendAlertFunction,
   UserProfile,
-} from "../utils/types.ts";
+} from "../utils/types";
 
 interface Props {
   userInfo: UserProfile | null;
@@ -50,7 +48,7 @@ export default function CourseAccordion({
   /**
    * Type guard to check if a value is CourseData.
    */
-  function isCourseData(value: any): value is CourseData {
+  function isCourseData(value: unknown): value is CourseData {
     return value != null && (value as CourseData).type === "course";
   }
 
@@ -157,7 +155,7 @@ export default function CourseAccordion({
     newKey: string
   ) {
     try {
-      const updateItems: any = {};
+      const updateItems: Record<string, any> = {};
       if (type === "interested") {
         updateItems.interestedSections = {
           remove: [oldKey],
@@ -221,7 +219,7 @@ export default function CourseAccordion({
       return;
     }
     try {
-      const updateItems: any = {};
+      const updateItems: Record<string, any> = {};
       updateItems.interestedSections = {
         remove: coursesToRemove
           .filter((course) => course.type === "interested")

@@ -43,7 +43,7 @@ export default function FriendsPage() {
     }
 
     fetchFriendData();
-    chrome.storage.onChanged.addListener((changes: any, namespace: string) => {
+    chrome.storage.onChanged.addListener((changes: { [key: string]: chrome.storage.StorageChange }, namespace: string) => {
       if (
         namespace === "local" &&
         (changes.friendRequestsIn ||

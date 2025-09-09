@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import CourseHistoryImporter from "../components/course_history/CourseHistoryImporter.tsx";
+import CourseHistoryImporter from "../components/course_history/CourseHistoryImporter";
 
 let messageReceived = false;
 

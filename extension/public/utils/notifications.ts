@@ -1,7 +1,7 @@
 // Allow use of ServiceWorkerGlobalScope 'self' in this module
 declare const self: ServiceWorkerGlobalScope;
 import { fetchWithAuth, signOut } from "./authorization.ts";
-import { PROD_USER_ENDPOINT } from "./constants.ts";
+import { PROD_USER_ENDPOINT, SERVER_PUBLIC_KEY } from "./constants.ts";
 import {
   addFriendLocally,
   refreshUserData,
@@ -12,15 +12,29 @@ import {
   updateFriendCourseAndSectionIndexes,
 } from "./user.ts";
 
-const SERVER_PUBLIC_KEY =
-  "BLMxe4dFTN6sJ7U-ZFXgHUyhlI5udo11b4curIyRfCdGZMYjDx4kFoV3ejHzDf4hNZQOmW3UP6_dgyYTdg3LDIE";
 const applicationServerKey = urlB64ToUint8Array(SERVER_PUBLIC_KEY);
 
-type NotificationType = {
-  notificationType: string;
-  data: any;
+interface FriendUpdateData {
+  notificationType: 'FriendRequestAccepted' | 'FriendRequestReceived' | 'FriendRemoved' | 'FriendProfileUpdated';
+  data: {
+    userId: string;
+  };
 }
 
+interface FriendRequestUpdateData {
+  notificationType: 'FriendRequestRemoved' | 'FriendRequestProfileUpdated';
+  data: {
+    userId: string;
+    type: "incoming" | "outgoing";
+  };
+}
+
+interface SelfUpdateData {
+  notificationType: 'SelfProfileUpdated' | 'SelfProfileDeleted';
+  data : {
+    items: string[];
+  };
+}
 
 /**
  * Subscribes the user to push notifications from the production server.
@@ -33,13 +47,14 @@ export async function subscribe(): Promise<PushSubscription | undefined> {
     return existingSubscription;
   }
   try {
-    let subscription = await self.registration.pushManager.subscribe({
+    const subscription = await self.registration.pushManager.subscribe({
       userVisibleOnly: false,
       applicationServerKey,
     });
     return subscription;
   } catch (error) {
     console.error("Subscribe error: ", error);
+    return undefined;
   }
 }
 
@@ -47,7 +62,7 @@ export async function subscribe(): Promise<PushSubscription | undefined> {
  * Respond to a notification received from the server.
  * @param {*} notification A JSON notification object received from the server with a notificationType and data field. 
  */
-export async function handleNotification(notification: NotificationType) {
+export async function handleNotification(notification: FriendRequestUpdateData | FriendUpdateData | SelfUpdateData) {
   const { notificationType, data } = notification;
   switch (notificationType) {
     case "FriendRequestAccepted":

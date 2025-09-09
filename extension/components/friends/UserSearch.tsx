@@ -15,7 +15,7 @@ interface LimitedUserProfile {
 }
 
 export default function UserSearch({
-  handleActionCompleted = (action: string, type: AlertColor) => {},
+  handleActionCompleted = (_action: string, _type: AlertColor) => {},
 }) {
   const [selectedUser, setSelectedUser] = useState(
     null as LimitedUserProfile | null

@@ -16,7 +16,7 @@ import { FriendRequest } from "../utils/types";
 export default function RequestsAccordion({
   requestsIn = [] as FriendRequest[],
   requestsOut = [] as FriendRequest[],
-  handleActionCompleted = (action: string, type: AlertColor) => {},
+  handleActionCompleted = (_action: string, _type: AlertColor) => {},
 }) {
   const [requestsInExpanded, setRequestsInExpanded] = useState(
     requestsIn.length > 0
@@ -85,7 +85,7 @@ export default function RequestsAccordion({
         slotProps={{ transition: { unmountOnExit: true } }}
         defaultExpanded={requestsIn.length > 0}
         expanded={requestsInExpanded}
-        onChange={(event, expanded) => setRequestsInExpanded(expanded)}
+        onChange={(_event, expanded) => setRequestsInExpanded(expanded)}
         disableGutters
         square
         sx={{
@@ -205,7 +205,7 @@ export default function RequestsAccordion({
         slotProps={{ transition: { unmountOnExit: true } }}
         disableGutters
         expanded={requestsOutExpanded}
-        onChange={(event, expanded) => setRequestsOutExpanded(expanded)}
+        onChange={(_event, expanded) => setRequestsOutExpanded(expanded)}
         sx={{
           mb: 2,
           "&:before": {

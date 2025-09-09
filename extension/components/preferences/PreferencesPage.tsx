@@ -22,7 +22,7 @@ import {
 export default function PreferencesPage() {
   const [userPrefs, setUserPrefs] = useState(null as UserPreferences | null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -31,7 +31,7 @@ export default function PreferencesPage() {
   useEffect(() => {
     checkUserPreferences();
 
-    function storageListener(changes: any, namespace: string) {
+    function storageListener(changes: { [key: string]: chrome.storage.StorageChange; }, namespace: string) {
       if (namespace === "local" && changes.userInfo) {
         checkUserPreferences();
       }
@@ -89,7 +89,7 @@ export default function PreferencesPage() {
       },
       allowLocalOnly: true,
     };
-    chrome.runtime.sendMessage(message).then((response: any) => {
+    chrome.runtime.sendMessage(message).then((response: { message: string; ok: boolean }) => {
       if (response && !response.ok) {
         setErrorMessage(response.message);
         setShowActionCompletedMessage(true);
@@ -149,8 +149,8 @@ export default function PreferencesPage() {
         prev && {
           ...prev,
           scoreWeighting: {
-            scuEvals: newValue[0],
-            rmp: 100 - newValue[0],
+            scuEvals: newValue[0]!,
+            rmp: 100 - newValue[0]!,
           },
         }
     );

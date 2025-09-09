@@ -1,7 +1,7 @@
-import React, { useState, useEffect, PropsWithChildren } from "react";
+import { useState, useEffect, PropsWithChildren } from "react";
 import { Alert, Box, Button, Snackbar, Typography } from "@mui/material";
 
-export default function AuthWrapper({ children }: PropsWithChildren<{}>) {
+export default function AuthWrapper({ children }: PropsWithChildren<{children : React.ReactNode}>) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -15,7 +15,7 @@ export default function AuthWrapper({ children }: PropsWithChildren<{}>) {
       changes: {
         [key: string]: chrome.storage.StorageChange;
       },
-      namespace: chrome.storage.AreaName
+      _namespace: chrome.storage.AreaName
     ) {
       if (changes.accessToken) {
         checkAuthStatus();

@@ -31,10 +31,10 @@ function getValueText(value: number) {
 }
 
 function getSectionTimeRange(value: number[]) {
-  const startHour = Math.floor(value[0] / 4) + 6;
-  const startMinute = (value[0] % 4) * 15;
-  const endHour = Math.floor(value[1] / 4) + 6;
-  const endMinute = (value[1] % 4) * 15;
+  const startHour = Math.floor(value[0]! / 4) + 6;
+  const startMinute = (value[0]! % 4) * 15;
+  const endHour = Math.floor(value[1]! / 4) + 6;
+  const endMinute = (value[1]! % 4) * 15;
   return { startHour, startMinute, endHour, endMinute };
 }
 
@@ -71,7 +71,7 @@ const theme = createTheme({
 
 interface Props {
   initValue: SectionTimeRangePreferences;
-  onChangeCommitted: (newValue: SectionTimeRangePreferences) => void;
+  onChangeCommitted: (_newValue: SectionTimeRangePreferences) => void;
 }
 
 export default function RangeSliderTime({
@@ -86,7 +86,7 @@ export default function RangeSliderTime({
     setValue(getValuesFromTimeRange(initValue));
   }, [initValue]);
 
-  function handleChange(event: Event, newValue: number | number[]) {
+  function handleChange(_event: Event, newValue: number | number[]) {
     if (typeof newValue === "number") {
       console.error("Unexpected value type:", newValue);
       return;
@@ -95,7 +95,7 @@ export default function RangeSliderTime({
   }
 
   function handleChangeCommitted(
-    event: SyntheticEvent | Event,
+    _event: SyntheticEvent | Event,
     newValue: number | number[]
   ) {
     if (typeof newValue === "number") {

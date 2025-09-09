@@ -27,7 +27,7 @@ export async function signIn(): Promise<string | null> {
       ],
     });
     oAuthToken = getAuthTokenResult.token;
-  } catch (error) {
+  } catch (_ignore) {
     return "Authorization cancelled.";
   }
 
@@ -38,7 +38,7 @@ export async function signIn(): Promise<string | null> {
     if (sub) subscription = sub;
   }
 
-  let response = await fetch(PROD_AUTH_TOKEN_ENDPOINT, {
+  const response = await fetch(PROD_AUTH_TOKEN_ENDPOINT, {
     method: "GET",
     headers: {
       Authorization: `OAuth ${oAuthToken}`,

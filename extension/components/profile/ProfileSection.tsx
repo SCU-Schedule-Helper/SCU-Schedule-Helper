@@ -1,7 +1,7 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { Box, Typography, Button, Stack, TextField } from "@mui/material";
 import { Edit } from "@mui/icons-material";
-// @ts-ignore
+// @ts-expect-error (no types available)
 import { compress } from "compress.js/src/compress.js";
 import { SendAlertFunction, UserProfile } from "../utils/types";
 
@@ -53,7 +53,7 @@ export default function ProfileSection({
     submitPersonal(compressedFile, null);
   }
 
-  async function submitPersonal(photoFile: any, newName: string | null) {
+  async function submitPersonal(photoFile: File | null, newName: string | null) {
     if (!userInfo) return;
 
     const message: any = {
@@ -79,7 +79,7 @@ export default function ProfileSection({
           body: photoFile,
           headers: {
             "Content-Type": "image/jpeg",
-            "Content-Length": photoFile.size,
+            "Content-Length": photoFile!.size.toString(),
           },
         });
         if (!uploadResponse.ok) {

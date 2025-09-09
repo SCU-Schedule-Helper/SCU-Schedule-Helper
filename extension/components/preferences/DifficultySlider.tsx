@@ -28,7 +28,7 @@ const theme = createTheme({
 
 interface Props {
   initValue: number;
-  onChangeCommitted: (newValue: number) => void;
+  onChangeCommitted: (_newValue: number) => void;
 }
 
 export default function DifficultySlider({
@@ -41,7 +41,7 @@ export default function DifficultySlider({
     setSliderValue(initValue);
   }, [initValue]);
 
-  function handleChange(event: Event, newValue: number | number[]) {
+  function handleChange(_event: Event, newValue: number | number[]) {
     if (typeof newValue !== "number") {
       console.error("Invalid value type:", newValue);
       return;
@@ -50,7 +50,7 @@ export default function DifficultySlider({
   }
 
   function handleChangeCommitted(
-    event: SyntheticEvent | Event,
+    _event: SyntheticEvent | Event,
     newValue: number | number[]
   ) {
     if (typeof newValue !== "number") {
@@ -67,7 +67,7 @@ export default function DifficultySlider({
           value={sliderValue}
           onChange={handleChange}
           onChangeCommitted={handleChangeCommitted}
-          getAriaValueText={(val) => ""}
+          getAriaValueText={(_val) => ""}
           step={1}
           marks={[
             { value: 0, label: "Very easy" },

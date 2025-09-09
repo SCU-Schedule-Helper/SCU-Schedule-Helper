@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Fade } from "@mui/material";
-import ProgressCard from "../shared/ProgressCard.tsx";
+import ProgressCard from "../shared/ProgressCard";
 import {
   ACADEMIC_PERIOD_PATTERN,
   CourseData,
   updateUserCourseData,
   getEnrolledCoursesTables,
-} from "../shared/utils.ts";
+} from "../shared/utils";
 
 export default function CurrentCourseImporter({
-  sendResponse = (response?: any) => {},
+  sendResponse = (_response?: string) => {},
 }) {
   const [shouldImport, setShouldImport] = useState(true);
   const [progressMessage, setProgressMessage] = useState(
@@ -17,7 +17,7 @@ export default function CurrentCourseImporter({
   );
   const [progressNumerator, setProgressNumerator] = useState(0);
   const [progressDenominator, setProgressDenominator] = useState(0);
-  let updatingProfileTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const updatingProfileTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Because React state updates are asynchronous, the call to incrementProgressNumerator
@@ -43,8 +43,8 @@ export default function CurrentCourseImporter({
       if (tableCount === lastTableCount && tableCount > 0) {
         if (tableCountStable) {
           clearInterval(tableCountInterval);
-          let totalRows = getRelevantRowCount();
-          let totalProgress =
+          const totalRows = getRelevantRowCount();
+          const totalProgress =
             totalRows + Math.max(1, Math.floor(totalRows / 10)); // Account for the backend processing time.
           setProgressDenominator(totalProgress);
           setProgressMessage(`Processing course 0/${totalRows}`);
@@ -99,7 +99,7 @@ async function processAllTables(incrementProgressNumerator: () => void) {
   const relevantTables = getEnrolledCoursesTables();
   const academicPeriods = getAcademicPeriods();
 
-  let results: CourseData[] = [];
+  const results: CourseData[] = [];
   for (let i = 0; i < academicPeriods.length; i++) {
     const table = relevantTables[i];
     const rows = Array.from(

@@ -1,8 +1,9 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import StatBox from "./StatBox";
+import { RmpTeacher } from "../utils/types";
 
 interface RmpStatsProps {
-  rmpData: any;
+  rmpData: RmpTeacher | null;
   profName: string;
   isLoadingRmp: boolean;
   preferredPercentiles: Record<string, number>;

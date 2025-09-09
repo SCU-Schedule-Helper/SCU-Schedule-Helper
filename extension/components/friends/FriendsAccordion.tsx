@@ -17,23 +17,23 @@ import {
   AlertColor,
 } from "@mui/material";
 import { ExpandMore, Close } from "@mui/icons-material";
-import CourseDetailsCard from "../utils/CourseDetailsCard.tsx";
+import CourseDetailsCard from "../utils/CourseDetailsCard";
 import {
   parseInterestedSections,
   parseTakenCourses,
-} from "../utils/user.ts";
+} from "../utils/user";
 import {
   FriendProfile,
   ParsedCourseTaken,
   ParsedInterestedSection
-} from "../utils/types.ts";
+} from "../utils/types";
 
 interface TransformedFriendProfile {
   id: string;
   email: string;
   name: string;
   photoUrl: string;
-  interestedSections: string[];
+  interestedSections: { [key: string]: string };
   coursesTaken: string[];
   expanded: boolean;
   courses: {
@@ -44,7 +44,7 @@ interface TransformedFriendProfile {
 
 export default function FriendsAccordion({
   friends = [] as FriendProfile[],
-  handleActionCompleted = (action: string, type: AlertColor) => {},
+  handleActionCompleted = (_action: string, _type: AlertColor) => { },
 }) {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [friendToRemove, setFriendToRemove] = useState(null as string | null);
@@ -114,7 +114,7 @@ export default function FriendsAccordion({
         slotProps={{ transition: { unmountOnExit: true } }}
         defaultExpanded={friends.length > 0}
         expanded={friendsExpanded}
-        onChange={(event, expanded) => setFriendsExpanded(expanded)}
+        onChange={(_event, expanded) => setFriendsExpanded(expanded)}
         disableGutters
         square
         sx={{
@@ -161,12 +161,12 @@ export default function FriendsAccordion({
                 id={`panel${friend.id}-header`}
                 sx={{
                   "& .MuiAccordionSummary-content, & .MuiAccordionSummary-content.Mui-expanded":
-                    {
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      mr: 1,
-                    },
+                  {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mr: 1,
+                  },
                 }}
               >
                 <Stack

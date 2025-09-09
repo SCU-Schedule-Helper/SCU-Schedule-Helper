@@ -25,7 +25,7 @@ import {
 } from "./utils/user.ts";
 
 chrome.runtime.onInstalled.addListener(async (object: chrome.runtime.InstalledDetails) => {
-  let internalUrl = chrome.runtime.getURL("landing_page/index.html");
+  const internalUrl = chrome.runtime.getURL("landing_page/index.html");
 
   if (object.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     const accessToken = (await chrome.storage.sync.get("accessToken"))
@@ -39,13 +39,13 @@ chrome.runtime.onInstalled.addListener(async (object: chrome.runtime.InstalledDe
       );
       if (refreshError) {
         await signOut();
-        chrome.tabs.create({ url: internalUrl }, function (tab) {});
+        chrome.tabs.create({ url: internalUrl }, function (_tab) {});
       }
-    } else chrome.tabs.create({ url: internalUrl }, function (tab) {});
+    } else chrome.tabs.create({ url: internalUrl }, function (_tab) {});
   }
 });
 
-chrome.runtime.onMessage.addListener((request: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+chrome.runtime.onMessage.addListener((request: any, _sender: chrome.runtime.MessageSender, sendResponse: (response?: unknown) => void) => {
   if (request.url !== undefined) {
     fetch(request.url)
       .then((response) => response.text())
@@ -138,7 +138,7 @@ self.addEventListener("push", function (event: PushEvent) {
   handleNotification(event?.data?.json());
 });
 
-self.addEventListener("activate", async (event: ExtendableEvent) => {
+self.addEventListener("activate", async (_event: ExtendableEvent) => {
   // Set refresh date to 4 days from now.
   await chrome.storage.local.set({
     refreshSelfDataDate: new Date(
@@ -170,7 +170,7 @@ async function runStartupChecks(): Promise<void> {
   await refreshInterestedSections();
 }
 
-async function handleFeedbackSubmission(data: any): Promise<{ ok: boolean; message: string }> {
+async function handleFeedbackSubmission(data: object): Promise<{ ok: boolean; message: string }> {
   try {
     const response = await fetch(`${PROD_SERVER_URL}/feedback`, {
       method: "POST",

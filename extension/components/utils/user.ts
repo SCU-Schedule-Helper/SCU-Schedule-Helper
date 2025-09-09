@@ -6,7 +6,7 @@ import { ParsedInterestedSection, ParsedCourseTaken } from "./types";
  * @returns An array of interested section objects, that can be used for the interested courses accordion.
  */
 export function parseInterestedSections(
-  interestedSections: string[],
+  interestedSections: { [key: string]: string } | null | undefined,
   includeKey = false
 ): ParsedInterestedSection[] {
   return Object.keys(interestedSections || {})
@@ -17,27 +17,27 @@ export function parseInterestedSections(
         return null;
       }
       const meetingPatternMatch =
-        courseMatch[3].match(/(.*) \| (.*) \| (.*)/) ||
-        courseMatch[3].match(/(.*) \| (.*)/);
+        courseMatch[3]!.match(/(.*) \| (.*) \| (.*)/) ||
+        courseMatch[3]!.match(/(.*) \| (.*)/);
       let meetingPattern;
       if (meetingPatternMatch) {
-        meetingPattern = `${meetingPatternMatch[1]} at ${meetingPatternMatch[2]
+        meetingPattern = `${meetingPatternMatch[1]} at ${meetingPatternMatch[2]!
           .replaceAll(" ", "")
           .replaceAll(":00", "")
           .toLowerCase()}`;
       } else {
-        meetingPattern = courseMatch[3];
+        meetingPattern = courseMatch[3]!;
       }
 
-      const indexOfDash = courseMatch[2].indexOf("-");
-      let indexOfEnd = courseMatch[2].indexOf("(-)");
-      if (indexOfEnd === -1) indexOfEnd = courseMatch[2].length;
+      const indexOfDash = courseMatch[2]!.indexOf("-");
+      let indexOfEnd = courseMatch[2]!.indexOf("(-)");
+      if (indexOfEnd === -1) indexOfEnd = courseMatch[2]!.length;
 
-      const courseCode = courseMatch[2]
+      const courseCode = courseMatch[2]!
         .substring(0, indexOfDash)
         .replace(" ", "");
-      const professor = courseMatch[1];
-      const courseName = courseMatch[2]
+      const professor = courseMatch[1]!;
+      const courseName = courseMatch[2]!
         .substring(indexOfDash + 1, indexOfEnd)
         .trim();
 
@@ -69,22 +69,22 @@ export function parseTakenCourses(
       const courseMatch = encodedCourse.match(/P{(.*?)}C{(.*?)}T{(.*?)}/);
       if (!courseMatch) return null;
 
-      const firstDash = courseMatch[2].indexOf("-");
-      let secondDash = courseMatch[2].indexOf("-", firstDash + 1);
+      const firstDash = courseMatch[2]!.indexOf("-");
+      let secondDash = courseMatch[2]!.indexOf("-", firstDash + 1);
       if (secondDash === -1 || secondDash - firstDash > 5) {
         secondDash = firstDash;
       }
 
-      let indexOfEnd = courseMatch[2].indexOf("(-)");
-      if (courseMatch[2].indexOf("((-))") !== -1)
-        indexOfEnd = courseMatch[2].indexOf("((-))");
-      if (indexOfEnd === -1) indexOfEnd = courseMatch[2].length;
+      let indexOfEnd = courseMatch[2]!.indexOf("(-)");
+      if (courseMatch[2]!.indexOf("((-))") !== -1)
+        indexOfEnd = courseMatch[2]!.indexOf("((-))");
+      if (indexOfEnd === -1) indexOfEnd = courseMatch[2]!.length;
 
-      const courseCode = courseMatch[2]
+      const courseCode = courseMatch[2]!
         .substring(0, firstDash)
         .replace(" ", "");
       const professor = courseMatch[1] || "unknown";
-      const courseName = courseMatch[2]
+      const courseName = courseMatch[2]!
         .substring(secondDash + 1, indexOfEnd)
         .trim();
       return courseMatch
@@ -93,7 +93,7 @@ export function parseTakenCourses(
             courseCode,
             courseName,
             professor,
-            quarter: courseMatch[3],
+            quarter: courseMatch[3]!,
             ...(includeKey && { key: encodedCourse }),
           }
         : null;
@@ -118,9 +118,9 @@ export function mostRecentTermFirst(
   if (termA === termB) {
     return courseA.courseCode.localeCompare(courseB.courseCode);
   } else if (yearA === yearB) {
-    return quarterCompareDescending(quarterA, quarterB);
+    return quarterCompareDescending(quarterA!, quarterB!);
   } else {
-    return parseInt(yearB) - parseInt(yearA);
+    return parseInt(yearB!) - parseInt(yearA!);
   }
 }
 

@@ -1,8 +1,8 @@
-import { fetchWithAuth } from "./authorization.js";
+import { fetchWithAuth } from "./authorization.ts";
 import {
   PROD_EVALS_ENDPOINT,
   PROD_NAME_MAPPINGS_ENDPOINT,
-} from "./constants.js";
+} from "./constants.ts";
 
 /**
  * Fetches the evals object from the server, then decodes, decompresses, and stores it in local storage.
@@ -35,7 +35,7 @@ export async function downloadEvals(): Promise<void> {
 }
 
 export async function downloadProfessorNameMappings() {
-  let mappingsLastModifiedDate = (
+  const mappingsLastModifiedDate = (
     await chrome.storage.local.get("mappingsLastModifiedDate")
   ).mappingsLastModifiedDate;
   const response = await fetchWithAuth(PROD_NAME_MAPPINGS_ENDPOINT, {
@@ -55,7 +55,7 @@ export async function downloadProfessorNameMappings() {
   });
 }
 
-async function decodeAndDecompress(base64EncodedGzippedData: string): Promise<any> {
+async function decodeAndDecompress(base64EncodedGzippedData: string): Promise<unknown> {
   const binaryString = atob(base64EncodedGzippedData);
   const binaryData = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {

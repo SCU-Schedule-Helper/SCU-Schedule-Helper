@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Fade } from "@mui/material";
-import ProgressCard from "../shared/ProgressCard.tsx";
+import ProgressCard from "../shared/ProgressCard";
 import {
   ACADEMIC_PERIOD_PATTERN,
   CourseData,
@@ -9,10 +9,10 @@ import {
   updateUserCourseData,
   waitForSelector,
   waitForSelectorGone,
-} from "../shared/utils.ts";
+} from "../shared/utils";
 
 export default function CourseHistoryImporter({
-  sendResponse = (response?: any) => {},
+  sendResponse = (_response?: string) => {},
 }) {
   const [shouldImport, setShouldImport] = useState(true);
   const [progressMessage, setProgressMessage] = useState(
@@ -20,7 +20,7 @@ export default function CourseHistoryImporter({
   );
   const [progressNumerator, setProgressNumerator] = useState(0);
   const [progressDenominator, setProgressDenominator] = useState(0);
-  let updatingProfileTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const updatingProfileTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Because React state updates are asynchronous, the call to incrementProgressNumerator

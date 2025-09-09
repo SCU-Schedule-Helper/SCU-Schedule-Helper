@@ -1,4 +1,4 @@
-import React, { useState, useEffect, SyntheticEvent } from "react";
+import { useState, useEffect, SyntheticEvent } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -38,7 +38,7 @@ export default function LandingPage() {
     checkAuthStatus();
     function authListener(
       changes: { [key: string]: chrome.storage.StorageChange },
-      namespace: chrome.storage.AreaName
+      _namespace: chrome.storage.AreaName
     ): void {
       if (changes.accessToken) {
         checkAuthStatus();
@@ -65,7 +65,7 @@ export default function LandingPage() {
   }
 
   function handleAccordionChange(
-    event: SyntheticEvent,
+    _event: SyntheticEvent,
     isExpanded: boolean,
     panel: string
   ): void {
@@ -82,7 +82,7 @@ export default function LandingPage() {
         setError(errorMessage);
         setShowError(true);
       }
-    } catch (error) {
+    } catch (_ignore) {
       setError(
         "An unexpected error occurred during sign in. Please try again.",
       );

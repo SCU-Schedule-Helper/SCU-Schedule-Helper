@@ -1,3 +1,5 @@
+import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../utils/types";
+
 (async function () {
   await chrome.runtime.sendMessage("runStartupChecks");
 
@@ -20,21 +22,14 @@
   const interestedSectionPattern = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
   const debounceDelay = 100;
 
-  type ScoreWeighting = { scuEvals?: number; rmp?: number };
-  type TimeRange = { startHour: number; startMinute: number; endHour: number; endMinute: number };
-  interface UserPreferences {
-    difficulty?: number;
-    showRatings?: boolean;
-    scoreWeighting?: ScoreWeighting;
-    preferredSectionTimeRange?: TimeRange;
-  }
   interface UserInfo {
     id?: string;
     name?: string;
     preferences?: UserPreferences;
-    [k: string]: any;
   }
+
   interface Friend { name: string }
+
   interface RatingInfo {
     rmpLink: string;
     rmpQuality?: number;
@@ -142,12 +137,12 @@
     await Promise.all(
       Array.from(courseSectionRows).map(async (row: HTMLTableRowElement) => {
         const courseSectionCell = row.cells[0] as HTMLTableCellElement;
-        let courseText = courseSectionCell.innerText.trim();
+        const courseText = courseSectionCell.innerText.trim();
         if (courseText === "" || courseSectionCell.hasAttribute("has-ratings"))
           return;
         courseSectionCell.setAttribute("has-ratings", "true");
         const instructorCell = row.cells[6] as HTMLTableCellElement;
-        let professorName = instructorCell.innerText.trim().split("\n")[0];
+        const professorName = instructorCell.innerText.trim().split("\n")[0] || "";
         const courseTitleHeight = courseSectionCell.firstElementChild
           ? window.getComputedStyle(courseSectionCell.firstElementChild).height
           : "0px";
@@ -169,12 +164,12 @@
     await Promise.all(
       Array.from(courses).map(async (courseRow: HTMLTableRowElement) => {
         const courseCell = courseRow.cells[0] as HTMLTableCellElement;
-        let courseText = courseCell.innerText.trim();
+        const courseText = courseCell.innerText.trim();
         if (courseText === "" || courseRow.cells.length < 10) return;
         if (courseCell.hasAttribute("has-ratings")) return;
         courseCell.setAttribute("has-ratings", "true");
         const instructorCell = courseRow.cells[6] as HTMLTableCellElement;
-        let professorName = instructorCell.innerText.trim().split("\n")[0];
+        const professorName = instructorCell.innerText.trim().split("\n")[0]!;
         const pushDown = document.createElement("div");
         pushDown.style.height = "100px";
 
@@ -201,13 +196,13 @@
     difficultyContainer.style.color = "gray";
     difficultyContainer.style.marginTop = "5px";
 
-    const rmpResponse = await chrome.runtime.sendMessage({
+    const rmpResponse: RmpTeacher | null = await chrome.runtime.sendMessage({
       type: "getRmpRatings",
       profName: professorName,
     });
-    let scuEvalsQuality = null;
-    let scuEvalsDifficulty = null;
-    let scuEvalsWorkload = null;
+    let scuEvalsQuality: number | null = null;
+    let scuEvalsDifficulty: number | null = null;
+    let scuEvalsWorkload: number | null = null;
     let rmpLink = `https://www.ratemyprofessors.com/search/professors?q=${getProfName(
       professorName,
       true
@@ -215,8 +210,8 @@
     if (rmpResponse && rmpResponse.legacyId)
       rmpLink = `https://www.ratemyprofessors.com/professor/${rmpResponse.legacyId}`;
 
-    let prof = getProfName(professorName);
-    let courseText = courseSectionCell.innerText.trim();
+    const prof = getProfName(professorName);
+    const courseText = courseSectionCell.innerText.trim();
 
     const courseCode = courseText
       .substring(0, courseText.indexOf("-"))
@@ -239,9 +234,9 @@
     // Decide which cell to get meeting pattern from
     let meetingPattern: string | null = null;
     if (isSavedSchedulePage) {
-      meetingPattern = (mainSectionRow.cells[9].textContent || "").trim();
+      meetingPattern = (mainSectionRow.cells[9]!.textContent || "").trim();
     } else {
-      meetingPattern = (mainSectionRow.cells[8].textContent || "").trim();
+      meetingPattern = (mainSectionRow.cells[8]!.textContent || "").trim();
     }
 
     const timeMatch = meetingPattern.match(
@@ -258,25 +253,25 @@
     const friendsTaken: string[] = [];
     for (const friend in friendCoursesTaken[courseCode]) {
       const match =
-        friendCoursesTaken[courseCode][friend].match(courseTakenPattern);
+        friendCoursesTaken[courseCode][friend]!.match(courseTakenPattern);
       if (!match) continue;
       if (
         !match[1] ||
         match[1].includes(prof) ||
         match[1] === "Not taken at SCU"
       ) {
-        friendsTaken.push(friends[friend].name);
+        friendsTaken.push(friends[friend]!.name);
       }
     }
 
     const friendsInterested: string[] = [];
     for (const friend in friendInterestedSections[courseCode]) {
-      if (friendInterestedSections[courseCode][friend].includes(prof)) {
-        const match = friendInterestedSections[courseCode][friend].match(
+      if (friendInterestedSections[courseCode][friend]!.includes(prof)) {
+        const match = friendInterestedSections[courseCode][friend]!.match(
           interestedSectionPattern
         );
         if (match && courseText === match[2]) {
-          friendsInterested.push(friends[friend].name);
+          friendsInterested.push(friends[friend]!.name);
         }
       }
     }
@@ -346,9 +341,9 @@
   }
 
   function calcOverallScore(scores: RatingInfo): number | null {
-    let { scuEvals = 50, rmp = 50 } =
+    const { scuEvals = 50, rmp = 50 } =
       userInfo?.preferences?.scoreWeighting || {};
-    let {
+    const {
       rmpQuality,
       rmpDifficulty,
       scuEvalsQualityPercentile,
@@ -468,7 +463,7 @@
       });
     }
 
-    infoButton.addEventListener("mouseenter", (event) => {
+    infoButton.addEventListener("mouseenter", (_event) => {
       inButton = true;
       document.body.appendChild(tooltip);
       tooltip.style.display = "block";
@@ -528,7 +523,7 @@
             </div>
           `;
     const friendsTakenTooltip = createFriendsToolTip(ratingInfo.friendsTaken);
-    friendsTaken.addEventListener("mouseenter", (event) => {
+    friendsTaken.addEventListener("mouseenter", (_event) => {
       if (ratingInfo.friendsTaken.length === 0) return;
       document.body.appendChild(friendsTakenTooltip);
       friendsTakenTooltip.style.display = "block";
@@ -567,7 +562,7 @@
     const friendsInterestedTooltip = createFriendsToolTip(
       ratingInfo.friendsInterested
     );
-    friendsInterested.addEventListener("mouseenter", (event) => {
+    friendsInterested.addEventListener("mouseenter", (_event) => {
       if (ratingInfo.friendsInterested.length === 0) return;
       document.body.appendChild(friendsInterestedTooltip);
       friendsInterestedTooltip.style.display = "block";
@@ -616,7 +611,7 @@
   }
 
   function createRatingToolTip(ratingInfo: RatingInfo): HTMLElement {
-    let {
+    const {
       rmpLink,
       rmpQuality,
       rmpDifficulty,
@@ -773,7 +768,7 @@
         if (errorDiv) (errorDiv as HTMLElement).textContent =
           "Sign in successful. Please reload the page for changes to take effect.";
       }
-    } catch (error) {
+    } catch (_ignore) {
       if (errorDiv) (errorDiv as HTMLElement).textContent = "An error occurred during sign in.";
     }
   }
@@ -816,7 +811,7 @@
 
   function getProfName(profName: string, usePreferred = false): string {
     if (profName.includes("|")) {
-      return profName.split("|")[+usePreferred].trim();
+      return profName.split("|")![+usePreferred]!.trim();
     }
     return profName;
   }
@@ -873,11 +868,11 @@
     if (!meetingTime || !userInfo?.preferences) return false;
 
     const { startHour, startMinute, endHour, endMinute } =
-      userInfo.preferences.preferredSectionTimeRange as TimeRange;
+      userInfo.preferences.preferredSectionTimeRange as SectionTimeRangePreferences;
 
     const [startTimeStr, endTimeStr] = meetingTime
       .split("-")
-      .map((t) => t.trim());
+      .map((t) => t.trim()) as [string, string];
     const startTime = parseTime(startTimeStr);
     const endTime = parseTime(endTimeStr);
 
@@ -890,9 +885,8 @@
   }
 
   function parseTime(timeString: string): { hours: number; minutes: number } {
-    const [time, period] = timeString.trim().split(/\s+/);
-    let [hours, minutes] = time.split(":").map(Number);
-
+    const [time, period] = timeString.trim().split(/\s+/) as [string, string];
+    let [hours, minutes] = time.split(":").map(Number) as [number, number];
     if (period.toUpperCase() === "PM" && hours !== 12) hours += 12;
     if (period.toUpperCase() === "AM" && hours === 12) hours = 0;
 
@@ -910,7 +904,7 @@
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
       if (sortedArray[mid] === target) return mid;
-      if (sortedArray[mid] < target) left = mid + 1;
+      if (sortedArray[mid]! < target) left = mid + 1;
       else right = mid - 1;
     }
     return left;
@@ -932,7 +926,7 @@
       const data = await response.json();
       const coursesData = data?.body?.children?.find(
         (child: any) => child.widget === "grid" && child.label === "Courses")?.rows as any[] | undefined;
-      let courseSections: Array<{ meetingPattern: string | undefined; uri: string }> = [];
+      const courseSections: Array<{ meetingPattern: string | undefined; uri: string }> = [];
 
       for (const row of (coursesData || [])) {
         const courseSectionData = findObjectByPropertyValue(row.cellsMap, "label", "Section");
@@ -971,8 +965,8 @@
             )?.value as string | undefined;
 
             if (enrolledStats) {
-              if (enrolledStats.match(/\-?\d+ of \d+/)) {
-                let [enrolled, total] = enrolledStats.split(" of ");
+              if (enrolledStats.match(/-?\d+ of \d+/)) {
+                const [enrolled, total] = enrolledStats.split(" of ");
                 enrolledStats = `${enrolled}/${total}`;
               }
               if (meetingPattern) enrollmentStats[meetingPattern] = enrolledStats;
@@ -1017,7 +1011,7 @@
     return null;
   }
 
-  function nullOrUndefined(object: any): boolean {
-    return object === null || object === undefined || isNaN(object);
+  function nullOrUndefined(object: unknown): boolean {
+    return object === null || object === undefined || typeof object === "number" && isNaN(object);
   }
 })();

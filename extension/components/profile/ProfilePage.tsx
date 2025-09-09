@@ -34,7 +34,7 @@ export default function ProfilePage() {
   const [currentAction, setCurrentAction] = useState(null as Alert | null);
 
   useEffect(() => {
-    function storageListener(changes: any, namespace: string) {
+    function storageListener(changes: { [key: string]: chrome.storage.StorageChange; }, namespace: string) {
       if (namespace === "local" && changes.userInfo) {
         checkUserInfo();
       }
@@ -76,7 +76,7 @@ export default function ProfilePage() {
       } else {
         handleActionCompleted("Account deleted successfully.", "success");
       }
-    } catch (error) {
+    } catch (_ignore) {
       handleActionCompleted(
         "An unknown error occurred while deleting account. Please try again.",
         "error"

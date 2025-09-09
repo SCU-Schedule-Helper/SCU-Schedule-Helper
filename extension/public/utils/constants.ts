@@ -8,3 +8,4 @@ export const COURSE_CODE_PATTERN = /^[A-Z]{4}\d+$/;
 export const INTERESTED_SECTION_PATTERN = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}
 export const WORKDAY_CURRENT_COURSES_URL = "https://www.myworkday.com/scu/d/task/2998$28771.htmld";
 export const WORKDAY_COURSE_HISTORY_URL = "https://www.myworkday.com/scu/d/task/2998$30300.htmld";
+export const SERVER_PUBLIC_KEY = "BLMxe4dFTN6sJ7U-ZFXgHUyhlI5udo11b4curIyRfCdGZMYjDx4kFoV3ejHzDf4hNZQOmW3UP6_dgyYTdg3LDIE";

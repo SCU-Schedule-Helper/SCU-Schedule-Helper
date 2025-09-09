@@ -1,7 +1,5 @@
 import { Box, Typography } from "@mui/material";
 import StatBoxWithLessFormatting from "./StatBoxWithLessFormatting";
-
-import React from "react";
 import { Evaluation, DepartmentStats } from "../utils/types";
 interface StatsWithLessFormattingProps {
   flexGap?: string | number;

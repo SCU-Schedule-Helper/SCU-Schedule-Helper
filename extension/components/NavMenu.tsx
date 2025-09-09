@@ -14,7 +14,7 @@ import {
 } from "@mui/icons-material";
 
 interface NavMenuProps {
-  navigateToPage: (page: string) => void;
+  navigateToPage: (_page: string) => void;
   openLandingPage: () => void;
 }
 

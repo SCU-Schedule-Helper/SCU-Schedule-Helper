@@ -1,6 +1,5 @@
 import { Box, Typography, Tooltip } from "@mui/material";
 
-import React from "react";
 interface FriendCoursesTooltipProps {
   // friendData may be null while loading or when no data is available
   friendData: {

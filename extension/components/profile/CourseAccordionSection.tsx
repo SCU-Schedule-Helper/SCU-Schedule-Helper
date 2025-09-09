@@ -14,9 +14,9 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Add, Delete, Description, ImportContacts } from "@mui/icons-material";
-import CourseBox from "./CourseBox.tsx";
-import { getRelevantCourseTimes } from "../utils/user.ts";
-import { ParsedCourseTaken, ParsedInterestedSection, SendAlertFunction } from "../utils/types.ts";
+import CourseBox from "./CourseBox";
+import { getRelevantCourseTimes } from "../utils/user";
+import { ParsedCourseTaken, ParsedInterestedSection, SendAlertFunction } from "../utils/types";
 
 interface Props {
   courseOptions: string[];
@@ -235,10 +235,10 @@ export default function CourseAccordionSection({
             freeSolo
             options={courseOptions}
             value={selectedCourse}
-            onInputChange={(event, newInputValue) => {
+            onInputChange={(_event, newInputValue) => {
               setSelectedCourse(newInputValue);
             }}
-            onChange={(event, newValue) => setSelectedCourse(newValue)}
+            onChange={(_event, newValue) => setSelectedCourse(newValue)}
             sx={{ mb: 2 }}
             renderInput={(params) => (
               <TextField
@@ -254,10 +254,10 @@ export default function CourseAccordionSection({
             freeSolo
             options={professorOptions}
             value={selectedProfessor}
-            onInputChange={(event, newInputValue) => {
+            onInputChange={(_event, newInputValue) => {
               setSelectedProfessor(newInputValue);
             }}
-            onChange={(event, newValue) => setSelectedProfessor(newValue)}
+            onChange={(_event, newValue) => setSelectedProfessor(newValue)}
             sx={{ mb: 2 }}
             renderInput={(params) => (
               <TextField
@@ -273,10 +273,10 @@ export default function CourseAccordionSection({
             freeSolo
             options={timeOptions}
             value={selectedCourseTime}
-            onInputChange={(event, newInputValue) => {
+            onInputChange={(_event, newInputValue) => {
               setSelectedCourseTime(newInputValue);
             }}
-            onChange={(event, newValue) => setSelectedCourseTime(newValue)}
+            onChange={(_event, newValue) => setSelectedCourseTime(newValue)}
             sx={{ mb: 2 }}
             renderInput={(params) => (
               <TextField
