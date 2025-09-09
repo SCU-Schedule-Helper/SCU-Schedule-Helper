@@ -1,5 +1,5 @@
-import { COURSE_TAKEN_PATTERN, INTERESTED_SECTION_PATTERN } from "../utils/constants";
 import { CourseData, EvalsData, Evaluation, ProfessorData, RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../../public/utils/types";
+import { INTERESTED_SECTION_PATTERN, COURSE_TAKEN_PATTERN } from "../utils/constants";
 
 enum FetchStatus {
   NotFetched,

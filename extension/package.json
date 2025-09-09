@@ -8,7 +8,7 @@
     "build": "next build && node out.mjs && npm run refreshpb",
     "buildall": "npm run build && npm run refreshcs",
     "refreshcs": "npm run build --prefix react_content_scripts",
-    "refreshpb": "tsc -p tsconfig.public.json",
+    "refreshpb": "tsc -p tsconfig.public.json && npx esbuild ./public/content_scripts/*.ts --bundle --outdir=./out/content_scripts",
     "start": "next start",
     "run": "next start",
     "dev": "next dev"
@@ -42,6 +42,7 @@
     "@types/web": "^0.0.226",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
+    "esbuild": "^0.25.9",
     "eslint": "^9.35.0",
     "typescript": "5.8.2"
   }

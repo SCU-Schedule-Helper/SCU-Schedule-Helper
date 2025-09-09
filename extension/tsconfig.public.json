@@ -13,5 +13,11 @@
   "include": [
     "public/**/*.ts",
     "public/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "react_content_scripts",
+    "out",
+    "./public/content_scripts"
   ]
 }
