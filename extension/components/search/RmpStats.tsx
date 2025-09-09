@@ -2,7 +2,7 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import StatBox from "./StatBox";
 import { RmpTeacher } from "../utils/types";
 
-interface RmpStatsProps {
+interface Props {
   rmpData: RmpTeacher | null;
   profName: string;
   isLoadingRmp: boolean;
@@ -14,7 +14,7 @@ export default function RmpStats({
   profName,
   isLoadingRmp,
   preferredPercentiles,
-}: RmpStatsProps) {
+}: Props) {
   function getRmpLink() {
     if (rmpData && rmpData.legacyId) {
       return `https://www.ratemyprofessors.com/professor/${rmpData.legacyId}`;

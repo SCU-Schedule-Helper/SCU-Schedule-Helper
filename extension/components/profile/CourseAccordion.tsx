@@ -35,14 +35,15 @@ export default function CourseAccordion({
   userInfo,
   handleActionCompleted,
 }: Props) {
-  const [evalsData, setEvalsData] = useState(null as null | EvalsData);
+  const [evalsData, setEvalsData] = useState<(null | EvalsData)>(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [coursesToRemove, setCoursesToRemove] = useState(
-    [] as (ParsedCourseTaken | ParsedInterestedSection)[]
-  );
-  const [transformedCourses, setTransformedCourses] = useState({
-    interested: [] as ParsedInterestedSection[],
-    taken: [] as ParsedCourseTaken[],
+  const [coursesToRemove, setCoursesToRemove] = useState<(ParsedCourseTaken | ParsedInterestedSection)[]>([]);
+  const [transformedCourses, setTransformedCourses] = useState<{
+    interested: ParsedInterestedSection[];
+    taken: ParsedCourseTaken[];
+  }>({
+    interested: [],
+    taken: [],
   });
 
   /**
@@ -242,8 +243,7 @@ export default function CourseAccordion({
         handleActionCompleted(updateResponse.message, "error");
       } else {
         handleActionCompleted(
-          `Course${
-            (coursesToRemove.length > 1 && "s") || ""
+          `Course${(coursesToRemove.length > 1 && "s") || ""
           } successfully removed!`,
           "success"
         );

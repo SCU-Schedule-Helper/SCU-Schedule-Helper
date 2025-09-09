@@ -1,4 +1,4 @@
-import React from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import CourseHistoryImporter from "../components/course_history/CourseHistoryImporter";
 
@@ -22,9 +22,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   const root = createRoot(courseImporter);
 
   root.render(
-    <React.StrictMode>
+    <StrictMode>
       <CourseHistoryImporter sendResponse={sendResponse} />
-    </React.StrictMode>,
+    </StrictMode>,
   );
   return true;
 });

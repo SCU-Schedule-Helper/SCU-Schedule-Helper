@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Fade } from "@mui/material";
 import ProgressCard from "../shared/ProgressCard";
 import {
@@ -20,7 +20,7 @@ export default function CourseHistoryImporter({
   );
   const [progressNumerator, setProgressNumerator] = useState(0);
   const [progressDenominator, setProgressDenominator] = useState(0);
-  const updatingProfileTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const updatingProfileTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     // Because React state updates are asynchronous, the call to incrementProgressNumerator
@@ -116,7 +116,7 @@ function getScuTables() {
     ) as NodeListOf<HTMLTableCaptionElement>,
   )
     .filter((caption) => caption.innerText === "Enrollments")
-    .map((caption) => caption.parentElement!) as HTMLTableElement[];
+    .map((caption) => caption.parentElement! as HTMLTableElement);
 }
 
 function getNonScuTables() {
@@ -124,7 +124,7 @@ function getNonScuTables() {
     .filter(
       (table) => table.querySelector("caption")?.innerText !== "Enrollments",
     )
-    .map((caption) => caption.parentElement!) as HTMLTableElement[];
+    .map((caption) => caption.parentElement! as HTMLTableElement);
 }
 
 function getAcademicPeriods() {
@@ -132,7 +132,7 @@ function getAcademicPeriods() {
     document,
     "label",
     "Academic Period",
-  ).map((el) => el.parentElement!.nextElementSibling!) as HTMLElement[];
+  ).map((el) => el.parentElement!.nextElementSibling! as HTMLElement);
 }
 
 function findIndexOfFirstQuarterBeforeFall2023(academicPeriods: HTMLElement[]) {

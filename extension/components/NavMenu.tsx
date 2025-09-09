@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, cloneElement } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -13,14 +13,14 @@ import {
   Close,
 } from "@mui/icons-material";
 
-interface NavMenuProps {
+interface Props {
   navigateToPage: (_page: string) => void;
   openLandingPage: () => void;
 }
 
 export const supportEmail = "swdean@scu.edu";
 
-export default function NavMenu({ navigateToPage, openLandingPage } : NavMenuProps) {
+export default function NavMenu({ navigateToPage, openLandingPage }: Props) {
   const [activeMenu, setActiveMenu] = useState("main");
   const [friendNotificationCount, setFriendNotificationCount] = useState(0);
 
@@ -225,7 +225,7 @@ export default function NavMenu({ navigateToPage, openLandingPage } : NavMenuPro
                       },
                     }}
                   >
-                    {React.cloneElement(item.icon, {
+                    {cloneElement(item.icon, {
                       className: "menu-icon",
                       sx: {
                         fontSize: 24,
@@ -235,7 +235,7 @@ export default function NavMenu({ navigateToPage, openLandingPage } : NavMenuPro
                     })}
                   </Badge>
                 ) : (
-                  React.cloneElement(item.icon, {
+                  cloneElement(item.icon, {
                     className: "menu-icon",
                     sx: {
                       fontSize: 24,

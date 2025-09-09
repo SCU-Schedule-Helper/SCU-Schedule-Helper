@@ -1,8 +1,7 @@
-import React from "react";
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import LinearWithValueLabel from "./LinearWithValueLabel";
 
-interface ProgressCardProps {
+interface Props {
   title: string;
   progressMessage: string;
   progressNumerator: number;
@@ -14,7 +13,7 @@ export default function ProgressCard({
   progressMessage,
   progressNumerator,
   progressDenominator,
-}: ProgressCardProps) {
+}: Props) {
   return (
     <Card
       variant="outlined"

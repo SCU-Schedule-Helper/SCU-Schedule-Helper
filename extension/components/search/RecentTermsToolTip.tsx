@@ -1,13 +1,13 @@
-import React from "react";
+import { ReactElement } from "react";
 import { Tooltip } from "@mui/material";
 
-interface RecentTermsToolTipProps {
+interface Props {
   recentTerms: string[];
   // Tooltip expects a single React element child
-  children: React.ReactElement;
+  children: ReactElement;
 }
 
-export default function RecentTermsToolTip({ recentTerms, children }: RecentTermsToolTipProps) {
+export default function RecentTermsToolTip({ recentTerms, children }: Props) {
   function cleanYearsAndTerms(recentTerms: string[]) {
     const termPattern = /(Spring|Summer|Fall|Winter)/i;
     const yearPattern = /\d{4}/;

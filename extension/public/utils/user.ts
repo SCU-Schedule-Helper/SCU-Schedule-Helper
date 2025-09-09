@@ -285,9 +285,9 @@ export async function updateFriendCourseAndSectionIndexes(
     if (!courseMatch) {
       continue;
     }
-    const profName: string = courseMatch[1] as string;
-    const courseCode: string = (courseMatch[2] as string)
-      .substring(0, (courseMatch[2] as string).indexOf("-"))
+    const profName: string = courseMatch[1]!;
+    const courseCode: string = (courseMatch[2]!)
+      .substring(0, (courseMatch[2]!).indexOf("-"))
       .replace(/\s/g, "");
     if (!courseCode.match(COURSE_CODE_PATTERN)) continue;
     const curCourseIndex = friendCoursesTaken[courseCode] || {};
@@ -306,9 +306,9 @@ export async function updateFriendCourseAndSectionIndexes(
     if (!sectionMatch) {
       continue;
     }
-    const profName: string = sectionMatch[1] as string;
-    const courseCode: string = (sectionMatch[2] as string)
-      .substring(0, (sectionMatch[2] as string).indexOf("-"))
+    const profName: string = sectionMatch[1]!;
+    const courseCode: string = (sectionMatch[2]!)
+      .substring(0, (sectionMatch[2]!).indexOf("-"))
       .replace(/\s/g, "");
     const curCourseIndex = friendInterestedSections[courseCode] || {};
     const curProfIndex = friendInterestedSections[profName] || {};

@@ -4,11 +4,11 @@ import {
     Warning as WarningIcon,
 } from "@mui/icons-material";
 
-interface ProfessorRecencyIndicatorProps {
+interface Props {
   lastTaughtQuarter: string;
 }
 
-export default function ProfessorRecencyIndicator({ lastTaughtQuarter }: ProfessorRecencyIndicatorProps) {
+export default function ProfessorRecencyIndicator({ lastTaughtQuarter }: Props) {
     const indicator = getRecencyIndicator(lastTaughtQuarter);
 
     return (

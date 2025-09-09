@@ -1,4 +1,4 @@
-import React from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import CurrentCourseImporter from "../components/current_courses/CurrentCourseImporter";
 
@@ -21,9 +21,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   const root = createRoot(courseImporter);
 
   root.render(
-    <React.StrictMode>
+    <StrictMode>
       <CurrentCourseImporter sendResponse={sendResponse} />
-    </React.StrictMode>,
+    </StrictMode>,
   );
   return true;
 });

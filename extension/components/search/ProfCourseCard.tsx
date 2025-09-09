@@ -54,10 +54,14 @@ export default function ProfCourseCard({
   const [profDepts, setProfDepts] = useState<string[]>([]);
   const [sortingMetric, setSortingMetric] = useState<string>(SortingMetrics.overall);
   const [sortDescending, setSortDescending] = useState(true);
-  const [profDeptAvgs, setProfDeptAvgs] = useState({
-    qualityAvgs: [] as number[],
-    difficultyAvgs: [] as number[],
-    workloadAvgs: [] as number[],
+  const [profDeptAvgs, setProfDeptAvgs] = useState<{
+    qualityAvgs: number[];
+    difficultyAvgs: number[];
+    workloadAvgs: number[];
+  }>({
+    qualityAvgs: [],
+    difficultyAvgs: [],
+    workloadAvgs: [],
   });
   const [preferredPercentiles, setPreferredPercentiles] = useState({
     quality: 1,

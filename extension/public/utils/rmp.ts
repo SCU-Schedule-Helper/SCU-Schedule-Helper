@@ -88,7 +88,7 @@ async function scrapeRmpRatings(profName: string, debuggingEnabled = false): Pro
     );
     const schoolData = JSON.parse(schoolInfoString) as { id?: string; name?: string };
     if (schoolData.name == "Santa Clara University") {
-      schoolId = schoolData.id as string;
+      schoolId = schoolData.id!;
       break;
     }
     indexOfSchool = html.indexOf('"__typename":"School"', indexOfSchool + 1);
@@ -163,7 +163,7 @@ export async function getRmpRatings(rawProfName: string, debuggingEnabled = fals
   if (edgecases.name_transformations.has(realFirstName + lastName)) {
     const transformedName = edgecases.name_transformations.get(
       realFirstName + lastName
-    ) as string | undefined;
+    );
     if (transformedName) {
       data = await scrapeRmpRatings(transformedName, debuggingEnabled);
       realFirstName = transformedName

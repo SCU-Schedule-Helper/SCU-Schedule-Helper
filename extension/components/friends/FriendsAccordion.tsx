@@ -42,15 +42,18 @@ interface TransformedFriendProfile {
   };
 }
 
+interface Props {
+  friends: FriendProfile[];
+  handleActionCompleted: (action: string, type: AlertColor) => void;
+}
+
 export default function FriendsAccordion({
-  friends = [] as FriendProfile[],
+  friends = [],
   handleActionCompleted = (_action: string, _type: AlertColor) => { },
-}) {
+}: Props) {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [friendToRemove, setFriendToRemove] = useState(null as string | null);
-  const [transformedFriends, setTransformedFriends] = useState(
-    [] as TransformedFriendProfile[]
-  );
+  const [friendToRemove, setFriendToRemove] = useState<string | null>(null);
+  const [transformedFriends, setTransformedFriends] = useState<TransformedFriendProfile[]>([]);
   const [friendsExpanded, setFriendsExpanded] = useState(false);
 
   useEffect(() => {

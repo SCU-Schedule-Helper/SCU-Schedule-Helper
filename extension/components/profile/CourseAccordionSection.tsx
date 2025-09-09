@@ -59,9 +59,9 @@ export default function CourseAccordionSection({
   type,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null as string | null);
-  const [selectedProfessor, setSelectedProfessor] = useState(null as string | null);
-  const [selectedCourseTime, setSelectedCourseTime] = useState(null as string | null);
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [selectedProfessor, setSelectedProfessor] = useState<string | null>(null);
+  const [selectedCourseTime, setSelectedCourseTime] = useState<string | null>(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFunction, setImportFunction] = useState("");
 

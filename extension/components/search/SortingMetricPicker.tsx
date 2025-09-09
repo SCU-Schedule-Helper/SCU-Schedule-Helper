@@ -7,12 +7,12 @@ import {
     KeyboardArrowUp,
 } from "@mui/icons-material";
 import { SortingMetrics } from "./ProfCourseCard";
-interface SortingMetricPickerProps {
+interface Props {
   sortingMetric: string;
   sortDescending: boolean;
   handleMetricChange: (metric: string) => void;
 }
-export default function SortingMetricPicker({ sortingMetric, sortDescending, handleMetricChange }: SortingMetricPickerProps) {
+export default function SortingMetricPicker({ sortingMetric, sortDescending, handleMetricChange }: Props) {
     return <Box
         sx={{
             display: "flex",

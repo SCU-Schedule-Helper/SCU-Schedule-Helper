@@ -7,7 +7,7 @@ export default function AuthWrapper({ children }: PropsWithChildren<{children : 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
-  const [error, setError] = useState(null as string | null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuthStatus();

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Dialog,
   DialogActions,
@@ -8,12 +7,12 @@ import {
   Button,
 } from "@mui/material";
 
-interface QueryDialogProps {
+interface Props {
   open: boolean;
   onClose: () => void;
 }
 
-export default function QueryDialog({ open, onClose }: QueryDialogProps) {
+export default function QueryDialog({ open, onClose }: Props) {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>More Information</DialogTitle>

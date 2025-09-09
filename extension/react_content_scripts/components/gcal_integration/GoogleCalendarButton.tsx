@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { RRule, Weekday } from "rrule";
 import { getEnrolledCoursesTables } from "../shared/utils";
 import { Modal, Box, Typography, IconButton } from "@mui/material";
@@ -159,7 +159,7 @@ function findHeaderIndex(
 
 function getRelevantCourses(
   panel: Element,
-  setErrors: React.Dispatch<React.SetStateAction<string[]>>
+  setErrors: Dispatch<SetStateAction<string[]>>
 ): CourseEvent[] {
   const tables = getEnrolledCoursesTables(panel);
   const courses: CourseEvent[] = [];

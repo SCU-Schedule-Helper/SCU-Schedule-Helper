@@ -15,12 +15,10 @@ interface LimitedUserProfile {
 }
 
 export default function UserSearch({
-  handleActionCompleted = (_action: string, _type: AlertColor) => {},
+  handleActionCompleted = (_action: string, _type: AlertColor) => { },
 }) {
-  const [selectedUser, setSelectedUser] = useState(
-    null as LimitedUserProfile | null
-  );
-  const [users, setUsers] = useState([] as LimitedUserProfile[]);
+  const [selectedUser, setSelectedUser] = useState<LimitedUserProfile | null>(null);
+  const [users, setUsers] = useState<LimitedUserProfile[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
   async function searchUsersByName(name: string) {

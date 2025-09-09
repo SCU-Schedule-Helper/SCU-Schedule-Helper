@@ -37,9 +37,7 @@ export default function CourseBox({
   const [isEditingCourse, setIsEditingCourse] = useState(false);
   const [editedCourseName, setEditedCourseName] = useState(course.courseName);
   const [editedProfessor, setEditedProfessor] = useState(course.professor);
-  const [editedCourseTime, setEditedCourseTime] = useState(
-    null as string | null
-  );
+  const [editedCourseTime, setEditedCourseTime] = useState<string | null>(null);
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
@@ -260,8 +258,8 @@ export default function CourseBox({
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             {isParsedCourseTaken(course)
               ? (course.professor === "Not taken at SCU" &&
-                  "Not taken at SCU") ||
-                `Prof. ${course.professor} | ${course.quarter}`
+                "Not taken at SCU") ||
+              `Prof. ${course.professor} | ${course.quarter}`
               : `${course.professor} | ${course.meetingPattern}`}
           </Typography>
         </>

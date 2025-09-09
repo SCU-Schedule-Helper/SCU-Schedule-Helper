@@ -16,9 +16,7 @@ export default function FriendsPage() {
   const [requestsOut, setRequestsOut] = useState([]);
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
-  const [currentAction, setCurrentAction] = useState(
-    null as Alert | null
-  );
+  const [currentAction, setCurrentAction] = useState<Alert | null>(null);
 
   useEffect(() => {
     async function fetchFriendData() {

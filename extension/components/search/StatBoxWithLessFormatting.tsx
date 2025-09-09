@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { getRatingColor, getPercentile } from "../utils/ratings";
-interface StatBoxWithLessFormattingProps {
+interface Props {
   label: string;
   value: number;
   preferredPercentiles: Record<string, number>;
@@ -13,7 +13,7 @@ export default function StatBoxWithLessFormatting({
   preferredPercentiles,
   deptStats,
   isRmpRating,
-}: StatBoxWithLessFormattingProps) {
+}: Props) {
   label = label.toLowerCase();
   
   function getColor(value: number, label: string, isRmpRating: boolean) {

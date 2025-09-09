@@ -13,11 +13,17 @@ import {
 import { ExpandMore, Check, Close } from "@mui/icons-material";
 import { FriendRequest } from "../utils/types";
 
+interface Props {
+  requestsIn: FriendRequest[];
+  requestsOut: FriendRequest[];
+  handleActionCompleted: (action: string, type: AlertColor) => void;
+}
+
 export default function RequestsAccordion({
-  requestsIn = [] as FriendRequest[],
-  requestsOut = [] as FriendRequest[],
+  requestsIn = [],
+  requestsOut = [],
   handleActionCompleted = (_action: string, _type: AlertColor) => {},
-}) {
+}: Props) {
   const [requestsInExpanded, setRequestsInExpanded] = useState(
     requestsIn.length > 0
   );

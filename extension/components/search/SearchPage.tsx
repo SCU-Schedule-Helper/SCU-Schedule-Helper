@@ -8,9 +8,9 @@ import QueryPageTitle from "./QueryTitlePage";
 
 export default function SearchPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const boxRef = useRef(null as HTMLElement | null);
-  const [query, setQuery] = useState(null as string | null);
-  const [stack, setStack] = useState([] as string[]);
+  const boxRef = useRef<HTMLElement | null>(null);
+  const [query, setQuery] = useState<string | null>(null);
+  const [stack, setStack] = useState<string[]>([]);
   // Selected item for ProfCourseSearch
   const [selectedProfessorOrCourse, setSelectedProfessorOrCourse] = useState<SelectedProfOrCourse | null>(null);
 

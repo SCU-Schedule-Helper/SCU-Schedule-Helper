@@ -31,7 +31,7 @@ export default function ProfilePage() {
   const [openInfoDialog, setOpenInfoDialog] = useState(false); // Info dialog state
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
-  const [currentAction, setCurrentAction] = useState(null as Alert | null);
+  const [currentAction, setCurrentAction] = useState<(null | Alert)>(null);
 
   useEffect(() => {
     function storageListener(changes: { [key: string]: chrome.storage.StorageChange; }, namespace: string) {

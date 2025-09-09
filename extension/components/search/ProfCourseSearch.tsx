@@ -24,9 +24,9 @@ export default function ProfCourseSearch({
   selectedProfessorOrCourse,
   onSelectionChange,
 }: Props) {
-  const [evalsData, setEvalsData] = useState(null as EvalsData | null);
+  const [evalsData, setEvalsData] = useState<EvalsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null as string | null);
+  const [error, setError] = useState<string | null>(null);
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
   const [searchQuery, setSearchQuery] = useState("");

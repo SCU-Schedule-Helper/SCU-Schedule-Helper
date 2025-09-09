@@ -59,7 +59,7 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
   let prefferedDifficulty: number = Difficulty.VeryEasy;
   let preferredDifficultyPercentile = prefferedDifficulty / 4;
 
-  const observer = new MutationObserver(checkPage as MutationCallback);
+  const observer = new MutationObserver(checkPage);
   observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
@@ -135,12 +135,12 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
 
     await Promise.all(
       Array.from(courseSectionRows).map(async (row: HTMLTableRowElement) => {
-        const courseSectionCell = row.cells[0] as HTMLTableCellElement;
+        const courseSectionCell = row.cells[0]!;
         const courseText = courseSectionCell.innerText.trim();
         if (courseText === "" || courseSectionCell.hasAttribute("has-ratings"))
           return;
         courseSectionCell.setAttribute("has-ratings", "true");
-        const instructorCell = row.cells[6] as HTMLTableCellElement;
+        const instructorCell = row.cells[6]!;
         const professorName = instructorCell.innerText.trim().split("\n")[0] || "";
         const courseTitleHeight = courseSectionCell.firstElementChild
           ? window.getComputedStyle(courseSectionCell.firstElementChild).height
@@ -162,12 +162,12 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
 
     await Promise.all(
       Array.from(courses).map(async (courseRow: HTMLTableRowElement) => {
-        const courseCell = courseRow.cells[0] as HTMLTableCellElement;
+        const courseCell = courseRow.cells[0]!;
         const courseText = courseCell.innerText.trim();
         if (courseText === "" || courseRow.cells.length < 10) return;
         if (courseCell.hasAttribute("has-ratings")) return;
         courseCell.setAttribute("has-ratings", "true");
-        const instructorCell = courseRow.cells[6] as HTMLTableCellElement;
+        const instructorCell = courseRow.cells[6]!;
         const professorName = instructorCell.innerText.trim().split("\n")[0]!;
         const pushDown = document.createElement("div");
         pushDown.style.height = "100px";
@@ -370,16 +370,16 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
       nullOrUndefined(scuEvalsDifficultyPercentile) ||
       nullOrUndefined(scuEvalsWorkloadPercentile)
     ) {
-      return rmpScore(rmpQuality as number, rmpDifficulty as number);
+      return rmpScore(rmpQuality!, rmpDifficulty!);
     }
     return (
       scuEvalsScore(
-        scuEvalsQualityPercentile as number,
-        scuEvalsDifficultyPercentile as number,
-        scuEvalsWorkloadPercentile as number
+        scuEvalsQualityPercentile!,
+        scuEvalsDifficultyPercentile!,
+        scuEvalsWorkloadPercentile!
       ) *
       (scuEvals / 100) +
-      rmpScore(rmpQuality as number, rmpDifficulty as number) * (rmp / 100)
+      rmpScore(rmpQuality!, rmpDifficulty!) * (rmp / 100)
     );
   }
 
@@ -756,19 +756,19 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
   }
 
   async function sshSignIn(signInButton: HTMLElement) {
-    const errorDiv = signInButton.nextElementSibling;
-    if (errorDiv) (errorDiv as HTMLElement).textContent = ""; // Clear previous errors
+    const errorDiv = signInButton.nextElementSibling as HTMLElement;
+    if (errorDiv) errorDiv.textContent = ""; // Clear previous errors
     try {
       const response = await chrome.runtime.sendMessage("signIn");
       if (response?.text) {
-        if (errorDiv) (errorDiv as HTMLElement).textContent = response.text; // Display error message
+        if (errorDiv) errorDiv.textContent = response.text; // Display error message
       } else {
-        if (errorDiv) (errorDiv as HTMLElement).setAttribute("style", "color: green");
-        if (errorDiv) (errorDiv as HTMLElement).textContent =
+        if (errorDiv) errorDiv.setAttribute("style", "color: green");
+        if (errorDiv) errorDiv.textContent =
           "Sign in successful. Please reload the page for changes to take effect.";
       }
     } catch (_ignore) {
-      if (errorDiv) (errorDiv as HTMLElement).textContent = "An error occurred during sign in.";
+      if (errorDiv) errorDiv.textContent = "An error occurred during sign in.";
     }
   }
 
@@ -828,31 +828,31 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
     const yellowShade: [number, number, number] = [255, 165, 0];
     const redShade: [number, number, number] = [194, 59, 34];
     const ratingMid = ratingMin + (ratingMax - ratingMin) / 2;
-    if ((rating as number) <= ratingMid && goodValuesAreHigher) {
+    if ((rating!) <= ratingMid && goodValuesAreHigher) {
       return interpolateColor(
         redShade,
         yellowShade,
-        ((rating as number) - ratingMin) / (ratingMid - ratingMin)
+        ((rating!) - ratingMin) / (ratingMid - ratingMin)
       );
     }
-    if ((rating as number) <= ratingMid && !goodValuesAreHigher) {
+    if ((rating!) <= ratingMid && !goodValuesAreHigher) {
       return interpolateColor(
         greenShade,
         yellowShade,
-        ((rating as number) - ratingMin) / (ratingMid - ratingMin)
+        ((rating!) - ratingMin) / (ratingMid - ratingMin)
       );
     }
     if (goodValuesAreHigher) {
       return interpolateColor(
         yellowShade,
         greenShade,
-        ((rating as number) - ratingMid) / (ratingMax - ratingMid)
+        ((rating!) - ratingMid) / (ratingMax - ratingMid)
       );
     }
     return interpolateColor(
       yellowShade,
       redShade,
-      ((rating as number) - ratingMid) / (ratingMax - ratingMid)
+      ((rating!) - ratingMid) / (ratingMax - ratingMid)
     );
   }
 

@@ -1,4 +1,4 @@
-import  { Fragment } from "react";
+import { Fragment } from "react";
 import { Card, CardContent, Typography, Stack, Divider, List, ListItem } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import BookIcon from "@mui/icons-material/Book";
@@ -9,9 +9,13 @@ interface ParsedCourses {
   taken: ParsedCourseTaken[]
 }
 
+interface Props {
+  courses: ParsedCourses;
+}
+
 export default function CourseDetailsCard({
-  courses = {} as ParsedCourses
-}) {
+  courses = { interested: [], taken: [] }
+}: Props) {
   return (
     <Card variant="outlined" sx={{ width: "100%", mt: 2 }}>
       <CardContent>
@@ -84,7 +88,7 @@ export default function CourseDetailsCard({
                   </Stack>
                   {index < courses.taken.length - 1 && <Divider />}
                 </Fragment>
-              ))  
+              ))
             ) : (
               <Typography variant="body2" color="text.secondary">
                 No taken courses

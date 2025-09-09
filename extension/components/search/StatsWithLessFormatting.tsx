@@ -1,13 +1,14 @@
 import { Box, Typography } from "@mui/material";
 import StatBoxWithLessFormatting from "./StatBoxWithLessFormatting";
 import { Evaluation, DepartmentStats } from "../utils/types";
-interface StatsWithLessFormattingProps {
+interface Props {
   flexGap?: string | number;
   stats: Evaluation;
   deptStats: DepartmentStats;
   preferredPercentiles: Record<string, number>;
 }
-export default function StatsWithLessFormatting({ flexGap, stats, deptStats, preferredPercentiles }: StatsWithLessFormattingProps) {
+
+export default function StatsWithLessFormatting({ flexGap, stats, deptStats, preferredPercentiles }: Props) {
   if (
     !stats ||
     stats.qualityTotal === undefined ||
