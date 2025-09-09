@@ -3,7 +3,7 @@ import { Box, Typography, Button, Stack, TextField } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 // @ts-expect-error (no types available)
 import { compress } from "compress.js/src/compress.js";
-import { SendAlertFunction, UserProfile } from "../utils/types";
+import { SendAlertFunction, UserProfile } from "../../public/utils/types";
 
 interface Props {
   userInfo: UserProfile | null;

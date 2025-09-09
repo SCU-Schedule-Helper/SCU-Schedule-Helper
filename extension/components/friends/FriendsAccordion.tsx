@@ -26,7 +26,7 @@ import {
   FriendProfile,
   ParsedCourseTaken,
   ParsedInterestedSection
-} from "../utils/types";
+} from "../../public/utils/types";
 
 interface TransformedFriendProfile {
   id: string;

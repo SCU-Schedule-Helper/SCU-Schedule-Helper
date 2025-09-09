@@ -1,6 +1,6 @@
 import { SyntheticEvent, useEffect, useState } from "react";
 import { Box, Slider, createTheme, ThemeProvider } from "@mui/material";
-import { SectionTimeRangePreferences } from "../utils/types";
+import { SectionTimeRangePreferences } from "../../public/utils/types";
 
 function generateMarks(startHour: number, endHour: number) {
   const marks = [];

@@ -17,7 +17,7 @@ import DifficultySlider from "./DifficultySlider";
 import {
   UserPreferences,
   SectionTimeRangePreferences,
-} from "../utils/types.js";
+} from "../../public/utils/types";
 
 export default function PreferencesPage() {
   const [userPrefs, setUserPrefs] = useState<UserPreferences | null>(null);

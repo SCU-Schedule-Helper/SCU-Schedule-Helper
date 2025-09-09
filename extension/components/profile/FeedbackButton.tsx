@@ -12,7 +12,7 @@ import {
   Select,
   Stack,
 } from "@mui/material";
-import { SendAlertFunction } from "../utils/types";
+import { SendAlertFunction } from "../../public/utils/types";
 
 interface Props {
   handleActionCompleted: SendAlertFunction;

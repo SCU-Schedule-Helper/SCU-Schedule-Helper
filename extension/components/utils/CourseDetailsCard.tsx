@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { Card, CardContent, Typography, Stack, Divider, List, ListItem } from "@mui/material";
+import { Card, CardContent, Typography, Stack, Divider } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import BookIcon from "@mui/icons-material/Book";
 import { ParsedInterestedSection, ParsedCourseTaken } from "./types";

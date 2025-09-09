@@ -16,7 +16,7 @@ import {
 import { Add, Delete, Description, ImportContacts } from "@mui/icons-material";
 import CourseBox from "./CourseBox";
 import { getRelevantCourseTimes } from "../utils/user";
-import { ParsedCourseTaken, ParsedInterestedSection, SendAlertFunction } from "../utils/types";
+import { ParsedCourseTaken, ParsedInterestedSection, SendAlertFunction } from "../../public/utils/types";
 
 interface Props {
   courseOptions: string[];

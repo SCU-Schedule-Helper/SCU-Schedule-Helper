@@ -1,4 +1,3 @@
-
 export function getRatingColor(
   rating: number | null | undefined,
   ratingMin: number,

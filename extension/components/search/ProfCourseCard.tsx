@@ -14,7 +14,8 @@ import {
   Evaluation,
   ProfessorCourseEvaluation,
   ProfessorData,
-} from "../utils/types";
+} from "../../public/utils/types";
+import { COURSE_TAKEN_PATTERN, INTERESTED_SECTION_PATTERN } from "../../public/utils/constants";
 
 export const SortingMetrics = Object.freeze({
   overall: "Overall",
@@ -22,8 +23,6 @@ export const SortingMetrics = Object.freeze({
   difficulty: "Difficulty",
   workload: "Workload",
 });
-export const courseTakenPattern = /P{(.*?)}C{(.*?)}T{(.*?)}/; // P{profName}C{courseCode}T{termName}
-export const interestedSectionPattern = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
 
 export type SelectedProfOrCourse = {
   id: string;
@@ -200,7 +199,7 @@ export default function ProfCourseCard({
         const friendInfo = `${friendName} had for `;
         const courseCodes = [];
         for (const course of courses) {
-          const match = course.match(courseTakenPattern);
+          const match = course.match(COURSE_TAKEN_PATTERN);
           if (!match) continue;
           const courseCode = match[2]
             .substring(0, match[2].indexOf("-"))
@@ -215,7 +214,7 @@ export default function ProfCourseCard({
         const sections =
           friendData.friendInterestedSections[selected!.id][friendId];
         for (const section of sections) {
-          const match = section.match(interestedSectionPattern);
+          const match = section.match(INTERESTED_SECTION_PATTERN);
           if (!match) continue;
           const meetingPatternMatch = match[3].match(/(.*) \| (.*) \| (.*)/);
           const meetingPattern = `${meetingPatternMatch[1]
@@ -235,7 +234,7 @@ export default function ProfCourseCard({
       for (const friendId in friendData.friendCoursesTaken?.[selected!.id] || {}) {
         const friendName = friendData.friends[friendId].name;
         const course = friendData.friendCoursesTaken[selected!.id][friendId];
-        const match = course.match(courseTakenPattern);
+        const match = course.match(COURSE_TAKEN_PATTERN);
         if (!match) continue;
         if (match[1] === "Not taken at SCU") {
           friendTakenInfos.push(`${friendName} took outside of SCU`);
@@ -249,7 +248,7 @@ export default function ProfCourseCard({
         const friendName = friendData.friends[friendId].name;
         const course =
           friendData.friendInterestedSections[selected!.id][friendId];
-        const match = course.match(interestedSectionPattern);
+        const match = course.match(INTERESTED_SECTION_PATTERN);
         if (!match) continue;
         const meetingPatternMatch = match[3].match(/(.*) \| (.*) \| (.*)/);
         const meetingPattern = `${meetingPatternMatch[1]

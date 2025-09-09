@@ -4,27 +4,26 @@ import ProfCourseSearch from "./ProfCourseSearch";
 import { SelectedProfOrCourse } from "./ProfCourseCard";
 import AuthWrapper from "../utils/AuthWrapper";
 import QueryDialog from "./QueryDialog";
-import QueryPageTitle from "./QueryTitlePage";
+import QueryTitlePage from "./QueryTitlePage";
 
 export default function SearchPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const boxRef = useRef<HTMLElement | null>(null);
-  const [query, setQuery] = useState<string | null>(null);
-  const [stack, setStack] = useState<string[]>([]);
+  const [stack, setStack] = useState<SelectedProfOrCourse[]>([]);
   // Selected item for ProfCourseSearch
   const [selectedProfessorOrCourse, setSelectedProfessorOrCourse] = useState<SelectedProfOrCourse | null>(null);
 
   useEffect(() => {
-    if (query !== null) {
+    if (selectedProfessorOrCourse !== null) {
       setStack((prevStack) => {
-        if (prevStack[prevStack.length - 1] !== query) {
-          const newStack = [...prevStack, query];
+        if (prevStack[prevStack.length - 1] !== selectedProfessorOrCourse) {
+          const newStack = [...prevStack, selectedProfessorOrCourse];
           return newStack;
         }
         return prevStack;
       });
     }
-  }, [query]);
+  }, [selectedProfessorOrCourse]);
 
   function scrollToTop() {
     if (boxRef.current) {
@@ -40,26 +39,14 @@ export default function SearchPage() {
     setDialogOpen(false);
   }
 
-  useEffect(() => {
-    if (query !== null) {
-      setStack((prevStack) => {
-        if (prevStack[prevStack.length - 1] !== query) {
-          const newStack = [...prevStack, query];
-          return newStack;
-        }
-        return prevStack;
-      });
-    }
-  }, [query]);
-
   function handleBackButton() {
     setStack((prevStack) => {
       const newStack = [...prevStack];
       newStack.pop();
       if (newStack.length === 0) {
-        setQuery(null);
+        setSelectedProfessorOrCourse(null);
       } else {
-        setQuery(newStack[newStack.length - 1]!);
+        setSelectedProfessorOrCourse(newStack[newStack.length - 1]!);
       }
       return newStack;
     });
@@ -77,7 +64,7 @@ export default function SearchPage() {
             alignItems: "center",
           }}
         >
-          <QueryPageTitle
+          <QueryTitlePage
             handleBackButton={handleBackButton}
             handleDialogOpen={handleDialogOpen}
             showBackButton={stack.length === 0}

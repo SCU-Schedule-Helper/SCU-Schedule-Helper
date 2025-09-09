@@ -9,7 +9,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { Edit, Close } from "@mui/icons-material";
-import { ParsedCourseTaken, ParsedInterestedSection } from "../utils/types";
+import { ParsedCourseTaken, ParsedInterestedSection } from "../../public/utils/types";
 
 interface Props {
   courseOptions: string[];
@@ -118,10 +118,10 @@ export default function CourseBox({
             freeSolo
             options={courseOptions}
             value={editedCourseName}
-            onInputChange={(event, newInputValue) =>
+            onInputChange={(_event, newInputValue) =>
               setEditedCourseName(newInputValue)
             }
-            onChange={(event, newValue) => setEditedCourseName(newValue!)}
+            onChange={(_event, newValue) => setEditedCourseName(newValue!)}
             sx={{ mb: 1.5 }}
             renderInput={(params) => (
               <TextField
@@ -138,10 +138,10 @@ export default function CourseBox({
               freeSolo
               options={professorOptions}
               value={editedProfessor}
-              onInputChange={(event, newInputValue) =>
+              onInputChange={(_event, newInputValue) =>
                 setEditedProfessor(newInputValue)
               }
-              onChange={(event, newValue) => setEditedProfessor(newValue!)}
+              onChange={(_event, newValue) => setEditedProfessor(newValue!)}
               sx={{ mb: 1.5, width: "50%" }}
               renderInput={(params) => (
                 <TextField
@@ -157,10 +157,10 @@ export default function CourseBox({
               freeSolo
               options={timeOptions}
               value={editedCourseTime}
-              onInputChange={(event, newInputValue) =>
+              onInputChange={(_event, newInputValue) =>
                 setEditedCourseTime(newInputValue)
               }
-              onChange={(event, newValue) => setEditedCourseTime(newValue)}
+              onChange={(_event, newValue) => setEditedCourseTime(newValue)}
               sx={{ mb: 1.5, width: "50%" }}
               renderInput={(params) => (
                 <TextField

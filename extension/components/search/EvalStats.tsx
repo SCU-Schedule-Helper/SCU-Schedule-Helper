@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import StatBox from "./StatBox";
-import { DepartmentStats, Evaluation } from "../utils/types";
+import { DepartmentStats, Evaluation } from "../../public/utils/types";
 
 interface Props {
   stats: Evaluation;

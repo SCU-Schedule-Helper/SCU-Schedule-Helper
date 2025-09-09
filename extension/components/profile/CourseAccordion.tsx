@@ -24,7 +24,7 @@ import {
   ParsedInterestedSection,
   SendAlertFunction,
   UserProfile,
-} from "../utils/types";
+} from "../../public/utils/types";
 
 interface Props {
   userInfo: UserProfile | null;

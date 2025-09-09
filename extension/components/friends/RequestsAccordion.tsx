@@ -11,7 +11,7 @@ import {
   AlertColor,
 } from "@mui/material";
 import { ExpandMore, Check, Close } from "@mui/icons-material";
-import { FriendRequest } from "../utils/types";
+import { FriendRequest } from "../../public/utils/types";
 
 interface Props {
   requestsIn: FriendRequest[];

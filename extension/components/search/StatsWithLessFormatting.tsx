@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import StatBoxWithLessFormatting from "./StatBoxWithLessFormatting";
-import { Evaluation, DepartmentStats } from "../utils/types";
+import { Evaluation, DepartmentStats } from "../../public/utils/types";
 interface Props {
   flexGap?: string | number;
   stats: Evaluation;

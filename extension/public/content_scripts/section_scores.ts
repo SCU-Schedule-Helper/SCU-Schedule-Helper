@@ -1,51 +1,52 @@
-import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../utils/types";
+import { COURSE_TAKEN_PATTERN, INTERESTED_SECTION_PATTERN } from "../utils/constants";
+import { CourseData, EvalsData, Evaluation, ProfessorData, RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../../public/utils/types";
+
+enum FetchStatus {
+  NotFetched,
+  Fetching,
+  Fetched,
+}
+
+enum Difficulty {
+  VeryEasy,
+  Easy,
+  Medium,
+  Hard,
+  VeryHard,
+}
+
+interface UserInfo {
+  id?: string;
+  name?: string;
+  preferences?: UserPreferences;
+}
+
+interface Friend { name: string }
+
+interface RatingInfo {
+  rmpLink: string;
+  rmpQuality?: number;
+  rmpDifficulty?: number;
+  scuEvalsQuality?: number | null;
+  scuEvalsDifficulty?: number | null;
+  scuEvalsWorkload?: number | null;
+  scuEvalsQualityPercentile?: number | null;
+  scuEvalsDifficultyPercentile?: number | null;
+  scuEvalsWorkloadPercentile?: number | null;
+  matchesTimePreference?: boolean;
+  meetingPattern?: string | null;
+  friendsTaken: string[];
+  friendsInterested: string[];
+}
 
 (async function () {
   await chrome.runtime.sendMessage("runStartupChecks");
 
-  enum FetchStatus {
-    NotFetched,
-    Fetching,
-    Fetched,
-  }
-
-  enum Difficulty {
-    VeryEasy,
-    Easy,
-    Medium,
-    Hard,
-    VeryHard,
-  }
-
-  const courseTakenPattern = /P{(.*?)}C{(.*?)}T{(.*?)}/; // P{profName}C{courseCode}T{termName}
-  const interestedSectionPattern = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
+  const courseTakenPattern = COURSE_TAKEN_PATTERN; // P{profName}C{courseCode}T{termName}
+  const interestedSectionPattern = INTERESTED_SECTION_PATTERN; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
   const debounceDelay = 100;
 
-  interface UserInfo {
-    id?: string;
-    name?: string;
-    preferences?: UserPreferences;
-  }
-
-  interface Friend { name: string }
-
-  interface RatingInfo {
-    rmpLink: string;
-    rmpQuality?: number;
-    rmpDifficulty?: number;
-    scuEvalsQuality?: number | null;
-    scuEvalsDifficulty?: number | null;
-    scuEvalsWorkload?: number | null;
-    scuEvalsQualityPercentile?: number | null;
-    scuEvalsDifficultyPercentile?: number | null;
-    scuEvalsWorkloadPercentile?: number | null;
-    matchesTimePreference?: boolean;
-    meetingPattern?: string | null;
-    friendsTaken: string[];
-    friendsInterested: string[];
-  }
-
-  let evalsData: Record<string, any> = {};
+  let evalsData: EvalsData;
   let userInfo: UserInfo = {};
   let inTooltip = false;
   let inButton = false;
@@ -105,7 +106,7 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
         ) {
           if (!userInfo.preferences.showRatings) return;
         }
-        evalsData = (data.evals as Record<string, any>) || {};
+        evalsData = (data.evals as EvalsData) || { departmentStatistics: {} } as EvalsData;
         friendInterestedSections =
           (data.friendInterestedSections as Record<string, Record<string, string>>) || {};
         friendCoursesTaken =
@@ -216,17 +217,18 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
       .substring(0, courseText.indexOf("-"))
       .replace(/\s/g, "");
     const department = courseText.substring(0, courseText.indexOf(" "));
-    if (evalsData[prof]?.[courseCode]) {
-      const avg = getScuEvalsAvgMetric(evalsData[prof][courseCode]);
+    const profData: ProfessorData | undefined = evalsData?.[prof] as ProfessorData | undefined;
+    if (profData?.[courseCode]) {
+      const avg = getScuEvalsAvgMetric(profData[courseCode]);
       if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
-    } else if (evalsData[prof]?.[department]) {
-      const avg = getScuEvalsAvgMetric(evalsData[prof][department]);
+    } else if (profData?.[department]) {
+      const avg = getScuEvalsAvgMetric(profData[department]);
       if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
-    } else if (evalsData[prof]?.overall) {
-      const avg = getScuEvalsAvgMetric(evalsData[prof].overall);
+    } else if (profData?.overall) {
+      const avg = getScuEvalsAvgMetric(profData.overall);
       if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
-    } else if (evalsData[courseCode]) {
-      const avg = getScuEvalsAvgMetric(evalsData[courseCode]);
+    } else if (evalsData?.[courseCode]) {
+      const avg = getScuEvalsAvgMetric(evalsData?.[courseCode] as CourseData);
       if (avg) ({ scuEvalsQuality, scuEvalsDifficulty, scuEvalsWorkload } = avg);
     }
 
@@ -320,7 +322,7 @@ import { RmpTeacher, SectionTimeRangePreferences, UserPreferences } from "../uti
   }
 
   function getScuEvalsAvgMetric(
-    rating: any
+    rating: Evaluation
   ): { scuEvalsQuality: number; scuEvalsDifficulty: number; scuEvalsWorkload: number } | null {
     if (
       !rating ||

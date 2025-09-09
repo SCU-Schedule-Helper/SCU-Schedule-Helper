@@ -1,4 +1,5 @@
-import { ParsedInterestedSection, ParsedCourseTaken } from "./types";
+import { COURSE_TAKEN_PATTERN, INTERESTED_SECTION_PATTERN } from "../../public/utils/constants";
+import { ParsedInterestedSection, ParsedCourseTaken } from "../../public/utils/types";
 
 /**
  *
@@ -11,7 +12,7 @@ export function parseInterestedSections(
 ): ParsedInterestedSection[] {
   return Object.keys(interestedSections || {})
     .map((encodedCourse) => {
-      const courseMatch = encodedCourse.match(/P{(.*?)}S{(.*?)}M{(.*?)}/);
+      const courseMatch = encodedCourse.match(INTERESTED_SECTION_PATTERN);
       if (!courseMatch) {
         console.error("Error parsing interested course:", encodedCourse);
         return null;
@@ -66,7 +67,7 @@ export function parseTakenCourses(
 ): ParsedCourseTaken[] {
   return encodedCoursesTaken
     .map((encodedCourse) => {
-      const courseMatch = encodedCourse.match(/P{(.*?)}C{(.*?)}T{(.*?)}/);
+      const courseMatch = encodedCourse.match(COURSE_TAKEN_PATTERN);
       if (!courseMatch) return null;
 
       const firstDash = courseMatch[2]!.indexOf("-");

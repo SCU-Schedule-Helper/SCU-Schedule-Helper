@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import StatBox from "./StatBox";
-import { RmpTeacher } from "../utils/types";
+import { RmpTeacher } from "../../public/utils/types";
 
 interface Props {
   rmpData: RmpTeacher | null;

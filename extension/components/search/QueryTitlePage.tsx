@@ -8,7 +8,7 @@ interface Props {
   showBackButton: boolean;
 }
 
-export default function QueryPageTitle({ handleBackButton, handleDialogOpen, showBackButton }: Props) {
+export default function QueryTitlePage({ handleBackButton, handleDialogOpen, showBackButton }: Props) {
     if (showBackButton) {
       return (
         <Box sx={{

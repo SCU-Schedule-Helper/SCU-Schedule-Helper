@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { matchSorter } from "match-sorter";
 import ProfCourseCard, { SelectedProfOrCourse } from "./ProfCourseCard";
-import { EvalsData, ProfessorData } from "../utils/types";
+import { EvalsData, ProfessorData } from "../../public/utils/types";
 
 interface Props {
   scrollToTop: () => void;
