@@ -210,22 +210,20 @@ function getRelevantCourses(
         .split(" ")
         .map((day) => day.trim());
       const startTime = meetingPatternRegexMatch[2].trim();
-      const startDate = new Date(`${startDateMMDDYYYY} ${startTime}`);
+      const startDate = new Date(makeIsoString(startDateMMDDYYYY, startTime));
       startDate.setDate(
         startDate.getDate() + calcStartDateOffset(startDate, courseDaysOfWeek)
       );
       const endTime = meetingPatternRegexMatch[3].trim();
-      const endDate = new Date(
-        `${startDate.toLocaleString('en-CA', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          timeZone: 'America/Los_Angeles'
-        })} ${endTime}`
-      );
+      const endDate = new Date(makeIsoString(startDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: 'America/Los_Angeles'
+      }), endTime));
 
       const actualCourseEndDate = getSundayBeforeDate(
-        new Date(endDateMMDDYYYY)
+        new Date(makeIsoString(endDateMMDDYYYY, endTime))
       );
       const recurrence = createRecurringEvent(
         courseDaysOfWeek,
@@ -245,6 +243,62 @@ function getRelevantCourses(
     }
   }
   return courses;
+}
+
+function makeIsoString(
+  startDateMMDDYYYY: string,
+  startTime: string,
+  offset: string = getTimezoneOffsetString("America/Los_Angeles")
+): string {
+  const [month, day, year] = startDateMMDDYYYY.split("/").map((n) =>
+    n.padStart(2, "0")
+  );
+
+  let [hourStr, minuteStr] = startTime.split(":");
+  let hour = parseInt(hourStr, 10);
+  const minutePart = minuteStr.slice(0, 2); // ignore AM/PM if present
+  const ampm = minuteStr.slice(2).trim().toUpperCase(); // "AM" or "PM" if present
+
+  // Convert 12-hour to 24-hour
+  if (ampm === "PM" && hour < 12) hour += 12;
+  if (ampm === "AM" && hour === 12) hour = 0;
+
+  const hourPadded = String(hour).padStart(2, "0");
+  const minutePadded = minutePart.padStart(2, "0");
+  const theDate = `${year}-${month}-${day}T${hourPadded}:${minutePadded}:00.000${offset}`;
+  console.log("theDate", theDate);
+  return theDate;
+}
+
+function getTimezoneOffsetString(timeZone: string, date = new Date()) {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+
+  const parts = dtf.formatToParts(date);
+  const dt = { year: 0, month: 0, day: 0, hour: 0, minute: 0, second: 0 };
+  parts.forEach(({ type, value }) => { dt[type] = value });
+
+  const targetTime = Date.UTC(
+    dt.year, dt.month - 1, dt.day, dt.hour, dt.minute, dt.second
+  );
+
+  const localTime = date.getTime();
+  const offsetMinutes = (targetTime - localTime) / (60 * 1000);
+
+  const sign = offsetMinutes >= 0 ? '+' : '-';
+  const absOffset = Math.abs(offsetMinutes);
+  const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+  const minutes = String(Math.floor(absOffset % 60)).padStart(2, '0');
+
+  return `${sign}${hours}:${minutes}`;
 }
 
 async function addCoursesToGoogleCalendar(
@@ -362,7 +416,7 @@ function createRecurringEvent(daysOfWeek: string[], until: Date): string {
 }
 
 function calcStartDateOffset(startTimeDate: Date, courseDaysOfWeek: string[]) {
-  const startDayOfWeekIndex = startTimeDate.getDay();
+  const startDayOfWeekIndex = getDayIndexInTimeZone(startTimeDate, "America/Los_Angeles");
   const firstDayOfWeek = courseDaysOfWeek[0];
   const firstDayOfWeekIndex = DAYS_OF_WEEK_STRINGS.indexOf(firstDayOfWeek);
   let daysUntilFirstClass = firstDayOfWeekIndex - startDayOfWeekIndex;
@@ -374,8 +428,26 @@ function calcStartDateOffset(startTimeDate: Date, courseDaysOfWeek: string[]) {
 
 function getSundayBeforeDate(date: Date): Date {
   const sundayDate = new Date(date);
-  const dayOfWeek = sundayDate.getDay();
+  const dayOfWeek = getDayIndexInTimeZone(sundayDate, "America/Los_Angeles");
   const daysToSubtract = dayOfWeek === 0 ? 0 : dayOfWeek;
-  sundayDate.setDate(sundayDate.getDate() - daysToSubtract);
+  sundayDate.setDate(getDayOfMonthInTimeZone(sundayDate, "America/Los_Angeles") - daysToSubtract);
   return sundayDate;
+}
+
+function getDayIndexInTimeZone(date: Date, timeZone: string) {
+  const weekdayStr = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    timeZone,
+  }).format(date);
+
+  const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return map[weekdayStr];
+}
+
+function getDayOfMonthInTimeZone(date: Date, timeZone: string) {
+  const dayStr = new Intl.DateTimeFormat("en-US", {
+    day: "2-digit",
+    timeZone,
+  }).format(date);
+  return parseInt(dayStr, 10);
 }
