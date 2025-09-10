@@ -41,10 +41,7 @@ interface RatingInfo {
 
 (async function () {
   await chrome.runtime.sendMessage("runStartupChecks");
-
-  const courseTakenPattern = COURSE_TAKEN_PATTERN; // P{profName}C{courseCode}T{termName}
-  const interestedSectionPattern = INTERESTED_SECTION_PATTERN; // P{profName}S{full section string}M{meetingPattern}E{expirationTimestamp}
-  const debounceDelay = 100;
+  const DEBOUNCE_DELAY = 100;
 
   let evalsData: EvalsData;
   let userInfo: UserInfo = {};
@@ -126,7 +123,7 @@ interface RatingInfo {
           await handleSavedSchedulePageGrid();
         }
       }
-    }, debounceDelay);
+    }, DEBOUNCE_DELAY);
   }
 
   async function handleFindSectionsGrid() {
@@ -254,7 +251,7 @@ interface RatingInfo {
     const friendsTaken: string[] = [];
     for (const friend in friendCoursesTaken[courseCode]) {
       const match =
-        friendCoursesTaken[courseCode][friend]!.match(courseTakenPattern);
+        friendCoursesTaken[courseCode][friend]!.match(COURSE_TAKEN_PATTERN);
       if (!match) continue;
       if (
         !match[1] ||
@@ -269,7 +266,7 @@ interface RatingInfo {
     for (const friend in friendInterestedSections[courseCode]) {
       if (friendInterestedSections[courseCode][friend]!.includes(prof)) {
         const match = friendInterestedSections[courseCode][friend]!.match(
-          interestedSectionPattern
+          INTERESTED_SECTION_PATTERN
         );
         if (match && courseText === match[2]) {
           friendsInterested.push(friends[friend]!.name);
