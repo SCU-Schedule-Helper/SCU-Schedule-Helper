@@ -11,11 +11,12 @@ import {
   Tune,
   PersonAdd,
   Close,
+  OpenInNew,
 } from "@mui/icons-material";
 
 export const supportEmail = "swdean@scu.edu";
 
-export default function Menu({ navigateToPage, openLandingPage }) {
+export default function Menu({ navigateToPage, openLandingPage, openInDetachedWindow }) {
   const [activeMenu, setActiveMenu] = useState("main");
   const [friendNotificationCount, setFriendNotificationCount] = useState(0);
 
@@ -66,7 +67,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
   }
 
   return (
-    <Box sx={{ mb: 1 }}>
+    <Box sx={{ mb: 1, flexShrink: 0 }}>
       <AppBar
         position="static"
         sx={{
@@ -81,6 +82,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
             justifyContent: "space-between",
             alignItems: "center",
             backgroundColor: "white",
+            padding: "0 8px",
           }}
         >
           <Box
@@ -100,20 +102,6 @@ export default function Menu({ navigateToPage, openLandingPage }) {
                 padding: "4px 4px",
                 "&:hover": {
                   backgroundColor: "#f0f0f0",
-                },
-                "&:hover::after, &.active::after": {
-                  backgroundColor: "#703331",
-                  width: "calc(100% - 8px)", // Adjusted to match padding
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -2,
-                  left: "4px", // Matches horizontal padding
-                  height: "2px",
-                  width: 0,
-                  backgroundColor: "transparent",
-                  transition: "background-color 0.3s, width 0.3s",
                 },
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -138,22 +126,9 @@ export default function Menu({ navigateToPage, openLandingPage }) {
               />
               <Box
                 sx={{
-                  position: "relative",
                   color: activeMenu === "home" ? "#703331" : "black",
                   fontWeight: "bold",
-                  fontSize: { xs: "0.9rem", sm: "1rem" },
-                  // Removed hover underline effect for SCU Schedule Helper text
-                  "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    bottom: -2,
-                    left: "4px", // Matches horizontal padding
-                    right: "4px", // Matches horizontal padding
-                    height: "2px",
-                    backgroundColor: "transparent", // No underline on hover
-                    width: 0,
-                    transition: "background-color 0.3s, width 0.3s",
-                  },
+                  fontSize: { xs: "0.75rem", sm: "0.8rem" },
                 }}
               >
                 SCU Schedule Helper
@@ -164,11 +139,11 @@ export default function Menu({ navigateToPage, openLandingPage }) {
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-evenly", // Ensures buttons are evenly spaced
+              justifyContent: "center",
               alignItems: "center",
               flexGrow: 1,
               minWidth: 0,
-              gap: "8px", // Added gap to create space between the icons
+              gap: "4px",
             }}
           >
             {menuItems.map((item) => (
@@ -176,7 +151,7 @@ export default function Menu({ navigateToPage, openLandingPage }) {
                 key={item.id}
                 sx={{
                   minWidth: "auto",
-                  padding: "4px 4px", // Adjusted horizontal padding
+                  padding: "4px 4px",
                   position: "relative",
                   color: "black",
                   "&:hover": {
@@ -243,14 +218,64 @@ export default function Menu({ navigateToPage, openLandingPage }) {
             ))}
           </Box>
 
-          <Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexGrow: 1,
+              justifyContent: "flex-end",
+              gap: "4px",
+            }}
+          >
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openInDetachedWindow();
+              }}
+              sx={{
+                minWidth: "auto",
+                padding: "4px 4px",
+                position: "relative",
+                color: "black",
+                "&:hover": {
+                  backgroundColor: "#f0f0f0",
+                  "& .MuiSvgIcon-root": {
+                    color: "#703331",
+                  },
+                  "&::after": {
+                    backgroundColor: "#703331",
+                    width: "100%",
+                  },
+                },
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  bottom: -2,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  width: 0,
+                  backgroundColor: "transparent",
+                  transition: "background-color 0.3s, width 0.3s",
+                },
+              }}
+            >
+              <OpenInNew
+                sx={{
+                  fontSize: 24,
+                  color: "#d1d1d1",
+                  transition: "color 0.3s",
+                }}
+              />
+            </Button>
             <Button
               onClick={handleClose}
               sx={{
                 minWidth: "auto",
-                color: "#703331",
-                padding: "4px 8px",
+                padding: "4px 4px",
                 position: "relative",
+                color: "black",
                 "&:hover": {
                   backgroundColor: "#f0f0f0",
                   "& .MuiSvgIcon-root": {

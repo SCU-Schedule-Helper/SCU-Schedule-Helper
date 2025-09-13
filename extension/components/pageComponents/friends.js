@@ -63,7 +63,7 @@ export default function Friends() {
           padding: 2,
           boxSizing: "border-box",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "column"
         }}
       >
         <FriendsAccordion

@@ -156,8 +156,13 @@ export default function Preferences() {
   return (
     userPrefs && (
       <>
-        <Box sx={{ padding: 2 }}>
-          <Stack direction="row" alignItems="center">
+        <Box sx={{ 
+          padding: 2, 
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
+          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
             <Typography variant="h6" sx={{ textAlign: "center" }}>
               Course Preferences
             </Typography>
@@ -171,19 +176,16 @@ export default function Preferences() {
               <InfoIcon fontSize="small" />
             </IconButton>
           </Stack>
-        </Box>
 
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 2,
-            padding: 0,
-          }}
-        >
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
           <Typography textAlign="center">I want my classes to be...</Typography>
           <DifficultySlider
             initValue={userPrefs.difficulty}
@@ -272,6 +274,7 @@ export default function Preferences() {
                 }}
               />
             )}
+          </Box>
           </Box>
           <Snackbar
             open={showActionCompletedMessage}
