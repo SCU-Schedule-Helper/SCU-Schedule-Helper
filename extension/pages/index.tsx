@@ -26,8 +26,8 @@ export default function Home() {
     chrome.windows.create({
       url: chrome.runtime.getURL("index.html"),
       type: "popup",
-      width: 490,
-      height: 499,
+      width: 475,
+      height: 500,
       focused: true,
       state: "normal" // Allow resizing
     }, (newWindow) => {
@@ -102,8 +102,8 @@ export default function Home() {
   return (
     <Box
       sx={{
-        width: isDetachedWindow ? "100%" : "466px",
-        height: isDetachedWindow ? "100vh" : "491px",
+        width: isDetachedWindow ? "100%" : "450px",
+        height: isDetachedWindow ? "100vh" : "500px",
         minWidth: "350px",
         minHeight: "400px",
         display: "flex",

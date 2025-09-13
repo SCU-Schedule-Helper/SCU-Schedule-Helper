@@ -21,6 +21,7 @@ export default function StatsWithLessFormatting({ flexGap, stats, deptStats, pre
         display: "flex",
         gap: flexGap,
         justifyContent: "space-between",
+        alignItems: "center",
         pr: "20px",
         pl: "5px",
       }}

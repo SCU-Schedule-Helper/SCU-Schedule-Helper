@@ -21,6 +21,7 @@ export default function EvalStats({ stats, deptStats, preferredPercentiles }) {
         display: "flex",
         gap: 4,
         justifyContent: "space-between",
+        alignItems: "flex-start",
         px: 2,
       }}
     >

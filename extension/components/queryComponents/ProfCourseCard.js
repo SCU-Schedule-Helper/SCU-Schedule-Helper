@@ -10,6 +10,16 @@ import RmpStats from "./RmpStats";
 import RecentTermsToolTip from "./RecentTermsToolTip";
 import ProfessorRecencyIndicator from "./ProfessorRecencyIndicator";
 import SortingMetricPicker from "./SortingMetricPicker";
+import RatingSortingPicker from "./RatingSortingPicker";
+import OverallSortingPicker from "./OverallSortingPicker";
+import {
+  CourseData,
+  EvalsData,
+  Evaluation,
+  ProfessorCourseEvaluation,
+  ProfessorData,
+} from "../../public/utils/types";
+import { COURSE_TAKEN_PATTERN, INTERESTED_SECTION_PATTERN } from "../../public/utils/constants";
 
 export const SortingMetrics = Object.freeze({
   overall: "Overall",
@@ -231,6 +241,13 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
     return data[courseCode]?.courseName || "";
   }
 
+  function getOverallRank(stats) {
+    const qualityAvg = stats.qualityTotal / stats.qualityCount;
+    const difficultyAvg = stats.difficultyTotal / stats.difficultyCount;
+    const workloadAvg = stats.workloadTotal / stats.workloadCount;
+    return Math.round(qualityAvg + (5 - difficultyAvg) + (15 - workloadAvg));
+  }
+
   function extractTerms(recentTerms) {
     const termPattern = /(Spring|Summer|Fall|Winter)/gi;
     const simplifiedTerms = recentTerms
@@ -349,7 +366,61 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
           >
             Statistics by Course
           </Typography>
-          <SortingMetricPicker sortingMetric={sortingMetric} sortDescending={sortDescending} handleMetricChange={handleMetricChange} />
+          
+          {/* Fixed header with sorting buttons */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              mt: 2,
+              mb: 1,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                minWidth: "150px",
+                ml: 1,
+              }}
+            >
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                Course
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                marginLeft: "1rem",
+                minWidth: "4.5rem",
+              }}
+            >
+              <OverallSortingPicker
+                sortingMetric={sortingMetric}
+                sortDescending={sortDescending}
+                handleMetricChange={handleMetricChange}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                marginLeft: "1rem",
+                flexGrow: 1,
+              }}
+            >
+              <RatingSortingPicker
+                sortingMetric={sortingMetric}
+                sortDescending={sortDescending}
+                handleMetricChange={handleMetricChange}
+              />
+            </Box>
+          </Box>
+
           {sortedCourses.length > 0 &&
             sortedCourses.map(([courseCode, courseStats], index) => (
               <Box>
@@ -364,6 +435,7 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                     alignItems="left"
                     flexDirection="column"
                     justifyContent="space-between"
+                    minWidth="150px"
                   >
                     <Typography
                       variant="body1"
@@ -422,16 +494,31 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                     flexDirection="column"
                     justifyContent="center"
                     marginLeft="1rem"
+                    minWidth="4.5rem"
                   >
-                    <StatsWithLessFormatting
-                      flexGap={"2.5rem"}
-                      stats={courseStats}
-                      deptStats={
-                        data.departmentStatistics[courseCode.substring(0, 4)]
-                      }
-                      preferredPercentiles={preferredPercentiles}
-                    />
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        {getOverallRank(courseStats)}
+                      </Typography>
+                    </Box>
                   </Box>
+                   <Box
+                     display="flex"
+                     flexDirection="column"
+                     justifyContent="center"
+                     marginLeft="1rem"
+                     flexGrow={1}
+                     sx={{ marginRight: "50px" }} // Shift 50px to the left
+                   >
+                     <StatsWithLessFormatting
+                       flexGap={"1.8rem"} // Reduced gap to make columns closer
+                       stats={courseStats}
+                       deptStats={
+                         data.departmentStatistics[courseCode.substring(0, 4)]!
+                       }
+                       preferredPercentiles={preferredPercentiles}
+                     />
+                   </Box>
                 </Box>
                 {index <
                   Object.keys(selected).filter((key) =>
@@ -517,7 +604,61 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
           >
             Statistics by Professor
           </Typography>
-          <SortingMetricPicker sortingMetric={sortingMetric} sortDescending={sortDescending} handleMetricChange={handleMetricChange} />
+          
+          {/* Fixed header with sorting buttons */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              mt: 2,
+              mb: 1,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                minWidth: "150px",
+                ml: 1,
+              }}
+            >
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                Professor
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                marginLeft: "1rem",
+                minWidth: "4.5rem",
+              }}
+            >
+              <OverallSortingPicker
+                sortingMetric={sortingMetric}
+                sortDescending={sortDescending}
+                handleMetricChange={handleMetricChange}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                marginLeft: "1rem",
+                flexGrow: 1,
+              }}
+            >
+              <RatingSortingPicker
+                sortingMetric={sortingMetric}
+                sortDescending={sortDescending}
+                handleMetricChange={handleMetricChange}
+              />
+            </Box>
+          </Box>
+
           {sortedProfs.length > 0 &&
             sortedProfs.map(([profName, profCourseStats], index) => {
               return (
@@ -533,6 +674,7 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                       alignItems="left"
                       flexDirection="column"
                       justifyContent="space-between"
+                      minWidth="150px"
                     >
                       <Typography
                         variant="body1"
@@ -586,17 +728,32 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                       display="flex"
                       flexDirection="column"
                       justifyContent="center"
-                      marginLeft="0.75rem"
+                      marginLeft="1rem"
+                      minWidth="4.5rem"
                     >
-                      <StatsWithLessFormatting
-                        flexGap={"2.75rem"}
-                        stats={profCourseStats}
-                        deptStats={
-                          data.departmentStatistics[selected.id.substring(0, 4)]
-                        }
-                        preferredPercentiles={preferredPercentiles}
-                      />
+                      <Box sx={{ display: "flex", justifyContent: "center" }}>
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                          {getOverallRank(profCourseStats)}
+                        </Typography>
+                      </Box>
                     </Box>
+                     <Box
+                       display="flex"
+                       flexDirection="column"
+                       justifyContent="center"
+                       marginLeft="1rem"
+                       flexGrow={1}
+                       sx={{ marginRight: "50px" }} // Shift 50px to the left
+                     >
+                       <StatsWithLessFormatting
+                         flexGap={"1.8rem"} // Reduced gap to make columns closer
+                         stats={profCourseStats}
+                         deptStats={
+                           data.departmentStatistics[selected.id.substring(0, 4)]!
+                         }
+                         preferredPercentiles={preferredPercentiles}
+                       />
+                     </Box>
                   </Box>
 
                   {index < selected.professors.length - 1 && (
