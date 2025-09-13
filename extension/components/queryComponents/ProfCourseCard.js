@@ -394,23 +394,8 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                marginLeft: "1rem",
-                minWidth: "4.5rem",
-              }}
-            >
-              <OverallSortingPicker
-                sortingMetric={sortingMetric}
-                sortDescending={sortDescending}
-                handleMetricChange={handleMetricChange}
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                marginLeft: "1rem",
-                flexGrow: 1,
+                marginLeft: "-2.2rem",
+                width: "16rem",
               }}
             >
               <RatingSortingPicker
@@ -489,35 +474,37 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                       </>
                     )}
                   </Box>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    justifyContent="center"
-                    marginLeft="1rem"
-                    minWidth="4.5rem"
-                  >
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
-                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                        {getOverallRank(courseStats)}
-                      </Typography>
-                    </Box>
-                  </Box>
                    <Box
                      display="flex"
                      flexDirection="column"
                      justifyContent="center"
-                     marginLeft="1rem"
-                     flexGrow={1}
-                     sx={{ marginRight: "50px" }} // Shift 50px to the left
+                     marginLeft="-2.2rem"
+                     width="16rem"
+                     sx={{ marginRight: "50px" }}
                    >
-                     <StatsWithLessFormatting
-                       flexGap={"1.8rem"} // Reduced gap to make columns closer
-                       stats={courseStats}
-                       deptStats={
-                         data.departmentStatistics[courseCode.substring(0, 4)]!
-                       }
-                       preferredPercentiles={preferredPercentiles}
-                     />
+                     <Box
+                       sx={{
+                         display: "flex",
+                         gap: "1.8rem",
+                         justifyContent: "space-between",
+                         alignItems: "center",
+                         pr: "20px",
+                         pl: "5px",
+                       }}
+                     >
+                       <Box sx={{ visibility: "hidden", minWidth: "3rem" }}>
+                         <Typography variant="body2">Overall</Typography>
+                       </Box>
+                       {/* The 3 actual data columns */}
+                       <StatsWithLessFormatting
+                         flexGap={"1.8rem"}
+                         stats={courseStats}
+                         deptStats={
+                           data.departmentStatistics[courseCode.substring(0, 4)]!
+                         }
+                         preferredPercentiles={preferredPercentiles}
+                       />
+                     </Box>
                    </Box>
                 </Box>
                 {index <
@@ -632,23 +619,8 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                marginLeft: "1rem",
-                minWidth: "4.5rem",
-              }}
-            >
-              <OverallSortingPicker
-                sortingMetric={sortingMetric}
-                sortDescending={sortDescending}
-                handleMetricChange={handleMetricChange}
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                marginLeft: "1rem",
-                flexGrow: 1,
+                marginLeft: "-2.2rem",
+                width: "16rem",
               }}
             >
               <RatingSortingPicker
@@ -728,8 +700,9 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                       display="flex"
                       flexDirection="column"
                       justifyContent="center"
-                      marginLeft="1rem"
+                      marginLeft="-2.2rem"
                       minWidth="4.5rem"
+                      sx={{ visibility: "hidden" }} // Invisible but takes up space
                     >
                       <Box sx={{ display: "flex", justifyContent: "center" }}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -741,18 +714,32 @@ export default function ProfCourseCard({ selected, data, onPageNavigation }) {
                        display="flex"
                        flexDirection="column"
                        justifyContent="center"
-                       marginLeft="1rem"
-                       flexGrow={1}
-                       sx={{ marginRight: "50px" }} // Shift 50px to the left
+                       marginLeft="-2.2rem"
+                       width="16rem"
+                       sx={{ marginRight: "50px" }}
                      >
-                       <StatsWithLessFormatting
-                         flexGap={"1.8rem"} // Reduced gap to make columns closer
-                         stats={profCourseStats}
-                         deptStats={
-                           data.departmentStatistics[selected.id.substring(0, 4)]!
-                         }
-                         preferredPercentiles={preferredPercentiles}
-                       />
+                       <Box
+                         sx={{
+                           display: "flex",
+                           gap: "1.8rem",
+                           justifyContent: "space-between",
+                           alignItems: "center",
+                           pr: "20px",
+                           pl: "5px",
+                         }}
+                       >
+                         <Box sx={{ visibility: "hidden", minWidth: "3rem" }}>
+                           <Typography variant="body2">Overall</Typography>
+                         </Box>
+                         <StatsWithLessFormatting
+                           flexGap={"1.8rem"}
+                           stats={profCourseStats}
+                           deptStats={
+                             data.departmentStatistics[selected.id.substring(0, 4)]!
+                           }
+                           preferredPercentiles={preferredPercentiles}
+                         />
+                       </Box>
                      </Box>
                   </Box>
 

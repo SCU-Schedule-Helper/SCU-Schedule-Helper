@@ -20,13 +20,17 @@ export default function RatingSortingPicker({ sortingMetric, sortDescending, han
             display: "flex",
             justifyContent: "space-between",
             alignContent: "right",
-            width: "10rem", // Reduced width to make columns closer
+            width: "16rem",
             paddingRight: "1.2rem",
             marginLeft: "auto",
-            marginRight: "50px", // Shift 50px to the left
+            marginRight: "50px",
         }}
     >
         {[
+            {
+                metric: SortingMetrics.overall,
+                subLabel: "Rank",
+            },
             {
                 metric: SortingMetrics.quality,
                 subLabel: "(1-5)",
@@ -49,9 +53,9 @@ export default function RatingSortingPicker({ sortingMetric, sortDescending, han
                 sx={{ 
                     cursor: "pointer", 
                     fontSize: "0.70rem",
-                    flex: 1, // Make each button take equal space
-                    minWidth: "2.5rem", // Reduced minimum width
-                    maxWidth: "3.2rem", // Reduced maximum width
+                    flex: 1,
+                    minWidth: "2.5rem",
+                    maxWidth: "3.2rem",
                 }}
                 title={`Sort by ${metric}`}
             >
