@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": false,
+    "outDir": "./out/",
+    "rootDir": "./public",
+    "rewriteRelativeImportExtensions": true
+  },
+  "include": [
+    "public/**/*.ts",
+    "public/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "react_content_scripts",
+    "out",
+    "./public/content_scripts"
+  ]
+}
