@@ -19,7 +19,7 @@ export default function SortingMetricPicker({ sortingMetric, sortDescending, han
             justifyContent: "space-between",
             alignContent: "right",
             width: "18rem",
-            paddingRight: "1.2rem",
+            paddingRight: "0.6rem",
             marginLeft: "auto",
         }}
     >
