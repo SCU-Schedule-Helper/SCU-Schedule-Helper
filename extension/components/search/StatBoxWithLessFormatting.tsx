@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { getRatingColor, getPercentile } from "../utils/ratings";
+import { getPercentile, getRatingColor } from "../../public/utils/ratings";
 interface Props {
   label: string;
   value: number;

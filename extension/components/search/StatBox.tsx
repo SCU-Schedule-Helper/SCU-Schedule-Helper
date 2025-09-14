@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { getPercentile, getRatingColor } from "../utils/ratings";
+import { getPercentile, getRatingColor } from "../../public/utils/ratings";
 
 interface Props {
   label: string;
@@ -26,7 +26,7 @@ export default function StatBox({
       return getRatingColor(diffScore, 0, 4, false);
     }
     const percentile = getPercentile(value, deptStats);
-    const score = 100 - Math.abs(preferredPercentiles[label]! - percentile) * 100;
+    const score = 100 - Math.abs(preferredPercentiles[label]! - percentile!) * 100;
     return getRatingColor(score, 0, 100, true);
   }
 
