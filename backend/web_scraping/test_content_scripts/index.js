@@ -35,6 +35,7 @@ async function main() {
   } catch (error) {
     console.error("Error during testing:", error);
     message += `- Error during testing: ${error}\n`;
+    message += `Stack trace: ${error.stack}\n`;
   } finally {
     browser.close();
   }
@@ -101,7 +102,7 @@ async function closeChromeExtensionPopUp() {
 
 async function sendSnsNotification(snsmessage) {
   const params = {
-    Message: `Issues found:\n: ${snsmessage}`,
+    Message: `Issues found:\n ${snsmessage}`,
     TopicArn: process.env.SNS_TOPIC_ARN
   };
   await snsClient.send(new PublishCommand(params));
