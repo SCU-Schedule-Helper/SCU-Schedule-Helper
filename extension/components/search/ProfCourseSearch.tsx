@@ -154,7 +154,7 @@ export default function ProfCourseSearch({
       const regexMatch = newPageKey.match(/([A-Z]{4})(\d+[A-Z]*)/);
       if (!regexMatch) {
         console.error("Invalid course key:", newPageKey);
-        return null;
+        return;
       }
       const [, dept, courseNum] = regexMatch!;
       onSelectionChange({

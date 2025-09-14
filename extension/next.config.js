@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ignore ts build errors 
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   output: "export", // Forces Next.js to export static files
   images: {
     unoptimized: true, // Required for static export

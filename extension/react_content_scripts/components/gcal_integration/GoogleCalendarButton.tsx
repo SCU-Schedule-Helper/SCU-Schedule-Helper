@@ -254,7 +254,7 @@ function makeIsoString(
     n.padStart(2, "0")
   );
 
-  let [hourStr, minuteStr] = startTime.split(":");
+  const [hourStr, minuteStr] = startTime.split(":");
   let hour = parseInt(hourStr, 10);
   const minutePart = minuteStr.slice(0, 2); // ignore AM/PM if present
   const ampm = minuteStr.slice(2).trim().toUpperCase(); // "AM" or "PM" if present

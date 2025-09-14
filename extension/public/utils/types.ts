@@ -1,3 +1,7 @@
+import { AlertColor } from "@mui/material";
+
+export type SendAlertFunction = (message: string, type: AlertColor) => void;
+
 export interface UserProfile {
   id: string;
   name: string;
