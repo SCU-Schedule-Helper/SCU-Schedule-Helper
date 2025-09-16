@@ -25,6 +25,8 @@ import {
 } from "./utils/user.ts";
 
 chrome.runtime.onInstalled.addListener(async (object: chrome.runtime.InstalledDetails) => {
+  const internalUrl = chrome.runtime.getURL("landing_page/index.html");
+
   if (object.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     const accessToken = (await chrome.storage.sync.get("accessToken"))
       .accessToken;
@@ -37,11 +39,9 @@ chrome.runtime.onInstalled.addListener(async (object: chrome.runtime.InstalledDe
       );
       if (refreshError) {
         await signOut();
-        // Note: Cannot open tabs without tabs permission, user will need to manually open extension
+        chrome.tabs.create({ url: internalUrl }, function (_tab) {});
       }
-    } else {
-      // Note: Cannot open tabs without tabs permission, user will need to manually open extension
-    }
+    } else chrome.tabs.create({ url: internalUrl }, function (_tab) {});
   }
 });
 

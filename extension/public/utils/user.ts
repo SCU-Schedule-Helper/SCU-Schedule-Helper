@@ -444,17 +444,35 @@ export async function queryUserByName(name: string) {
 }
 
 export async function importCurrentCourses() {
-  // Open the Workday page in a new tab for manual course import
-  // The content script will automatically detect and handle the import
-  window.open(WORKDAY_CURRENT_COURSES_URL, '_blank');
-  return { message: "Please navigate to the Workday page that opened and click the import button when ready." };
+  return await openTabAndSendMessage(
+    WORKDAY_CURRENT_COURSES_URL,
+    "importCurrentCourses",
+  );
 }
 
 export async function importCourseHistory() {
-  // Open the Workday page in a new tab for manual course import
-  // The content script will automatically detect and handle the import
-  window.open(WORKDAY_COURSE_HISTORY_URL, '_blank');
-  return { message: "Please navigate to the Workday page that opened and click the import button when ready." };
+  return await openTabAndSendMessage(
+    WORKDAY_COURSE_HISTORY_URL,
+    "importCourseHistory",
+  );
+}
+
+async function openTabAndSendMessage(url: string, message: string) {
+  const createdTab = await chrome.tabs.create({ url });
+
+  async function tabListener(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, _tab: chrome.tabs.Tab) {
+    if (tabId === createdTab.id && changeInfo.status === "complete") {
+      try {
+        const response = await chrome.tabs.sendMessage(createdTab.id, message);
+        chrome.tabs.onUpdated.removeListener(tabListener);
+        return response;
+      } catch (_ignore) { 
+        // Ignore the error.
+       }
+    }
+    return true;
+  }
+  chrome.tabs.onUpdated.addListener(tabListener);
 }
 
 function getS3PhotoUrl(userId: string) {

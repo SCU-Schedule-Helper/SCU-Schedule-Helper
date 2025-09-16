@@ -15,8 +15,7 @@ export default function Home() {
   }
 
   function openLandingPage(): void {
-    // Open landing page in new window instead of tab
-    window.open(chrome.runtime.getURL("landing_page/index.html"), '_blank');
+    chrome.tabs.create({ url: chrome.runtime.getURL("landing_page/index.html") });
   }
 
   function openInDetachedWindow(): void {
@@ -32,8 +31,8 @@ export default function Home() {
       focused: true,
       state: "normal" // Allow resizing
     });
-    // Note: Google Translate blocking is now handled automatically by content scripts
   }
+
 
   useEffect(() => {
     chrome.runtime.sendMessage("runStartupChecks");

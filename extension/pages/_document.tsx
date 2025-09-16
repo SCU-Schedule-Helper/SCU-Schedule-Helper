@@ -2,13 +2,12 @@ import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
   return (
-    <Html lang="en" className="notranslate">
+    <Html lang="en">
       <Head>
-        <meta name="google" content="notranslate" />
         <meta name="robots" content="noindex, nofollow" />
         <meta httpEquiv="Content-Language" content="en" />
       </Head>
-      <body className="notranslate">
+      <body>
         <Main />
         <NextScript />
       </body>
