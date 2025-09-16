@@ -3,7 +3,7 @@
   "name": "SCU Schedule Helper",
   "version": "2.3.2",
   "description": "Course/professor rating to help with SCU schedule planning.",
-  "permissions": ["storage", "identity", "notifications", "tabs", "scripting"],
+  "permissions": ["storage", "identity", "notifications"],
   "host_permissions": ["https://www.ratemyprofessors.com/*"],
   "web_accessible_resources": [
     {
@@ -23,6 +23,11 @@
         "content_scripts/course_tracking.js",
         "content_scripts/section_scores.js"
       ]
+    },
+    {
+      "matches": ["chrome-extension://*/*"],
+      "js": ["content_scripts/anti_translate.js"],
+      "run_at": "document_start"
     }
   ],
   "background": {

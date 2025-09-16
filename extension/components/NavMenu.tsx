@@ -10,7 +10,6 @@ import {
   Search,
   Tune,
   PersonAdd,
-  Close,
   OpenInNew,
 } from "@mui/icons-material";
 
@@ -18,11 +17,12 @@ interface Props {
   navigateToPage: (_page: string) => void;
   openLandingPage: () => void;
   openInDetachedWindow: () => void;
+  isDetachedWindow?: boolean;
 }
 
 export const supportEmail = "swdean@scu.edu";
 
-export default function NavMenu({ navigateToPage, openLandingPage, openInDetachedWindow }: Props) {
+export default function NavMenu({ navigateToPage, openLandingPage, openInDetachedWindow, isDetachedWindow = false }: Props) {
   const [activeMenu, setActiveMenu] = useState("main");
   const [friendNotificationCount, setFriendNotificationCount] = useState(0);
 
@@ -68,9 +68,6 @@ export default function NavMenu({ navigateToPage, openLandingPage, openInDetache
     setActiveMenu("main");
   }, []);
 
-  function handleClose() {
-    window.close();
-  }
 
   return (
     <Box sx={{ mb: 1, flexShrink: 0 }}>
@@ -260,86 +257,50 @@ export default function NavMenu({ navigateToPage, openLandingPage, openInDetache
               gap: "4px",
             }}
           >
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openInDetachedWindow();
-              }}
-              sx={{
-                minWidth: "auto",
-                padding: "4px 4px",
-                position: "relative",
-                color: "black",
-                "&:hover": {
-                  backgroundColor: "#f0f0f0",
-                  "& .MuiSvgIcon-root": {
-                    color: "#703331",
+            {!isDetachedWindow && (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openInDetachedWindow();
+                }}
+                sx={{
+                  minWidth: "auto",
+                  padding: "4px 4px",
+                  position: "relative",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "#f0f0f0",
+                    "& .MuiSvgIcon-root": {
+                      color: "#703331",
+                    },
+                    "&::after": {
+                      backgroundColor: "#703331",
+                      width: "100%",
+                    },
                   },
                   "&::after": {
-                    backgroundColor: "#703331",
-                    width: "100%",
+                    content: '""',
+                    position: "absolute",
+                    bottom: -2,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    width: 0,
+                    backgroundColor: "transparent",
+                    transition: "background-color 0.3s, width 0.3s",
                   },
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -2,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  width: 0,
-                  backgroundColor: "transparent",
-                  transition: "background-color 0.3s, width 0.3s",
-                },
-              }}
-            >
-              <OpenInNew
-                sx={{
-                  fontSize: 24,
-                  color: "#d1d1d1",
-                  transition: "color 0.3s",
                 }}
-              />
-            </Button>
-            <Button
-              onClick={handleClose}
-              sx={{
-                minWidth: "auto",
-                padding: "4px 4px",
-                position: "relative",
-                color: "black",
-                "&:hover": {
-                  backgroundColor: "#f0f0f0",
-                  "& .MuiSvgIcon-root": {
-                    color: "#703331",
-                  },
-                  "&::after": {
-                    backgroundColor: "#703331",
-                    width: "100%",
-                  },
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -2,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  width: 0,
-                  backgroundColor: "transparent",
-                  transition: "background-color 0.3s, width 0.3s",
-                },
-              }}
-            >
-              <Close
-                sx={{
-                  fontSize: 24,
-                  color: "#d1d1d1",
-                  transition: "color 0.3s",
-                }}
-              />
-            </Button>
+              >
+                <OpenInNew
+                  sx={{
+                    fontSize: 24,
+                    color: "#d1d1d1",
+                    transition: "color 0.3s",
+                  }}
+                />
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
