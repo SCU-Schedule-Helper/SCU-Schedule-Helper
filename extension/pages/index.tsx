@@ -21,7 +21,7 @@ export default function Home() {
   function openInDetachedWindow(): void {
     // Close the original popup first
     window.close();
-    
+
     // Create a new window with the extension popup content
     chrome.windows.create({
       url: chrome.runtime.getURL("index.html?detached=true"),
@@ -33,30 +33,16 @@ export default function Home() {
     });
   }
 
+  // Check URL parameter to determine if this is a detached window
+  function checkWindowType() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDetached = urlParams.get('detached') === 'true';
+    setIsDetachedWindow(isDetached);
+  }
 
   useEffect(() => {
     chrome.runtime.sendMessage("runStartupChecks");
-    
-    // Detect if we're in a detached window by checking URL parameter only
-    const checkWindowType = () => {
-      // Check URL parameter to determine if this is a detached window
-      const urlParams = new URLSearchParams(window.location.search);
-      const isDetached = urlParams.get('detached') === 'true';
-      console.log('hasDetachedParam:', isDetached, 'isDetached:', isDetached);
-      setIsDetachedWindow(isDetached);
-    };
-    
-    // Check immediately and then with delays to catch different loading states
     checkWindowType();
-    setTimeout(checkWindowType, 50);
-    setTimeout(checkWindowType, 200);
-    setTimeout(checkWindowType, 500);
-    
-    window.addEventListener('resize', checkWindowType);
-    
-    return () => {
-      window.removeEventListener('resize', checkWindowType);
-    };
   }, []);
 
   return (
