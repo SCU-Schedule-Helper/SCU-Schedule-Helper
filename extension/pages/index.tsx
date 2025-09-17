@@ -26,7 +26,7 @@ export default function Home() {
     chrome.windows.create({
       url: chrome.runtime.getURL("index.html?detached=true"),
       type: "popup",
-      width: 475,
+      width: 450,
       height: 500,
       focused: true,
       state: "normal" // Allow resizing
