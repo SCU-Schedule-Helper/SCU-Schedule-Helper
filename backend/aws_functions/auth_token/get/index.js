@@ -123,9 +123,7 @@ function generateDataAccessToken(userId) {
 }
 
 function generateRefreshToken(userId) {
-  return jwtLib.sign({ sub: userId, type: "refresh" }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
+  return jwtLib.sign({ sub: userId, type: "refresh" }, process.env.JWT_SECRET);
 }
 
 function getUnixTimestamp(date) {
