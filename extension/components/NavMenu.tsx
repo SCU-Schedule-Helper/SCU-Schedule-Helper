@@ -10,17 +10,19 @@ import {
   Search,
   Tune,
   PersonAdd,
-  Close,
+  OpenInNew,
 } from "@mui/icons-material";
 
 interface Props {
   navigateToPage: (_page: string) => void;
   openLandingPage: () => void;
+  openInDetachedWindow: () => void;
+  isDetachedWindow?: boolean;
 }
 
 export const supportEmail = "swdean@scu.edu";
 
-export default function NavMenu({ navigateToPage, openLandingPage }: Props) {
+export default function NavMenu({ navigateToPage, openLandingPage, openInDetachedWindow, isDetachedWindow = false }: Props) {
   const [activeMenu, setActiveMenu] = useState("main");
   const [friendNotificationCount, setFriendNotificationCount] = useState(0);
 
@@ -66,12 +68,9 @@ export default function NavMenu({ navigateToPage, openLandingPage }: Props) {
     setActiveMenu("main");
   }, []);
 
-  function handleClose() {
-    window.close();
-  }
 
   return (
-    <Box sx={{ mb: 1 }}>
+    <Box sx={{ mb: 1, flexShrink: 0 }}>
       <AppBar
         position="static"
         sx={{
@@ -86,6 +85,7 @@ export default function NavMenu({ navigateToPage, openLandingPage }: Props) {
             justifyContent: "space-between",
             alignItems: "center",
             backgroundColor: "white",
+            padding: "0 8px",
           }}
         >
           <Box
@@ -169,11 +169,11 @@ export default function NavMenu({ navigateToPage, openLandingPage }: Props) {
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-evenly", // Ensures buttons are evenly spaced
+              justifyContent: "center",
               alignItems: "center",
               flexGrow: 1,
               minWidth: 0,
-              gap: "8px", // Added gap to create space between the icons
+              gap: "4px",
             }}
           >
             {menuItems.map((item) => (
@@ -248,45 +248,59 @@ export default function NavMenu({ navigateToPage, openLandingPage }: Props) {
             ))}
           </Box>
 
-          <Box>
-            <Button
-              onClick={handleClose}
-              sx={{
-                minWidth: "auto",
-                color: "#703331",
-                padding: "4px 8px",
-                position: "relative",
-                "&:hover": {
-                  backgroundColor: "#f0f0f0",
-                  "& .MuiSvgIcon-root": {
-                    color: "#703331",
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexGrow: 1,
+              justifyContent: "flex-end",
+              gap: "4px",
+            }}
+          >
+            {!isDetachedWindow && (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openInDetachedWindow();
+                }}
+                sx={{
+                  minWidth: "auto",
+                  padding: "4px 4px",
+                  position: "relative",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "#f0f0f0",
+                    "& .MuiSvgIcon-root": {
+                      color: "#703331",
+                    },
+                    "&::after": {
+                      backgroundColor: "#703331",
+                      width: "100%",
+                    },
                   },
                   "&::after": {
-                    backgroundColor: "#703331",
-                    width: "100%",
+                    content: '""',
+                    position: "absolute",
+                    bottom: -2,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    width: 0,
+                    backgroundColor: "transparent",
+                    transition: "background-color 0.3s, width 0.3s",
                   },
-                },
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -2,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  width: 0,
-                  backgroundColor: "transparent",
-                  transition: "background-color 0.3s, width 0.3s",
-                },
-              }}
-            >
-              <Close
-                sx={{
-                  fontSize: 24,
-                  color: "#d1d1d1",
-                  transition: "color 0.3s",
                 }}
-              />
-            </Button>
+              >
+                <OpenInNew
+                  sx={{
+                    fontSize: 24,
+                    color: "#d1d1d1",
+                    transition: "color 0.3s",
+                  }}
+                />
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
