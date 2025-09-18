@@ -21,12 +21,8 @@ const applicationServerKey = urlB64ToUint8Array(SERVER_PUBLIC_KEY);
 export async function subscribe() {
   try {
     let registration;
-    
-    // Detect context and get registration accordingly
     if (typeof self !== 'undefined' && self.registration) {
       registration = self.registration; // Service worker context
-    } else if (typeof navigator !== 'undefined' && navigator.serviceWorker) {
-      registration = await navigator.serviceWorker.ready; // Regular context
     } else {
       throw new Error("No service worker registration available");
     }

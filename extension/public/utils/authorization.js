@@ -32,15 +32,10 @@ export async function signIn() {
 
   let subscription = null;
   try {
-    // Request notification permission (different methods for different contexts)
     let permission = 'default';
-    if (typeof Notification !== 'undefined' && Notification.requestPermission) {
-      
-      permission = await Notification.requestPermission(); // Regular context
-    } else if (typeof self !== 'undefined' && self.registration) {
-      permission = 'granted'; // Service worker context
+    if (typeof self !== 'undefined' && self.registration) {
+      permission = 'granted';
     }
-    
     if (permission === 'granted') {
       subscription = await subscribe();
     } else {
