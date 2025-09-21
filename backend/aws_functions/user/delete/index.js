@@ -11,6 +11,7 @@ import {
   noContentValidResponse,
   notFoundError,
 } from "./model.js";
+import { removeContactFromList } from "../shared/utils/sesContactManager.js";
 
 const dynamoDBClient = new DynamoDBClient({
   region: process.env.AWS_DDB_REGION,
@@ -21,6 +22,7 @@ const s3Client = new S3Client({
 const lambdaClient = new LambdaClient({
   region: process.env.AWS_LAMBDA_REGION,
 });
+const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
 
 export async function handler(event, context) {
@@ -83,6 +85,28 @@ async function deleteUser(event, context, userId) {
     console.error("INTERNAL: Error deleting user's profile picture:", error);
     return internalServerError;
   }
+  if (userInfo.email) {
+    try {
+      const sesSuccess = await removeContactFromList(userInfo.email, sesRegion);
+      if (!sesSuccess) {
+        console.error(`Failed to remove user ${userId} (${userInfo.email}) from SES contact list, but user deletion proceeded`);
+      }
+    } catch (error) {
+      console.error(`Error removing user ${userId} (${userInfo.email}) from SES contact list:`, error);
+    }
+  } else {
+    const fallbackEmail = `${userId}@scu.edu`;
+    console.log(`No email found in user data for ${userId}, trying fallback email: ${fallbackEmail}`);
+    try {
+      const sesSuccess = await removeContactFromList(fallbackEmail, sesRegion);
+      if (!sesSuccess) {
+        console.error(`Failed to remove user ${userId} (${fallbackEmail}) from SES contact list using fallback email`);
+      }
+    } catch (error) {
+      console.error(`Error removing user ${userId} (${fallbackEmail}) from SES contact list using fallback email:`, error);
+    }
+  }
+
   await Promise.all([
     tryNotifyClients(userId, userInfo),
     deleteNameFromIndex(userId, userInfo.name),
@@ -104,6 +128,7 @@ async function getSubsAndKeysForDeletion(pk) {
   const keys = [];
   let selfSubs = [];
   let name = "";
+  let email = "";
   let friendIds = [];
   let friendReqInIds = [];
   let friendReqOutIds = [];
@@ -116,6 +141,7 @@ async function getSubsAndKeysForDeletion(pk) {
       if (dataItem.subscriptions && dataItem.subscriptions.SS)
         selfSubs = dataItem.subscriptions.SS.map((sub) => JSON.parse(sub));
       if (dataItem.name && dataItem.name.S) name = dataItem.name.S;
+      if (dataItem.email && dataItem.email.S) email = dataItem.email.S;
     }
     if (dataItem.sk.S.startsWith("friend#cur")) {
       const friendId = dataItem.sk.S.split("friend#cur#")[1];
@@ -143,7 +169,7 @@ async function getSubsAndKeysForDeletion(pk) {
     }
   }
   return {
-    userInfo: { selfSubs, name, friendIds, friendReqInIds, friendReqOutIds },
+    userInfo: { selfSubs, name, email, friendIds, friendReqInIds, friendReqOutIds },
     keys,
   };
 }

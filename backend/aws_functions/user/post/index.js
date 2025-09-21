@@ -12,6 +12,7 @@ import {
   badRequestResponse,
 } from "./model.js";
 import { handleWithAuthorization } from "./utils/authorization.js";
+import { addContactToList } from "../shared/utils/sesContactManager.js";
 
 const DEFAULT_PHOTO_URL =
   "https://scu-schedule-helper.s3.us-west-1.amazonaws.com/default-avatar.jpg";
@@ -20,6 +21,7 @@ const retryMode = "standard";
 const ddbRegion = process.env.AWS_DDB_REGION;
 const s3Region = process.env.AWS_S3_REGION;
 const lambdaRegion = process.env.AWS_LAMBDA_REGION;
+const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
 const dynamoDBClient = new DynamoDBClient({
   region: ddbRegion,
@@ -174,12 +176,23 @@ async function addUserToDatabase(userId, name, subscription, photoUrl) {
   }
 
   await addNameToIndex(userId, name, photoUrl);
+  
+  const userEmail = `${userId}@scu.edu`;
+  try {
+    const sesSuccess = await addContactToList(userEmail, name, sesRegion);
+    if (!sesSuccess) {
+      console.error(`Failed to add user ${userId} (${userEmail}) to SES contact list, but user creation succeeded`);
+    }
+  } catch (error) {
+    console.error(`Error adding user ${userId} (${userEmail}) to SES contact list:`, error);
+  }
+  
   return createdResponse(
     new CreatedUserResponse(
       userId,
       name,
       photoUrl,
-      `${userId}@scu,.edu`,
+      `${userId}@scu.edu`,
       subscription,
     ),
   );
