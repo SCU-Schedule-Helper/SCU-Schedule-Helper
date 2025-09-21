@@ -6,12 +6,12 @@ import {
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { handleWithAuthorization } from "./utils/authorization.js";
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import { SESv2Client, DeleteContactCommand } from "@aws-sdk/client-sesv2";
 import {
   internalServerError,
   noContentValidResponse,
   notFoundError,
 } from "./model.js";
-import { removeContactFromList } from "../shared/utils/sesContactManager.js";
 
 const dynamoDBClient = new DynamoDBClient({
   region: process.env.AWS_DDB_REGION,
@@ -24,6 +24,51 @@ const lambdaClient = new LambdaClient({
 });
 const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
+
+const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+function createSESClient(region) {
+  return new SESv2Client({ 
+    region: region,
+    maxAttempts: 3,
+    retryMode: "standard"
+  });
+}
+
+async function removeContactFromList(email, region) {
+  const sesClient = createSESClient(region);
+  
+  const deleteParams = {
+    ContactListName: CONTACT_LIST_NAME,
+    EmailAddress: email
+  };
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await sesClient.send(new DeleteContactCommand(deleteParams));
+      console.log(`Successfully removed ${email} from SES contact list`);
+      return true;
+    } catch (error) {
+      if (error.name === 'NotFoundException') {
+        console.log(`Contact ${email} not found in SES contact list (may have been already removed)`);
+        return true;
+      }
+      
+      console.error(`Attempt ${attempt}/${MAX_RETRIES} failed to remove ${email} from SES contact list:`, error.message);
+      
+      if (attempt === MAX_RETRIES) {
+        console.error(`Failed to remove ${email} from SES contact list after ${MAX_RETRIES} attempts`);
+        return false;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+    }
+  }
+  
+  return false;
+}
 
 export async function handler(event, context) {
   return await handleWithAuthorization(event, context, deleteUser);

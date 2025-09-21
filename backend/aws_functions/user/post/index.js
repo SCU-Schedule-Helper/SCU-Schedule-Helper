@@ -5,6 +5,7 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import { SESv2Client, CreateContactCommand } from "@aws-sdk/client-sesv2";
 import {
   createdResponse,
   internalServerError,
@@ -12,7 +13,6 @@ import {
   badRequestResponse,
 } from "./model.js";
 import { handleWithAuthorization } from "./utils/authorization.js";
-import { addContactToList } from "../shared/utils/sesContactManager.js";
 
 const DEFAULT_PHOTO_URL =
   "https://scu-schedule-helper.s3.us-west-1.amazonaws.com/default-avatar.jpg";
@@ -23,6 +23,61 @@ const s3Region = process.env.AWS_S3_REGION;
 const lambdaRegion = process.env.AWS_LAMBDA_REGION;
 const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
+
+const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+function createSESClient(region) {
+  return new SESv2Client({ 
+    region: region,
+    maxAttempts: 3,
+    retryMode: "standard"
+  });
+}
+
+async function addContactToList(email, name, region) {
+  const sesClient = createSESClient(region);
+  
+  const contactParams = {
+    ContactListName: CONTACT_LIST_NAME,
+    EmailAddress: email,
+    TopicPreferences: [
+      {
+        TopicName: 'announcements',
+        SubscriptionStatus: 'OPT_IN'
+      }
+    ],
+    UnsubscribeAll: false,
+    ...(name && { 
+      AttributesData: JSON.stringify({ name: name }) 
+    })
+  };
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await sesClient.send(new CreateContactCommand(contactParams));
+      console.log(`Successfully added ${email} to SES contact list`);
+      return true;
+    } catch (error) {
+      if (error.name === 'AlreadyExistsException') {
+        console.log(`Contact ${email} already exists in SES contact list`);
+        return true;
+      }
+      
+      console.error(`Attempt ${attempt}/${MAX_RETRIES} failed to add ${email} to SES contact list:`, error.message);
+      
+      if (attempt === MAX_RETRIES) {
+        console.error(`Failed to add ${email} to SES contact list after ${MAX_RETRIES} attempts`);
+        return false;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+    }
+  }
+  
+  return false;
+}
 const dynamoDBClient = new DynamoDBClient({
   region: ddbRegion,
   maxAttempts,
