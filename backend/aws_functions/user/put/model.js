@@ -2,6 +2,9 @@ export function validResponse(response) {
   return {
     statusCode: 200,
     headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ message: response }),
@@ -12,6 +15,9 @@ export function validResponseWithBody(response) {
   return {
     statusCode: 200,
     headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Content-Type": "application/json",
     },
     body: JSON.stringify(response),
@@ -22,6 +28,9 @@ export function badRequestResponse(message) {
   return {
     statusCode: 400,
     headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -34,6 +43,9 @@ export function unauthorizedError(message) {
   return {
     statusCode: 401,
     headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -45,6 +57,9 @@ export function unauthorizedError(message) {
 export const internalServerError = {
   statusCode: 500,
   headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
