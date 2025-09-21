@@ -6,7 +6,7 @@ const sesv2 = new AWS.SESV2();
 
 const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
 const DYNAMODB_TABLE = 'SCU-Schedule-Helper';
-const FROM_EMAIL = 'scuschedulehelper@gmail.com';
+const FROM_EMAIL = '"SCU Schedule Helper" <scuschedulehelper@gmail.com>'; // Fixed: Added display name with quotes
 const BATCH_SIZE = 1; 
 const BATCH_DELAY = 1000; 
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -83,13 +83,13 @@ const MESSAGE = `
     </div>
     <div class="footer">
         <div class="share-message">
-            <p>If SCU Schedule Helper has made your course planning easier, we'd appreciate if you share it with your friends!</p>
+            <p>If SCU Schedule Helper has made your course planning easier, share it with your friends!</p>
         </div>
         <div class="unsubscribe">
             <p><a href="{{amazonSESUnsubscribeUrl}}">Click here to unsubscribe</a></p>
         </div>
         <p style="text-align: center; margin-top: 15px;">
-            SCU Schedule Helper | Santa Clara University
+            SCU Schedule Helper
         </p>
     </div>
 </body>
@@ -146,7 +146,7 @@ async function sendEmailBatch(contacts) {
         
         try {
             const emailParams = {
-                FromEmailAddress: FROM_EMAIL,
+                FromEmailAddress: FROM_EMAIL, // This now includes the display name
                 Destination: {
                     ToAddresses: [contact.email]
                 },
