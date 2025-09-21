@@ -1,11 +1,11 @@
-Install awscli with Homebrew
+Install awscli:
 brew install awscli
 
 Configure:
 
 aws configure
 
-    - enter details found in "other secrets" google doc
+    -enter details found in "other secrets" google doc
     -json is fine for default output format
 
 Testing configuration:
