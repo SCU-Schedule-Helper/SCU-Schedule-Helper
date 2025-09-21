@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.1692.0"
+  },
+  "name": "outreach",
+  "version": "1.0.0",
+  "description": "Steps to run n8n (Docker or npx) and import `workflow.json`.",
+  "main": "add-to-contactlist.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
