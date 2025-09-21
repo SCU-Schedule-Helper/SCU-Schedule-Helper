@@ -6,8 +6,8 @@ const sesv2 = new AWS.SESV2();
 
 const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
 const DYNAMODB_TABLE = 'SCU-Schedule-Helper';
-const BATCH_SIZE = 1; // 5 contacts per batch
-const BATCH_DELAY = 1000; // 1 second between batches
+const BATCH_SIZE = 10; //aws ses rate limit is 14 emails per second
+const BATCH_DELAY = 1000; 
 const DRY_RUN = process.argv.includes('--dry-run');
 
 async function createContactListIfNotExists() {
