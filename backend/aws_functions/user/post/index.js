@@ -25,11 +25,10 @@ const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
 
 const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
+const TOPIC_NAME = 'announcements';
 
 function createSESClient(region) {
-  return new SESv2Client({ 
+  return new SESv2Client({
     region: region,
     maxAttempts: 3,
     retryMode: "standard"
@@ -38,46 +37,36 @@ function createSESClient(region) {
 
 async function addContactToList(email, name, region) {
   const sesClient = createSESClient(region);
-  
+
   const contactParams = {
     ContactListName: CONTACT_LIST_NAME,
     EmailAddress: email,
     TopicPreferences: [
       {
-        TopicName: 'announcements',
+        TopicName: TOPIC_NAME,
         SubscriptionStatus: 'OPT_IN'
       }
     ],
     UnsubscribeAll: false,
-    ...(name && { 
-      AttributesData: JSON.stringify({ name: name }) 
+    ...(name && {
+      AttributesData: JSON.stringify({ name: name })
     })
   };
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      await sesClient.send(new CreateContactCommand(contactParams));
-      console.log(`Successfully added ${email} to SES contact list`);
-      return true;
-    } catch (error) {
-      if (error.name === 'AlreadyExistsException') {
-        console.log(`Contact ${email} already exists in SES contact list`);
-        return true;
-      }
-      
-      console.error(`Attempt ${attempt}/${MAX_RETRIES} failed to add ${email} to SES contact list:`, error.message);
-      
-      if (attempt === MAX_RETRIES) {
-        console.error(`Failed to add ${email} to SES contact list after ${MAX_RETRIES} attempts`);
-        return false;
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+  try {
+    const result = await sesClient.send(new CreateContactCommand(contactParams));
+    if (result.$metadata.httpStatusCode !== 200) {
+      console.error(`Failed to add ${email} to SES contact list:`, result);
     }
+  } catch (error) {
+    if (error.name === 'AlreadyExistsException') {
+      console.log(`Contact ${email} already exists in SES contact list`);
+      return;
+    }
+    console.error(`INTERNAL Failed to add ${email} to SES contact list:`, error.message);
   }
-  
-  return false;
 }
+
 const dynamoDBClient = new DynamoDBClient({
   region: ddbRegion,
   maxAttempts,
@@ -174,9 +163,8 @@ async function uploadUserPhotoToS3(userId, base64EncodedPhoto) {
       `error uploading profile photo to S3 (received HTTP status code from S3: ${s3Response.$metadata.httpStatusCode}).`,
     );
   }
-  return `https://${
-    process.env.SCU_SCHEDULE_HELPER_BUCKET_NAME
-  }.s3.amazonaws.com/${photoKey.replace("#", "%23")}`;
+  return `https://${process.env.SCU_SCHEDULE_HELPER_BUCKET_NAME
+    }.s3.amazonaws.com/${photoKey.replace("#", "%23")}`;
 }
 
 async function addUserToDatabase(userId, name, subscription, photoUrl) {
@@ -231,17 +219,10 @@ async function addUserToDatabase(userId, name, subscription, photoUrl) {
   }
 
   await addNameToIndex(userId, name, photoUrl);
-  
+
   const userEmail = `${userId}@scu.edu`;
-  try {
-    const sesSuccess = await addContactToList(userEmail, name, sesRegion);
-    if (!sesSuccess) {
-      console.error(`Failed to add user ${userId} (${userEmail}) to SES contact list, but user creation succeeded`);
-    }
-  } catch (error) {
-    console.error(`Error adding user ${userId} (${userEmail}) to SES contact list:`, error);
-  }
-  
+  await addContactToList(userEmail, name, sesRegion);
+
   return createdResponse(
     new CreatedUserResponse(
       userId,

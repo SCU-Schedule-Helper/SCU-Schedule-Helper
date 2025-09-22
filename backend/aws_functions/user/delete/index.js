@@ -26,48 +26,33 @@ const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
 
 const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
 
 function createSESClient(region) {
-  return new SESv2Client({ 
+  return new SESv2Client({
     region: region,
-    maxAttempts: 3,
+    maxAttempts: 5,
     retryMode: "standard"
   });
 }
 
 async function removeContactFromList(email, region) {
   const sesClient = createSESClient(region);
-  
-  const deleteParams = {
-    ContactListName: CONTACT_LIST_NAME,
-    EmailAddress: email
-  };
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      await sesClient.send(new DeleteContactCommand(deleteParams));
-      console.log(`Successfully removed ${email} from SES contact list`);
-      return true;
-    } catch (error) {
-      if (error.name === 'NotFoundException') {
-        console.log(`Contact ${email} not found in SES contact list (may have been already removed)`);
-        return true;
-      }
-      
-      console.error(`Attempt ${attempt}/${MAX_RETRIES} failed to remove ${email} from SES contact list:`, error.message);
-      
-      if (attempt === MAX_RETRIES) {
-        console.error(`Failed to remove ${email} from SES contact list after ${MAX_RETRIES} attempts`);
-        return false;
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+  try {
+    const result = await sesClient.send(new DeleteContactCommand({
+      ContactListName: CONTACT_LIST_NAME,
+      EmailAddress: email
+    }));
+    if (result.$metadata.httpStatusCode !== 200) {
+      console.error(`Failed to remove ${email} from SES contact list:`, result);
     }
+  } catch (error) {
+    if (error.name === 'NotFoundException') {
+      console.log(`Contact ${email} not found in SES contact list (may have been already removed)`);
+      return;
+    }
+    console.error(`INTERNAL Failed to remove ${email} from SES contact list:`, error.message);
   }
-  
-  return false;
 }
 
 export async function handler(event, context) {
@@ -131,25 +116,7 @@ async function deleteUser(event, context, userId) {
     return internalServerError;
   }
   if (userInfo.email) {
-    try {
-      const sesSuccess = await removeContactFromList(userInfo.email, sesRegion);
-      if (!sesSuccess) {
-        console.error(`Failed to remove user ${userId} (${userInfo.email}) from SES contact list, but user deletion proceeded`);
-      }
-    } catch (error) {
-      console.error(`Error removing user ${userId} (${userInfo.email}) from SES contact list:`, error);
-    }
-  } else {
-    const fallbackEmail = `${userId}@scu.edu`;
-    console.log(`No email found in user data for ${userId}, trying fallback email: ${fallbackEmail}`);
-    try {
-      const sesSuccess = await removeContactFromList(fallbackEmail, sesRegion);
-      if (!sesSuccess) {
-        console.error(`Failed to remove user ${userId} (${fallbackEmail}) from SES contact list using fallback email`);
-      }
-    } catch (error) {
-      console.error(`Error removing user ${userId} (${fallbackEmail}) from SES contact list using fallback email:`, error);
-    }
+    await removeContactFromList(userInfo.email, sesRegion);
   }
 
   await Promise.all([
