@@ -15,3 +15,9 @@ Sending Emails:
 - Run node test-email.js to send to test users
 - Run node send-emails.js when you want to send to all users
 - Use the --dry-run flag to avoid actually sending
+
+Other:
+- Use this command to get the list of all contacts in the list: 
+    - `aws sesv2 list-contacts --contact-list-name SCU-Schedule-Helper-Users --page-size 600 --no-cli-pager`
+- Use this command to get a single contact (with full details):
+    - `aws sesv2 get-contact --contact-list-name SCU-Schedule-Helper-Users --email-address swdean@scu.edu`
