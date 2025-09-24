@@ -7,6 +7,7 @@ const CONTACT_LIST_NAME = "SCU-Schedule-Helper-Users";
 const TOPIC_NAME = "announcements";
 const FROM_EMAIL = '"SCU Schedule Helper Team" <scuschedulehelper@gmail.com>';
 const REGION = "us-west-1";
+const FETCH_FULL_CONTACT_DETAILS = true;
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const agent = new https.Agent({
@@ -94,7 +95,7 @@ async function sendEmailBatch(contacts) {
     return results;
 }
 
-async function getAllContactsFromList(fetchFullDetails = true) {
+async function getAllContactsFromList(fetchFullDetails = FETCH_FULL_CONTACT_DETAILS) {
     let contacts = [];
     let nextToken = undefined;
 
