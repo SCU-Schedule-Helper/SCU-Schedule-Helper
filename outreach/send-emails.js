@@ -6,9 +6,14 @@ import https from "https";
 const CONTACT_LIST_NAME = "SCU-Schedule-Helper-Users";
 const TOPIC_NAME = "announcements";
 const FROM_EMAIL = '"SCU Schedule Helper Team" <scuschedulehelper@gmail.com>';
+const SUBJECT_LINE = "Updates to SCU Schedule Helper";
 const REGION = "us-west-1";
 const FETCH_FULL_CONTACT_DETAILS = true;
+const ALLOWED_PLACEHOLDERS = ["name"];
 const DRY_RUN = process.argv.includes("--dry-run");
+const testEmail = process.argv
+    .filter(arg => arg.startsWith("--test-email="))
+    .map(arg => arg.replace("--test-email=", "").trim());
 
 const agent = new https.Agent({
     maxSockets: 500
@@ -45,12 +50,12 @@ async function sendEmailBatch(contacts) {
                 Content: {
                     Simple: {
                         Subject: {
-                            Data: "SCU Schedule Helper Announcement",
+                            Data: SUBJECT_LINE,
                             Charset: "UTF-8",
                         },
                         Body: {
                             Html: {
-                                Data: emailContent,
+                                Data: handlePlaceholders(emailContent, contact),
                                 Charset: "UTF-8",
                             },
                         },
@@ -95,6 +100,23 @@ async function sendEmailBatch(contacts) {
     return results;
 }
 
+function handlePlaceholders(template, contact) {
+    console.log(JSON.stringify(contact, null, 2));
+    for (let [key, value] of Object.entries(JSON.parse(contact.AttributesData) || {})) {
+        if (ALLOWED_PLACEHOLDERS.includes(key)) {
+            const placeholder = `{{${key}}}`;
+            if(key === "name") {
+                value = value.indexOf(" ") >= 0 ? value.split(" ")[0] : value;
+                if(!value || value.trim().length === 0) {
+                    value = "there";
+                }
+            }
+            template = template.replace(new RegExp(placeholder, 'g'), value);
+        }
+    }
+    return template;
+}
+
 async function getAllContactsFromList(fetchFullDetails = FETCH_FULL_CONTACT_DETAILS) {
     let contacts = [];
     let nextToken = undefined;
@@ -111,6 +133,11 @@ async function getAllContactsFromList(fetchFullDetails = FETCH_FULL_CONTACT_DETA
         }
         nextToken = response.NextToken;
     } while (nextToken);
+
+    if (testEmail.length > 0) {
+        contacts = contacts.filter(c => testEmail == c.EmailAddress);
+        console.log(`Filtered to ${contacts.length} test email only.`);
+    }
 
     if (!fetchFullDetails) {
         return contacts;
@@ -153,9 +180,9 @@ async function sendEmailsToUsers() {
     if (!DRY_RUN) {
         console.log(`\nNotice: This will send ${contacts.length} real emails!`);
         console.log(
-            "Press Ctrl+C to cancel, or wait 10 seconds to continue...\n"
+            "Press Ctrl+C to cancel, or wait 5 seconds to continue...\n"
         );
-        await new Promise((resolve) => setTimeout(resolve, 10000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
     const results = await sendEmailBatch(contacts);
