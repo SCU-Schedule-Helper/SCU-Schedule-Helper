@@ -6,6 +6,7 @@ import {
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { handleWithAuthorization } from "./utils/authorization.js";
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import { SESv2Client, DeleteContactCommand } from "@aws-sdk/client-sesv2";
 import {
   internalServerError,
   noContentValidResponse,
@@ -21,7 +22,38 @@ const s3Client = new S3Client({
 const lambdaClient = new LambdaClient({
   region: process.env.AWS_LAMBDA_REGION,
 });
+const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
+
+const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
+
+function createSESClient(region) {
+  return new SESv2Client({
+    region: region,
+    maxAttempts: 5,
+    retryMode: "standard"
+  });
+}
+
+async function removeContactFromList(email, region) {
+  const sesClient = createSESClient(region);
+
+  try {
+    const result = await sesClient.send(new DeleteContactCommand({
+      ContactListName: CONTACT_LIST_NAME,
+      EmailAddress: email
+    }));
+    if (result.$metadata.httpStatusCode !== 200) {
+      console.error(`Failed to remove ${email} from SES contact list:`, result);
+    }
+  } catch (error) {
+    if (error.name === 'NotFoundException') {
+      console.log(`Contact ${email} not found in SES contact list (may have been already removed)`);
+      return;
+    }
+    console.error(`INTERNAL Failed to remove ${email} from SES contact list:`, error.message);
+  }
+}
 
 export async function handler(event, context) {
   return await handleWithAuthorization(event, context, deleteUser);
@@ -83,6 +115,10 @@ async function deleteUser(event, context, userId) {
     console.error("INTERNAL: Error deleting user's profile picture:", error);
     return internalServerError;
   }
+  if (userInfo.email) {
+    await removeContactFromList(userInfo.email, sesRegion);
+  }
+
   await Promise.all([
     tryNotifyClients(userId, userInfo),
     deleteNameFromIndex(userId, userInfo.name),
@@ -104,6 +140,7 @@ async function getSubsAndKeysForDeletion(pk) {
   const keys = [];
   let selfSubs = [];
   let name = "";
+  let email = "";
   let friendIds = [];
   let friendReqInIds = [];
   let friendReqOutIds = [];
@@ -116,6 +153,7 @@ async function getSubsAndKeysForDeletion(pk) {
       if (dataItem.subscriptions && dataItem.subscriptions.SS)
         selfSubs = dataItem.subscriptions.SS.map((sub) => JSON.parse(sub));
       if (dataItem.name && dataItem.name.S) name = dataItem.name.S;
+      if (dataItem.email && dataItem.email.S) email = dataItem.email.S;
     }
     if (dataItem.sk.S.startsWith("friend#cur")) {
       const friendId = dataItem.sk.S.split("friend#cur#")[1];
@@ -143,7 +181,7 @@ async function getSubsAndKeysForDeletion(pk) {
     }
   }
   return {
-    userInfo: { selfSubs, name, friendIds, friendReqInIds, friendReqOutIds },
+    userInfo: { selfSubs, name, email, friendIds, friendReqInIds, friendReqOutIds },
     keys,
   };
 }
