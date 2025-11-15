@@ -18,7 +18,7 @@ export let termsWithinCutoff;
 
 export default async function getAndProcessNewEvals() {
   const schoolsAndTerms = await getSchoolsAndTerms();
-  deleteExpiredEvals(); 
+  deleteExpiredEvals();
   let hadNonEmptyTerm = false;
   for (const term of schoolsAndTerms.termIds) {
     if (existingTerms.has(term)) {
@@ -50,6 +50,7 @@ export default async function getAndProcessNewEvals() {
       for (let i = 0; i < 26; i++) {
         const queryResultsDoc = await fetchWithAuth(
           generateSearchLink(term, school, String.fromCharCode(97 + i)),
+          10,
         );
         addLinksFromQueryResults(queryResultsDoc, evalLinksForThisTerm);
       }
@@ -113,7 +114,8 @@ function deleteExpiredEvals() {
   }
   // Delete any expired evals.
   for (let i = 0; i < evalsAndTerms.evals.length; i++) {
-    if (!termsWithinCutoff.has(evalsAndTerms.evals[i].term)) {
+    let parentTerm = (evalsAndTerms.evals[i].term.match(/AP_\d\d_[a-zA-Z]{2,3}/) || [""])[0];
+    if (!termsWithinCutoff.has(evalsAndTerms.evals[i].term) && !termsWithinCutoff.has(parentTerm)) {
       evalsAndTerms.evals.splice(i, 1);
       i--;
     }
@@ -137,9 +139,9 @@ function generateSearchLink(term, school = "", facultyFilter = "") {
   return `${EVALUATIONS_URL}?ds=1&searchq=&ds=2&term=${term}&school=${school}&faculty=${facultyFilter}&course=`;
 }
 
-async function fetchWithAuth(url, retryAttempts = REQUEST_MAX_RETRIES) {
+async function fetchWithAuth(url, retryAttempts = REQUEST_MAX_RETRIES, requestIntervalMs = REQUEST_INTERVAL_MS) {
   // Wait to prevent accidental DDoS.
-  await new Promise((resolve) => setTimeout(resolve, REQUEST_INTERVAL_MS));
+  await new Promise((resolve) => setTimeout(resolve, requestIntervalMs));
   const response = await getWithCookies(url);
   const responseText = await response.text();
   if (await badAuthForQueryRequest(responseText)) {

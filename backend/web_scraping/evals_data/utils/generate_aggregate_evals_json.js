@@ -94,17 +94,16 @@ function generateNewAggregateRating(
     workloadCount:
       currentRating.workloadCount + (evaluation.workloadRating ? 1 : 0),
   };
+  let parentTerm = (evalsAndTerms.evals[i].term.match(/AP_\d\d_[a-zA-Z]{2,3}/) || [""])[0];
+  let termName = evalsAndTerms.termIdsToTermNames[evaluation.term] || evalsAndTerms.termIdsToTermNames[parentTerm];
   if (includeRecentTerms) {
     const recentTermsSet = new Set(currentRating.recentTerms);
-    recentTermsSet.add(evalsAndTerms.termIdsToTermNames[evaluation.term]);
+    recentTermsSet.add(termName);
     newRating.recentTerms =
       Array.from(recentTermsSet).sort(mostRecentTermFirst);
   }
   if (isCourseEval) {
-    if (
-      newRating.recentTerms[0] ===
-      evalsAndTerms.termIdsToTermNames[evaluation.term]
-    ) {
+    if (newRating.recentTerms[0] === termName) {
       newRating.courseName = evaluation.courseName;
     }
     const profsSet = new Set(currentRating.professors);
