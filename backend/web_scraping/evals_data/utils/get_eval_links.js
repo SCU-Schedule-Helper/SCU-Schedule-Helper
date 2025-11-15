@@ -95,7 +95,7 @@ async function getSchoolsAndTerms() {
   evalsAndTerms.termIdsToTermNames = termIdsToTermNames;
   termsWithinCutoff = new Set(termIds);
   console.log(`Got schools: ${schools}`);
-  console.log(`Using the latest 50 terms: ${termIds}`);
+  console.log(`Using the latest ${MAX_TERMS_INCLUDED} terms: ${termIds}`);
   return { schools, termIds };
 }
 

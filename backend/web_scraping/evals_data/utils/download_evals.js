@@ -41,6 +41,10 @@ async function downloadEvalPdfAndExtractData(
   const responseText = await response.clone().text();
 
   if (isMultipleEvaluationsPage(responseText, links)) return;
+  if (isNoEvaluationsPage(responseText)) {
+    console.log(`No evaluations found at ${link}, skipping.`);
+    return;
+  };
   if (isBadResponse(response, responseText, link)) {
     await authenticate(process.env.SCU_USERNAME, process.env.SCU_PASSWORD);
     await downloadEvalPdfAndExtractData(
@@ -95,4 +99,8 @@ function isMultipleEvaluationsPage(responseText, evalLinks) {
   });
   newLinks.forEach(evalLinks.add, evalLinks);
   return true;
+}
+
+function isNoEvaluationsPage(responseText) {
+  return responseText.includes("We're sorry, no evaluations were found for this course.");
 }
