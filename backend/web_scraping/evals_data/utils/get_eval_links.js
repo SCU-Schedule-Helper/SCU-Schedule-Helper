@@ -12,6 +12,7 @@ import jsdom from "jsdom";
 
 const LOGIN_TITLE = "<title>SCU Login";
 const TERM_NAME_PATTERN = /((Fall|Winter|Spring|Summer).*(\d{4}))/;
+const MAX_TERMS_INCLUDED = 25; // Approximately 5 years of data.
 
 export let termsWithinCutoff;
 
@@ -75,7 +76,7 @@ async function getSchoolsAndTerms() {
   let termElements = doc.querySelector("#term").children;
   let termIds = [];
   let termIdsToTermNames = {};
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < MAX_TERMS_INCLUDED; i++) {
     const el = termElements.item(i);
     if (el === null || el.value.trim() === "" || el.textContent.trim() === "")
       continue;
