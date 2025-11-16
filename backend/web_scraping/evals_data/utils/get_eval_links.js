@@ -49,8 +49,7 @@ export default async function getAndProcessNewEvals() {
     for (const school of schoolsAndTerms.schools) {
       for (let i = 0; i < 26; i++) {
         const queryResultsDoc = await fetchWithAuth(
-          generateSearchLink(term, school, String.fromCharCode(97 + i)),
-          10,
+          generateSearchLink(term, school, String.fromCharCode(97 + i)), REQUEST_MAX_RETRIES, 10
         );
         addLinksFromQueryResults(queryResultsDoc, evalLinksForThisTerm);
       }

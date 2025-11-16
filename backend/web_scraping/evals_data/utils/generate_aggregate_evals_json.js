@@ -94,7 +94,7 @@ function generateNewAggregateRating(
     workloadCount:
       currentRating.workloadCount + (evaluation.workloadRating ? 1 : 0),
   };
-  let parentTerm = (evalsAndTerms.evals[i].term.match(/AP_\d\d_[a-zA-Z]{2,3}/) || [""])[0];
+  let parentTerm = (evaluation.term.match(/AP_\d\d_[a-zA-Z]{2,3}/) || [""])[0];
   let termName = evalsAndTerms.termIdsToTermNames[evaluation.term] || evalsAndTerms.termIdsToTermNames[parentTerm];
   if (includeRecentTerms) {
     const recentTermsSet = new Set(currentRating.recentTerms);
