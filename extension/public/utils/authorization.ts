@@ -2,7 +2,7 @@
 declare const self: ServiceWorkerGlobalScope;
 
 import { subscribe } from "./notifications.ts";
-import { PROD_AUTH_TOKEN_ENDPOINT, PROD_USER_ENDPOINT } from "./constants.ts";
+import { PROD_AUTH_TOKEN_ENDPOINT, PROD_USER_ENDPOINT, WEB_AUTH_CLIENT_ID } from "./constants.ts";
 import {
   downloadEvals,
   downloadProfessorNameMappings,
@@ -47,7 +47,7 @@ export async function signIn(): Promise<string | null> {
       console.warn("Notification permission denied, continuing without push notifications");
     }
   } catch (error) {
-    console.warn("Push notifications not available:", error.message);
+    console.warn("Push notifications not available");
   }
 
   const response = await fetch(PROD_AUTH_TOKEN_ENDPOINT, {
