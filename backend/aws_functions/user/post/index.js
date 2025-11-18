@@ -5,6 +5,7 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import { SESv2Client, CreateContactCommand } from "@aws-sdk/client-sesv2";
 import {
   createdResponse,
   internalServerError,
@@ -20,7 +21,52 @@ const retryMode = "standard";
 const ddbRegion = process.env.AWS_DDB_REGION;
 const s3Region = process.env.AWS_S3_REGION;
 const lambdaRegion = process.env.AWS_LAMBDA_REGION;
+const sesRegion = process.env.AWS_DDB_REGION;
 const tableName = process.env.SCU_SCHEDULE_HELPER_DDB_TABLE_NAME;
+
+const CONTACT_LIST_NAME = 'SCU-Schedule-Helper-Users';
+const TOPIC_NAME = 'announcements';
+
+function createSESClient(region) {
+  return new SESv2Client({
+    region: region,
+    maxAttempts: 3,
+    retryMode: "standard"
+  });
+}
+
+async function addContactToList(email, name, region) {
+  const sesClient = createSESClient(region);
+
+  const contactParams = {
+    ContactListName: CONTACT_LIST_NAME,
+    EmailAddress: email,
+    TopicPreferences: [
+      {
+        TopicName: TOPIC_NAME,
+        SubscriptionStatus: 'OPT_IN'
+      }
+    ],
+    UnsubscribeAll: false,
+    ...(name && {
+      AttributesData: JSON.stringify({ name: name })
+    })
+  };
+
+  try {
+    const result = await sesClient.send(new CreateContactCommand(contactParams));
+    if (result.$metadata.httpStatusCode !== 200) {
+      console.error(`Failed to add ${email} to SES contact list:`, result);
+    }
+  } catch (error) {
+    if (error.name === 'AlreadyExistsException') {
+      console.log(`Contact ${email} already exists in SES contact list`);
+      return;
+    }
+    console.error(`INTERNAL Failed to add ${email} to SES contact list:`, error.message);
+  }
+}
+
 const dynamoDBClient = new DynamoDBClient({
   region: ddbRegion,
   maxAttempts,
@@ -117,9 +163,8 @@ async function uploadUserPhotoToS3(userId, base64EncodedPhoto) {
       `error uploading profile photo to S3 (received HTTP status code from S3: ${s3Response.$metadata.httpStatusCode}).`,
     );
   }
-  return `https://${
-    process.env.SCU_SCHEDULE_HELPER_BUCKET_NAME
-  }.s3.amazonaws.com/${photoKey.replace("#", "%23")}`;
+  return `https://${process.env.SCU_SCHEDULE_HELPER_BUCKET_NAME
+    }.s3.amazonaws.com/${photoKey.replace("#", "%23")}`;
 }
 
 async function addUserToDatabase(userId, name, subscription, photoUrl) {
@@ -174,12 +219,16 @@ async function addUserToDatabase(userId, name, subscription, photoUrl) {
   }
 
   await addNameToIndex(userId, name, photoUrl);
+
+  const userEmail = `${userId}@scu.edu`;
+  await addContactToList(userEmail, name, sesRegion);
+
   return createdResponse(
     new CreatedUserResponse(
       userId,
       name,
       photoUrl,
-      `${userId}@scu,.edu`,
+      `${userId}@scu.edu`,
       subscription,
     ),
   );

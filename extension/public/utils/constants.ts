@@ -1,0 +1,12 @@
+export const PROD_SERVER_URL = "https://api.scu-schedule-helper.me";
+export const PROD_USER_ENDPOINT = `${PROD_SERVER_URL}/user`;
+export const PROD_AUTH_TOKEN_ENDPOINT = `${PROD_SERVER_URL}/auth_token`;
+export const PROD_EVALS_ENDPOINT = `${PROD_SERVER_URL}/evals`;
+export const PROD_NAME_MAPPINGS_ENDPOINT = `${PROD_SERVER_URL}/name_mappings`;
+export const WEB_AUTH_CLIENT_ID = "583521775185-u0dt149h8j3cfbo676j455h73sj2vrbb.apps.googleusercontent.com";
+export const COURSE_TAKEN_PATTERN = /P{(.*?)}C{(.*?)}T{(.*?)}/; // P{profName}C{courseCode}T{termName}
+export const COURSE_CODE_PATTERN = /^[A-Z]{4}\d+$/;
+export const INTERESTED_SECTION_PATTERN = /P{(.*?)}S{(.*?)}M{(.*?)}/; // P{profName}S{full section string}M{meetingPattern}
+export const WORKDAY_CURRENT_COURSES_URL = "https://www.myworkday.com/scu/d/task/2998$28771.htmld";
+export const WORKDAY_COURSE_HISTORY_URL = "https://www.myworkday.com/scu/d/task/2998$30300.htmld";
+export const SERVER_PUBLIC_KEY = "BLMxe4dFTN6sJ7U-ZFXgHUyhlI5udo11b4curIyRfCdGZMYjDx4kFoV3ejHzDf4hNZQOmW3UP6_dgyYTdg3LDIE";

@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": [
+      "esnext",
+      "DOM"
+    ],
+    "jsx": "preserve",
+    "jsxImportSource": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noUncheckedIndexedAccess": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "strictFunctionTypes": true,
+    "types": [
+      "react",
+      "react-dom",
+      "chrome"
+    ],
+    "skipLibCheck": true,
+    "incremental": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "react_content_scripts",
+    "out"
+  ]
+}

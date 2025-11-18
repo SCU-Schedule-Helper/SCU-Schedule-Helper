@@ -11,4 +11,4 @@ const nextConfig = {
   assetPrefix: "./", // Required for static export
 };
 
-module.exports = nextConfig;
+export default nextConfig;
