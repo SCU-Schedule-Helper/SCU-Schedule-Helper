@@ -18,8 +18,14 @@ const sizePattern = /(.*)=s\d+-c/;
 export async function signIn(): Promise<string | null> {
   let oAuthToken;
   try {
+    const oAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    oAuthUrl.searchParams.set("client_id", WEB_AUTH_CLIENT_ID);
+    oAuthUrl.searchParams.set("redirect_uri", chrome.identity.getRedirectURL());
+    oAuthUrl.searchParams.set("response_type", "token");
+    oAuthUrl.searchParams.set("scope", "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email");
+    oAuthUrl.searchParams.set("prompt", "select_account");
     const responseUrl = await chrome.identity.launchWebAuthFlow({
-      url: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${WEB_AUTH_CLIENT_ID}&redirect_uri=${chrome.identity.getRedirectURL()}&response_type=token&scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&prompt=select_account`,
+      url: oAuthUrl.toString(),
       interactive: true,
     });
     if (!responseUrl) { return "Authorization cancelled."; }
