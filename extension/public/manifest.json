@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SCU Schedule Helper",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "Course/professor rating to help with SCU schedule planning.",
   "permissions": ["storage", "identity", "notifications"],
   "host_permissions": ["https://www.ratemyprofessors.com/*"],
