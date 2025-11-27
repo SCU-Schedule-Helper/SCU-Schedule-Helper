@@ -192,7 +192,7 @@ function getQualityRating(firstPageText) {
 }
 
 function getQualityDetails(lastPageText) {
-  const pattern = /StronglyDisagreeStrongly Agreen=(\d{0,3})av\.=(\d?\.?\d?)md=(\d)dev\.=(\d?.?\d?)/g;
+  const pattern = /StronglyDisagreeStrongly Agreen=(\d{0,3})av\.=(\d?\.?\d?)md=(\d?\.?\d?)dev\.=(\d?.?\d?)/g;
   const matches = Array.from(lastPageText.matchAll(pattern));
   const result = {};
   if(matches.length !== 9) {
@@ -209,7 +209,7 @@ function getQualityDetails(lastPageText) {
     result["qualityItem1." + (i + 1)] = {
       n: parseInt(n),
       average: parseFloat(average),
-      median: parseInt(median),
+      median: parseFloat(median),
       deviation: parseFloat(deviation),
     };
   }
