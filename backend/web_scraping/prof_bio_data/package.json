@@ -1,0 +1,15 @@
+{
+  "name": "prof_bio_data",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/html-to-text": "^9.0.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "html-to-text": "^9.0.5",
+    "openai": "^6.9.1"
+  }
+}

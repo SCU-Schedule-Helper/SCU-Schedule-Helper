@@ -4,7 +4,9 @@ dist
 testing
 persistent_data
 local_data
+data
 out
+*.log
 .env
 *.zip
 *.next
