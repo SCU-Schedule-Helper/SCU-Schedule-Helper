@@ -4,7 +4,7 @@ const MAX_LOGIN_TRIES = 5;
 
 export async function authenticate(username, password) {
   const loginButton = "button.login_btn > span";
-  const browser = await puppeteer.launch({ args: ["--incognito"] });
+  const browser = await puppeteer.launch({ headless: false, args: ["--incognito"] });
   const page = await browser.newPage();
 
   console.log("Starting authentication...");
@@ -21,6 +21,8 @@ export async function authenticate(username, password) {
 
   let loginTries = 0;
   let needMobileApproval = page.url().includes("duosecurity");
+  // console.log(await page.content());
+
   while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
     loginTries++;
     console.log(
@@ -40,7 +42,11 @@ export async function authenticate(username, password) {
     // If there is a verification code, log it.
     try {
       await page.waitForSelector(".verification-code", { timeout: 2000 });
-    } catch (ignore) {}
+      console.log("It found the verification code");
+    } catch (ignore) {
+      console.log("Code not found");
+      console.log(await page.content());
+    }
     const verificationCodeDiv = await page.$(".verification-code");
     if (verificationCodeDiv) {
       const verificationCode = await verificationCodeDiv.evaluate(
