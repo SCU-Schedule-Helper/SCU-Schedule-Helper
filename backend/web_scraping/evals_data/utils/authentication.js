@@ -42,11 +42,8 @@ export async function authenticate(username, password) {
     // If there is a verification code, log it.
     try {
       await page.waitForSelector(".verification-code", { timeout: 2000 });
-      console.log("It found the verification code");
-    } catch (ignore) {
-      console.log("Code not found");
-      console.log(await page.content());
-    }
+    } catch (ignore) {}
+    
     const verificationCodeDiv = await page.$(".verification-code");
     if (verificationCodeDiv) {
       const verificationCode = await verificationCodeDiv.evaluate(
