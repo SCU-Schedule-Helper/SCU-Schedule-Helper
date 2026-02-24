@@ -248,7 +248,6 @@ function getRelevantCourses(
 function makeIsoString(
   startDateMMDDYYYY: string,
   startTime: string,
-  offset: string = getTimezoneOffsetString("America/Los_Angeles")
 ): string {
   const [month, day, year] = startDateMMDDYYYY.split("/").map((n) =>
     n.padStart(2, "0")
@@ -265,8 +264,12 @@ function makeIsoString(
 
   const hourPadded = String(hour).padStart(2, "0");
   const minutePadded = minutePart.padStart(2, "0");
+
+  // Pass the event date to get the correct offset with daylight savings
+  const eventDate = new Date(`${year}-${month}-${day}`);
+  const offset = getTimezoneOffsetString("America/Los_Angeles", eventDate);
+
   const theDate = `${year}-${month}-${day}T${hourPadded}:${minutePadded}:00.000${offset}`;
-  console.log("theDate", theDate);
   return theDate;
 }
 
@@ -281,15 +284,12 @@ function getTimezoneOffsetString(timeZone: string, date = new Date()) {
     minute: '2-digit',
     second: '2-digit',
   });
-
   const parts = dtf.formatToParts(date);
   const dt = { year: 0, month: 0, day: 0, hour: 0, minute: 0, second: 0 };
   parts.forEach(({ type, value }) => { dt[type] = value });
-
   const targetTime = Date.UTC(
     dt.year, dt.month - 1, dt.day, dt.hour, dt.minute, dt.second
   );
-
   const localTime = date.getTime();
   const offsetMinutes = (targetTime - localTime) / (60 * 1000);
 
@@ -307,9 +307,6 @@ async function addCoursesToGoogleCalendar(
   setErrors: React.Dispatch<React.SetStateAction<string[]>>
 ) {
   const calendarId = "primary";
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
-    calendarId
-  )}/events`;
 
   const headers = new Headers({
     Authorization: `Bearer ${token}`,
@@ -333,13 +330,17 @@ async function addCoursesToGoogleCalendar(
         recurrence: [course.recurrence],
       };
 
-      if (await doesEventExist(token, course)) {
-        return;
-      }
+      // Check if event already exists and needs to be updated
+      const existingId = await getExistingEventId(token, course);
+      const masterId = existingId.split("_")[0];
+      const requestUrl = existingId
+        ? `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${masterId}`
+        : `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
+      const method = existingId ? "PUT" : "POST";
 
       try {
-        const response = await fetch(url, {
-          method: "POST",
+        const response = await fetch(requestUrl, {
+          method: method,
           headers,
           body: JSON.stringify(event),
         });
@@ -365,7 +366,14 @@ async function addCoursesToGoogleCalendar(
   );
 }
 
-async function doesEventExist(token: string, event: CourseEvent) {
+// Get event and return it's token so it can be fixed if needed
+async function getExistingEventId(token: string, event: CourseEvent) {
+  // Widen the window by an hour to catch offset mismatches
+  const start = new Date(event.startDate);
+  start.setHours(start.getHours() - 1);
+  const end = new Date(event.endDate);
+  end.setHours(end.getHours() + 1);
+
   const timeMin = new Date(event.startDate).toISOString();
   const timeMax = new Date(event.endDate).toISOString();
 
@@ -378,22 +386,19 @@ async function doesEventExist(token: string, event: CourseEvent) {
   url.searchParams.set("timeMax", timeMax);
   url.searchParams.set("singleEvents", "true");
   url.searchParams.set("orderBy", "startTime");
+
   try {
     const response = await fetch(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
-
     const data = await response.json();
     if (data.items && data.items.length > 0) {
-      return true;
-    } else {
-      return false;
+      return data.items[0].id;
     }
+    return null;
   } catch (error) {
     console.error("Error checking for existing events:", error);
-    return false;
+    return null;
   }
 }
 
