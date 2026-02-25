@@ -85,7 +85,16 @@ interface RatingInfo {
         '[data-automation-label="SCU Find Course Sections"]'
       ); // Find Courses Page
 
-      if (isFindCoursesPage || isSavedSchedulePage) {
+      let showStats = true;
+      if (isSavedSchedulePage) {
+        displayToggle();
+        const res = await chrome.storage.local.get("showStatsInSavedSchedule");
+        if (res.showStatsInSavedSchedule !== undefined) {
+          showStats = res.showStatsInSavedSchedule;
+        }
+      }
+
+      if (isFindCoursesPage || (isSavedSchedulePage && showStats)) {
         const data = await chrome.storage.local.get([
           "evals",
           "userInfo",
@@ -114,6 +123,11 @@ interface RatingInfo {
       if (isFindCoursesPage) {
         await handleFindSectionsGrid();
       } else if (isSavedSchedulePage) {
+        if (!showStats) {
+          clearSavedScheduleStats();
+          return;
+        }
+
         if (enrollmentStatsStatus === FetchStatus.NotFetched) {
           enrollmentStatsStatus = FetchStatus.Fetching;
           await findEnrollmentStatistics();
@@ -125,6 +139,25 @@ interface RatingInfo {
         }
       }
     }, DEBOUNCE_DELAY);
+  }
+
+  function clearSavedScheduleStats() {
+    enrollmentStatsStatus = FetchStatus.NotFetched;
+    const courses = document.querySelectorAll<HTMLTableRowElement>('[data-testid="table"] tbody tr');
+    Array.from(courses).forEach((courseRow: HTMLTableRowElement) => {
+      const courseCell = courseRow.cells[0];
+      if (!courseCell) return;
+
+      courseCell.removeAttribute("has-ratings");
+
+      const scoreContainer = courseCell.querySelector(".SCU-Schedule-Helper-Score-Container");
+      if (scoreContainer) {
+        scoreContainer.remove();
+      }
+
+      const elementsToRemove = courseCell.querySelectorAll(".scu-schedule-helper-added");
+      elementsToRemove.forEach(el => el.remove());
+    });
   }
 
   async function handleFindSectionsGrid() {
@@ -589,6 +622,10 @@ interface RatingInfo {
     infoButton.appendChild(tooltip);
     scoreContainer.appendChild(scoreText);
     scoreContainer.appendChild(infoButton);
+    sectionTimeMatch.className = "scu-schedule-helper-added";
+    friendsTaken.className = "scu-schedule-helper-added";
+    friendsInterested.className = "scu-schedule-helper-added";
+
     tdElement.appendChild(scoreContainer);
     tdElement.appendChild(sectionTimeMatch);
     tdElement.appendChild(friendsTaken);
@@ -597,6 +634,7 @@ interface RatingInfo {
       const meetingPattern = tdElement.parentElement?.lastChild?.textContent;
       const enrollmentStat = meetingPattern && enrollmentStats[meetingPattern];
       const enrollmentStatsDiv = document.createElement("div");
+      enrollmentStatsDiv.className = "scu-schedule-helper-added";
       enrollmentStatsDiv.innerHTML = `
               <div style="display: flex; gap: 20px; margin: 5px 0  5px 0;">
                 <div style="color: #666;">
@@ -943,5 +981,137 @@ interface RatingInfo {
     }
 
     return null;
+  }
+
+  function displayToggle() {
+    const buttonBar = document.querySelector('ul[data-automation-id="buttonBar"]');
+    if (!buttonBar) return;
+
+    if (document.getElementById("scu-schedule-helper-toggle-container")) return;
+
+    const li = document.createElement("li");
+    li.className = "WMJM";
+    li.id = "scu-schedule-helper-toggle-container";
+
+    buttonBar.appendChild(li);
+
+    const button = document.createElement("button");
+    button.style.cssText = `
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      outline: none;
+      background-color: white;
+      color: #333;
+      border: 1px solid hsla(0, 0%, 20%, 1);
+      box-shadow: 0 0 1px hsla(0, 0%, 20%, 1) inset;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+
+    const img = document.createElement("img");
+    img.src = chrome.runtime.getURL("images/icon-16.png");
+    img.style.position = "relative";
+    img.style.top = "-1px";
+    img.style.width = "16px";
+    img.style.height = "16px";
+
+    // Create custom CSS switch
+    const switchContainer = document.createElement("div");
+    switchContainer.style.cssText = `
+      position: relative;
+      display: inline-block;
+      width: 28px;
+      height: 16px;
+      margin-left: 4px;
+    `;
+
+    const switchTrack = document.createElement("div");
+    switchTrack.style.cssText = `
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #333;
+      transition: .2s;
+      border-radius: 16px;
+    `;
+
+    const switchThumb = document.createElement("div");
+    switchThumb.style.cssText = `
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+      transform: translateX(12px);
+    `;
+
+    switchTrack.appendChild(switchThumb);
+    switchContainer.appendChild(switchTrack);
+
+    button.appendChild(img);
+    button.appendChild(switchContainer);
+    li.appendChild(button);
+    li.style.float = "right";
+
+    let enabled = true;
+
+    // Load persisted value
+    chrome.storage.local.get("showStatsInSavedSchedule", (data) => {
+      if (data.showStatsInSavedSchedule !== undefined) {
+        enabled = data.showStatsInSavedSchedule;
+        updateSwitchUI();
+      }
+    });
+
+    button.addEventListener("mouseenter", () => {
+      button.style.backgroundColor = "#333";
+      button.style.color = "white";
+      switchTrack.style.backgroundColor = enabled ? "white" : "#aaa";
+      switchThumb.style.backgroundColor = enabled ? "#333" : "white";
+    });
+
+    button.addEventListener("mouseleave", () => {
+      button.style.backgroundColor = "white";
+      button.style.color = "#333";
+      switchTrack.style.backgroundColor = enabled ? "#333" : "#999";
+      switchThumb.style.backgroundColor = enabled ? "white" : "white";
+    });
+
+    button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      enabled = !enabled;
+      chrome.storage.local.set({ showStatsInSavedSchedule: enabled });
+      updateSwitchUI();
+      // Force a re-render for page updates when config changes
+      checkPage();
+    });
+
+    function updateSwitchUI() {
+      button.title = enabled ? "Disable SCU Schedule Helper enhancements" : "Enable SCU Schedule Helper enhancements";
+      switchThumb.style.transform = enabled ? "translateX(12px)" : "translateX(0)";
+
+      // Update colors based on hover state (simulated since we might be hovering when clicked)
+      const isHovered = button.matches(':hover');
+      if (isHovered) {
+        switchTrack.style.backgroundColor = enabled ? "white" : "#aaa";
+        switchThumb.style.backgroundColor = enabled ? "#333" : "white";
+      } else {
+        switchTrack.style.backgroundColor = enabled ? "#333" : "#999";
+        switchThumb.style.backgroundColor = enabled ? "white" : "white";
+      }
+    }
   }
 })();
