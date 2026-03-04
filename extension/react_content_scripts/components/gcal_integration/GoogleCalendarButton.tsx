@@ -332,11 +332,11 @@ async function addCoursesToGoogleCalendar(
 
       // Check if event already exists and needs to be updated
       const existingId = await getExistingEventId(token, course);
-      const masterId = existingId.split("_")[0];
-      const requestUrl = existingId
+      const masterId = existingId ? existingId.split("_")[0] : null;
+      const requestUrl = masterId
         ? `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${masterId}`
         : `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
-      const method = existingId ? "PUT" : "POST";
+      const method = masterId ? "PUT" : "POST";
 
       try {
         const response = await fetch(requestUrl, {
