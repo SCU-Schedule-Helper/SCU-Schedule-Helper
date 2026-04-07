@@ -1,3 +1,15 @@
+/* 
+Run with .env file (node --env-file=.env index.js)
+GITHUB_WORKFLOW=true
+AWS_DEFAULT_REGION="us-west-1"
+SCU_SCHEDULE_HELPER_BUCKET_NAME="scu-schedule-helper"
+PROFESSOR_NAME_MAPPINGS_JSON_OBJECT_KEY="professor_name_mappings.json"
+
+# Check google doc for these keys:
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+*/
+
 import {
   S3Client,
   GetObjectCommand,
@@ -13,6 +25,7 @@ import { parseCourseSectionsXlsx } from "./utils/xlsx_to_csv.js";
 export const REQUEST_INTERVAL_MS = 50;
 export const REQUEST_MAX_RETRIES = 1;
 export const browser = await puppeteer.launch({
+  headless: false,
   args: ["--incognito"],
 });
 export const page = await browser.newPage();
@@ -34,7 +47,7 @@ export default async function main() {
   );
   try {
     await initDirectoriesAndFiles();
-    await workdayLogin(page, process.env.WORKDAY_USERNAME, process.env.WORKDAY_PASSWORD);
+    await workdayLogin(page);
     await goToCourseSectionsPage(page);
     await getAndProcessNameMappings();
     await writeMappings();
