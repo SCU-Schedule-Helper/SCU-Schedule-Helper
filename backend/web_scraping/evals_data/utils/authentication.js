@@ -4,15 +4,15 @@ const MAX_LOGIN_TRIES = 5;
 
 const maybeClick = async (page, selector, timeout = 3000) => {
   try {
+    console.log("trying click")
     const el = await page.waitForSelector(selector, { timeout });
     if (el) {
-      console.log(`Found and tapping: ${selector}`);
+      console.log("clicked")
       await el.tap();
-      console.log(`Done: ${selector}`);
       return true;
     }
   } catch {
-    console.log(`Not found, skipping: ${selector}`);
+    console.log("did not click")
     return false;
   }
 };
@@ -48,9 +48,6 @@ export async function authenticate(username, password) {
       "Mobile request sent for authentication. Please approve on your phone.",
     );
 
-    // Dismiss "Update iOS" screen if it appears
-    await maybeClick(page, '::-p-text(Skip for now)');
-
     // Log PIN if Duo is showing one
     const duoText = await page.evaluate(() => document.body.innerText);
     const pinMatch = duoText.match(/Enter code in Duo Mobile[\s\S]*?\n(\d{4,6})\n/);
@@ -59,32 +56,18 @@ export async function authenticate(username, password) {
     }
 
     // Wait for the user to approve on their phone
+    await maybeClick(page, "button::-p-text(Skip for now)", 30000 );
     const buttonToTap = await page.waitForSelector(
       "button::-p-text(Yes, this is my device), button::-p-text(Try again)",
-      { timeout: 65000 },
-    ).catch(async () => {
-      // Log what's on the page when we time out
-      const text = await page.evaluate(() => document.body.innerText);
-      console.log("--- TIMED OUT WAITING, PAGE SAYS ---");
-      console.log(text);
-      const buttons = await page.evaluate(() => {
-        return [...document.querySelectorAll('button, input, a, [role="button"]')].map(el => ({
-          tag: el.tagName,
-          text: el.innerText?.trim(),
-          class: el.className,
-        }));
-      });
-      console.log("--- BUTTONS ---");
-      console.log(JSON.stringify(buttons, null, 2));
-      return null;
-    });
+      { timeout: 5000 },
+    ).catch(() => null);
 
     if (!buttonToTap) continue;
 
+    const buttonText = await buttonToTap.evaluate(node => node.textContent.trim());
+
     // Checks if duo was done correctly
-    needMobileApproval = await buttonToTap.evaluate(
-      (node) => node.textContent === "Try again",
-    );
+    needMobileApproval = buttonText === "Try again";
     await buttonToTap.tap();
     if (!needMobileApproval) {
       await page.waitForRequest((request) => request.url().includes("scu.edu"));
