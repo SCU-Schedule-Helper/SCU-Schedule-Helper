@@ -32,16 +32,31 @@ export async function authenticate(username, password) {
     console.log(
       "Mobile request sent for authentication. Please approve on your phone.",
     );
-    // Wait for the "Skip for now" button to appear and tap it
-    const skipButton = await page.waitForSelector('::-p-text(Skip for now)');
-    await skipButton.tap();
 
-    console.log("Tapped 'Skip for now' button.");
+    await maybeClick(page, ".other-options-link");
+    await maybeClick(page, "::-p-text(Duo Push)");
+
+    // If there is a verification code, log it.
+    try {
+      await page.waitForSelector(".verification-code", { timeout: 2000 });
+    } catch (ignore) {}
+    const verificationCodeDiv = await page.$(".verification-code");
+    if (verificationCodeDiv) {
+      const verificationCode = await verificationCodeDiv.evaluate(
+        (node) => node.textContent,
+      );
+      console.log(`Use verification code: ${verificationCode}`);
+    }
+
+    // Skip for now — optional
+    await maybeClick(page, '::-p-text(Skip for now)');
+
     // Wait for the Yes, this is my device button to appear (i.e. the user has approved the push).
     const buttonToTap = await page.waitForSelector(
       "button::-p-text(Yes, this is my device), button::-p-text(Try again)",
       { timeout: 65000 },
     );
+
     needMobileApproval = await buttonToTap.evaluate(
       (node) => node.textContent === "Try again",
     );
@@ -53,6 +68,21 @@ export async function authenticate(username, password) {
       await page.waitForSelector("::-p-text(Other options)");
     }
   }
+
+const maybeClick = async (page, selector, timeout = 3000) => {
+  try {
+    const el = await page.waitForSelector(selector, { timeout });
+    if (el) {
+      console.log(`Found and tapping: ${selector}`);
+      await el.tap();
+      console.log(`Done: ${selector}`);
+      return true;
+    }
+  } catch {
+    console.log(`Not found, skipping: ${selector}`);
+    return false;
+  }
+};
 
   if (loginTries >= MAX_LOGIN_TRIES) {
     console.log("Failed to login after 5 tries. Exiting.");
