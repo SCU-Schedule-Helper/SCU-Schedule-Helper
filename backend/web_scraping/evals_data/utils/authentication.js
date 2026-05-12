@@ -53,6 +53,10 @@ export async function authenticate(username, password) {
     console.log(
       "Mobile request sent for authentication. Please approve on your phone.",
     );
+    await page.waitForFunction(
+      () => !document.body.innerText.includes("Loading"),
+      { timeout: 10000 }
+    ).catch(() => console.log("Duo still loading after 10s..."));
     await printHTML(page);
 
     await maybeClick(page, ".other-options-link");
