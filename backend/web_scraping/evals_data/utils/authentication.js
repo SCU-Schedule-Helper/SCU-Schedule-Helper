@@ -39,7 +39,7 @@ export async function authenticate(username, password) {
 
   let loginTries = 0;
   let needMobileApproval = page.url().includes("duosecurity");
-while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
+  while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
     loginTries++;
     console.log(
       "***************************ACTION REQUIRED***************************",
@@ -47,7 +47,8 @@ while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
     console.log(
       "Mobile request sent for authentication. Please approve on your phone.",
     );
-    // Wait for React to actually render something into the root div
+
+        // Wait for Duo to render, then log everything
     await page.waitForFunction(
       () => {
         const root = document.querySelector('#pwl-prompt-root');
@@ -56,41 +57,21 @@ while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
       { timeout: 15000 }
     ).catch(() => console.log("React never finished rendering"));
 
-    // If on Push screen, switch to passcode
-    const onPushScreen = await page.$("button::-p-text(Other options)");
-    if (onPushScreen) {
-      console.log("On Push screen, switching to passcode...");
-      await onPushScreen.tap();
-      await maybeClick(page, "::-p-text(Duo Mobile Passcode)") ||
-      await maybeClick(page, "::-p-text(Passcode)") ||
-      await maybeClick(page, "::-p-text(Enter a Passcode)");
-    }
+    const duoText = await page.evaluate(() => document.body.innerText);
+    console.log("--- DUO PAGE TEXT ---");
+    console.log(duoText);
 
-    // Log the PIN if visible
-    try {
-      await page.waitForSelector(".verification-code", { timeout: 5000 });
-    } catch { }
-    const verificationCodeDiv = await page.$(".verification-code");
-    if (verificationCodeDiv) {
-      const verificationCode = await verificationCodeDiv.evaluate(
-        (node) => node.textContent.trim()
-      );
-      console.log(`PIN CODE: ${verificationCode}`);
-    } else {
-      const pageText = await page.evaluate(() => document.body.innerText);
-      console.log("PIN not found. Page says:");
-      console.log(pageText);
-    }
+    const interactive = await page.evaluate(() => {
+      return [...document.querySelectorAll('button, input, a, [role="button"]')].map(el => ({
+        tag: el.tagName,
+        text: el.innerText?.trim(),
+        class: el.className,
+      }));
+    });
+    console.log("--- BUTTONS/INPUTS ---");
+    console.log(JSON.stringify(interactive, null, 2));
 
-    // Skip for now — optional
-    await maybeClick(page, '::-p-text(Skip for now)');
-
-    // Wait for the Yes, this is my device button to appear (i.e. the user has approved the push).
-    const buttonToTap = await page.waitForSelector(
-      "button::-p-text(Yes, this is my device), button::-p-text(Try again)",
-      { timeout: 65000 },
-    );
-
+    // Checks if duo was done correctly
     needMobileApproval = await buttonToTap.evaluate(
       (node) => node.textContent === "Try again",
     );
