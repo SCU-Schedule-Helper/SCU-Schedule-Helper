@@ -51,19 +51,12 @@ export async function authenticate(username, password) {
     // Dismiss "Update iOS" screen if it appears
     await maybeClick(page, '::-p-text(Skip for now)');
 
-    // Log what Duo is showing so we can debug the PIN case
+    // Log PIN if Duo is showing one
     const duoText = await page.evaluate(() => document.body.innerText);
-    console.log("--- DUO PAGE TEXT ---");
-    console.log(duoText);
-    const interactive = await page.evaluate(() => {
-      return [...document.querySelectorAll('button, input, a, [role="button"]')].map(el => ({
-        tag: el.tagName,
-        text: el.innerText?.trim(),
-        class: el.className,
-      }));
-    });
-    console.log("--- BUTTONS/INPUTS ---");
-    console.log(JSON.stringify(interactive, null, 2));
+    const pinMatch = duoText.match(/Enter code in Duo Mobile[\s\S]*?\n(\d{4,6})\n/);
+    if (pinMatch) {
+      console.log(`PIN CODE: ${pinMatch[1]}`);
+    }
 
     // Wait for the user to approve on their phone
     const buttonToTap = await page.waitForSelector(
