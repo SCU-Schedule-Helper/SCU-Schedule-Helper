@@ -62,7 +62,24 @@ export async function authenticate(username, password) {
     const buttonToTap = await page.waitForSelector(
       "button::-p-text(Yes, this is my device), button::-p-text(Try again)",
       { timeout: 65000 },
-    );
+    ).catch(async () => {
+      // Log what's on the page when we time out
+      const text = await page.evaluate(() => document.body.innerText);
+      console.log("--- TIMED OUT WAITING, PAGE SAYS ---");
+      console.log(text);
+      const buttons = await page.evaluate(() => {
+        return [...document.querySelectorAll('button, input, a, [role="button"]')].map(el => ({
+          tag: el.tagName,
+          text: el.innerText?.trim(),
+          class: el.className,
+        }));
+      });
+      console.log("--- BUTTONS ---");
+      console.log(JSON.stringify(buttons, null, 2));
+      return null;
+    });
+
+    if (!buttonToTap) continue;
 
     // Checks if duo was done correctly
     needMobileApproval = await buttonToTap.evaluate(
