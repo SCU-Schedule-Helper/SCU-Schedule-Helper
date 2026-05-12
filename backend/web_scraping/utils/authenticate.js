@@ -13,7 +13,7 @@ export async function workdayLogin(page) {
     console.log("\n==================================");
     console.log("ACTION REQUIRED IN BROWSER:");
     console.log("Please log in manually inside the Chromium browser that just popped up.");
-    console.log("(Go through any Duo or Okta steps if necessary).");
+    console.log("(Go through any Duo steps if necessary).");
     console.log("==================================\n");
 
     await new Promise(resolve => {

@@ -17,6 +17,12 @@ const maybeClick = async (page, selector, timeout = 3000) => {
   }
 };
 
+const printHTML = async (page) => {
+  await page.screenshot({ path: 'duo-state.png' });
+  const pageContent = await page.content();
+  console.log("PAGE HTML:", pageContent);
+};
+
 export async function authenticate(username, password) {
   const loginButton = "button.login_btn > span";
   const browser = await puppeteer.launch({
@@ -47,6 +53,7 @@ export async function authenticate(username, password) {
     console.log(
       "Mobile request sent for authentication. Please approve on your phone.",
     );
+    await printHTML(page);
 
     await maybeClick(page, ".other-options-link");
     await maybeClick(page, "::-p-text(Duo Push)");
