@@ -39,7 +39,7 @@ export async function authenticate(username, password) {
 
   let loginTries = 0;
   let needMobileApproval = page.url().includes("duosecurity");
-  while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
+while (needMobileApproval && loginTries < MAX_LOGIN_TRIES) {
     loginTries++;
     console.log(
       "***************************ACTION REQUIRED***************************",
@@ -51,45 +51,35 @@ export async function authenticate(username, password) {
     await page.waitForFunction(
       () => {
         const root = document.querySelector('#pwl-prompt-root');
-        // React will add more than just the empty shell divs
         return root && root.querySelectorAll('button, input, [role="button"]').length > 0;
       },
       { timeout: 15000 }
     ).catch(() => console.log("React never finished rendering"));
 
-    // Now dump the live DOM
-    const duoText = await page.evaluate(() => document.body.innerText);
-    console.log("--- DUO LIVE TEXT ---");
-    console.log(duoText);
+    // If on Push screen, switch to passcode
+    const onPushScreen = await page.$("button::-p-text(Other options)");
+    if (onPushScreen) {
+      console.log("On Push screen, switching to passcode...");
+      await onPushScreen.tap();
+      await maybeClick(page, "::-p-text(Duo Mobile Passcode)") ||
+      await maybeClick(page, "::-p-text(Passcode)") ||
+      await maybeClick(page, "::-p-text(Enter a Passcode)");
+    }
 
-    // Also log all buttons and inputs visible
-    const interactive = await page.evaluate(() => {
-      const elements = [...document.querySelectorAll('button, input, a, [role="button"]')];
-      return elements.map(el => ({
-        tag: el.tagName,
-        text: el.innerText?.trim(),
-        type: el.type,
-        class: el.className,
-        placeholder: el.placeholder
-      }));
-    });
-    console.log("--- INTERACTIVE ELEMENTS ---");
-    console.log(JSON.stringify(interactive, null, 2));
-    await printHTML(page);
-
-    await maybeClick(page, ".other-options-link");
-    await maybeClick(page, "::-p-text(Duo Push)");
-
-    // If there is a verification code, log it.
+    // Log the PIN if visible
     try {
-      await page.waitForSelector(".verification-code", { timeout: 2000 });
-    } catch (ignore) { }
+      await page.waitForSelector(".verification-code", { timeout: 5000 });
+    } catch { }
     const verificationCodeDiv = await page.$(".verification-code");
     if (verificationCodeDiv) {
       const verificationCode = await verificationCodeDiv.evaluate(
-        (node) => node.textContent,
+        (node) => node.textContent.trim()
       );
-      console.log(`Use verification code: ${verificationCode}`);
+      console.log(`PIN CODE: ${verificationCode}`);
+    } else {
+      const pageText = await page.evaluate(() => document.body.innerText);
+      console.log("PIN not found. Page says:");
+      console.log(pageText);
     }
 
     // Skip for now — optional
