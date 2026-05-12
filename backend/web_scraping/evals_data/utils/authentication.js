@@ -48,29 +48,22 @@ export async function authenticate(username, password) {
       "Mobile request sent for authentication. Please approve on your phone.",
     );
 
-    // Wait for Duo to render
-    await page.waitForFunction(
-      () => {
-        const root = document.querySelector('#pwl-prompt-root');
-        return root && root.querySelectorAll('button, input, [role="button"]').length > 0;
-      },
-      { timeout: 15000 }
-    ).catch(() => console.log("React never finished rendering"));
-
     // Dismiss "Update iOS" screen if it appears
     await maybeClick(page, '::-p-text(Skip for now)');
 
-    // Log PIN if Duo is showing one
-    try {
-      await page.waitForSelector(".verification-code", { timeout: 2000 });
-      const verificationCodeDiv = await page.$(".verification-code");
-      if (verificationCodeDiv) {
-        const verificationCode = await verificationCodeDiv.evaluate(
-          (node) => node.textContent.trim()
-        );
-        console.log(`PIN CODE: ${verificationCode}`);
-      }
-    } catch { }
+    // Log what Duo is showing so we can debug the PIN case
+    const duoText = await page.evaluate(() => document.body.innerText);
+    console.log("--- DUO PAGE TEXT ---");
+    console.log(duoText);
+    const interactive = await page.evaluate(() => {
+      return [...document.querySelectorAll('button, input, a, [role="button"]')].map(el => ({
+        tag: el.tagName,
+        text: el.innerText?.trim(),
+        class: el.className,
+      }));
+    });
+    console.log("--- BUTTONS/INPUTS ---");
+    console.log(JSON.stringify(interactive, null, 2));
 
     // Wait for the user to approve on their phone
     const buttonToTap = await page.waitForSelector(
