@@ -4,15 +4,19 @@ const MAX_LOGIN_TRIES = 5;
 
 const maybeClick = async (page, selector, timeout = 3000) => {
   try {
-    console.log("trying click")
     const el = await page.waitForSelector(selector, { timeout });
+    
     if (el) {
-      console.log("clicked")
-      await el.tap();
+      await el.click();
+      console.log(`Successfully clicked element ${selector}.`);
       return true;
     }
-  } catch {
-    console.log("did not click")
+  } catch (err) {
+    if (err instanceof Error && err.name === 'TimeoutError') {
+      console.log(`Selector not found within ${timeout}ms (skipping).`);
+    } else {
+      console.log("An unexpected error occurred:", err.message);
+    }
     return false;
   }
 };
