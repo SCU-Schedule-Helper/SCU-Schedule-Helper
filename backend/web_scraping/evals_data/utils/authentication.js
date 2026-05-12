@@ -2,6 +2,21 @@ import puppeteer from "puppeteer";
 
 const MAX_LOGIN_TRIES = 5;
 
+const maybeClick = async (page, selector, timeout = 3000) => {
+  try {
+    const el = await page.waitForSelector(selector, { timeout });
+    if (el) {
+      console.log(`Found and tapping: ${selector}`);
+      await el.tap();
+      console.log(`Done: ${selector}`);
+      return true;
+    }
+  } catch {
+    console.log(`Not found, skipping: ${selector}`);
+    return false;
+  }
+};
+
 export async function authenticate(username, password) {
   const loginButton = "button.login_btn > span";
   const browser = await puppeteer.launch({
@@ -68,21 +83,6 @@ export async function authenticate(username, password) {
       await page.waitForSelector("::-p-text(Other options)");
     }
   }
-
-const maybeClick = async (page, selector, timeout = 3000) => {
-  try {
-    const el = await page.waitForSelector(selector, { timeout });
-    if (el) {
-      console.log(`Found and tapping: ${selector}`);
-      await el.tap();
-      console.log(`Done: ${selector}`);
-      return true;
-    }
-  } catch {
-    console.log(`Not found, skipping: ${selector}`);
-    return false;
-  }
-};
 
   if (loginTries >= MAX_LOGIN_TRIES) {
     console.log("Failed to login after 5 tries. Exiting.");
