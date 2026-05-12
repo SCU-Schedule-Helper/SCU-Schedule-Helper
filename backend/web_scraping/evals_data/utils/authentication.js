@@ -4,7 +4,10 @@ const MAX_LOGIN_TRIES = 5;
 
 export async function authenticate(username, password) {
   const loginButton = "button.login_btn > span";
-  const browser = await puppeteer.launch({ args: ["--incognito"] });
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: ["--incognito"],
+  });
   const page = await browser.newPage();
 
   console.log("Starting authentication...");
@@ -29,25 +32,11 @@ export async function authenticate(username, password) {
     console.log(
       "Mobile request sent for authentication. Please approve on your phone.",
     );
-    // Press other options, in case the user isn't using mobile push.
-    const otherOptionsButton = await page.waitForSelector(
-      ".other-options-link",
-    );
-    await otherOptionsButton.tap();
-    // Wait for the Duo Push button to appear, and tap it.
-    const duoPushButton = await page.waitForSelector("::-p-text(Duo Push)");
-    await duoPushButton.tap();
-    // If there is a verification code, log it.
-    try {
-      await page.waitForSelector(".verification-code", { timeout: 2000 });
-    } catch (ignore) {}
-    const verificationCodeDiv = await page.$(".verification-code");
-    if (verificationCodeDiv) {
-      const verificationCode = await verificationCodeDiv.evaluate(
-        (node) => node.textContent,
-      );
-      console.log(`Use verification code: ${verificationCode}`);
-    }
+    // Wait for the "Skip for now" button to appear and tap it
+    const skipButton = await page.waitForSelector('::-p-text(Skip for now)');
+    await skipButton.tap();
+
+    console.log("Tapped 'Skip for now' button.");
     // Wait for the Yes, this is my device button to appear (i.e. the user has approved the push).
     const buttonToTap = await page.waitForSelector(
       "button::-p-text(Yes, this is my device), button::-p-text(Try again)",

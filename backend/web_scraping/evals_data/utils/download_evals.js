@@ -9,10 +9,18 @@ import {
 import jsdom from "jsdom";
 
 export async function processEvalLinks(evalLinks, term) {
+  let downloadCount = 0;
+
   for (const link of evalLinks) {
     let evalName = link.split("/?").pop();
     if (!link.trim() || existingEvaluations.has(evalName)) continue;
     await downloadEvalPdfAndExtractData(evalName, term, link.trim(), evalLinks);
+
+    // Log progress every 100 downloads
+    downloadCount++;
+    if (downloadCount % 100 === 0) {
+      console.log(`Progress for ${term}: ${downloadCount}/${evalLinks.size} evaluations processed...`);
+    }
   }
 }
 
@@ -39,7 +47,10 @@ async function downloadEvalPdfAndExtractData(
     return null;
   }
   const responseText = await response.clone().text();
-
+  if (!link.includes(`vtrm=${term}`)) {
+    console.log(`Incorrect term found for ${evalName}. Skipping.`);
+    return;
+  }
   if (isMultipleEvaluationsPage(responseText, links)) return;
   if (isNoEvaluationsPage(responseText)) {
     console.log(`No evaluations found at ${link}, skipping.`);

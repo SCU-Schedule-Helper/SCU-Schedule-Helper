@@ -46,6 +46,7 @@ async function initDirectoriesAndFiles() {
   // Running locally. Check if the files exist, and if not, create them.
   if (process.env.GITHUB_WORKFLOW === undefined) {
     if (!fs.existsSync(PERSISTENT_DATA_PATH)) {
+      // Directory does not exist -- initialize it
       fs.mkdirSync(PERSISTENT_DATA_PATH);
     }
     if (
@@ -53,17 +54,21 @@ async function initDirectoriesAndFiles() {
         path.resolve(`${PERSISTENT_DATA_PATH}/${EVALS_AND_TERMS_FILENAME}`),
       )
     ) {
+      // Object does not exist -- initialize it
       fs.writeFileSync(
         path.resolve(`${PERSISTENT_DATA_PATH}/${EVALS_AND_TERMS_FILENAME}`),
         JSON.stringify(evalsAndTerms),
       );
     } else {
+      // Object exists -- retrieve it
       evalsAndTerms = JSON.parse(
         fs.readFileSync(
           path.resolve(`${PERSISTENT_DATA_PATH}/${EVALS_AND_TERMS_FILENAME}`),
         ),
       );
     }
+    
+    // Write object to file.
     if (!fs.existsSync(`${PERSISTENT_DATA_PATH}/${AGGREGATE_EVALS_FILENAME}`)) {
       fs.writeFileSync(
         `${PERSISTENT_DATA_PATH}/${AGGREGATE_EVALS_FILENAME}`,
