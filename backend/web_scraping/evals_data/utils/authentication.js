@@ -17,12 +17,6 @@ const maybeClick = async (page, selector, timeout = 3000) => {
   }
 };
 
-const printHTML = async (page) => {
-  await page.screenshot({ path: 'duo-state.png' });
-  const pageContent = await page.content();
-  console.log("PAGE HTML:", pageContent);
-};
-
 export async function authenticate(username, password) {
   const loginButton = "button.login_btn > span";
   const browser = await puppeteer.launch({
@@ -53,10 +47,34 @@ export async function authenticate(username, password) {
     console.log(
       "Mobile request sent for authentication. Please approve on your phone.",
     );
+    // Wait for React to actually render something into the root div
     await page.waitForFunction(
-      () => !document.body.innerText.includes("Loading"),
-      { timeout: 10000 }
-    ).catch(() => console.log("Duo still loading after 10s..."));
+      () => {
+        const root = document.querySelector('#pwl-prompt-root');
+        // React will add more than just the empty shell divs
+        return root && root.querySelectorAll('button, input, [role="button"]').length > 0;
+      },
+      { timeout: 15000 }
+    ).catch(() => console.log("React never finished rendering"));
+
+    // Now dump the live DOM
+    const duoText = await page.evaluate(() => document.body.innerText);
+    console.log("--- DUO LIVE TEXT ---");
+    console.log(duoText);
+
+    // Also log all buttons and inputs visible
+    const interactive = await page.evaluate(() => {
+      const elements = [...document.querySelectorAll('button, input, a, [role="button"]')];
+      return elements.map(el => ({
+        tag: el.tagName,
+        text: el.innerText?.trim(),
+        type: el.type,
+        class: el.className,
+        placeholder: el.placeholder
+      }));
+    });
+    console.log("--- INTERACTIVE ELEMENTS ---");
+    console.log(JSON.stringify(interactive, null, 2));
     await printHTML(page);
 
     await maybeClick(page, ".other-options-link");
@@ -65,7 +83,7 @@ export async function authenticate(username, password) {
     // If there is a verification code, log it.
     try {
       await page.waitForSelector(".verification-code", { timeout: 2000 });
-    } catch (ignore) {}
+    } catch (ignore) { }
     const verificationCodeDiv = await page.$(".verification-code");
     if (verificationCodeDiv) {
       const verificationCode = await verificationCodeDiv.evaluate(
