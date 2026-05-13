@@ -206,7 +206,7 @@ function getWorkloadRating(secondPageText) {
       console.error(`Workload pattern contains invalid text or percentage: "${textValue}"`);
       return null;
     }
-    result.push({ value: values[textValue], ratio: parseFloat(percentage)/100 });
+    result.push({ value: values[textValue], ratio: parseFloat(percentage) / 100 });
   }
   let expectedValue = 0;
   for (let i = 0; i < result.length; i++) {
@@ -216,7 +216,7 @@ function getWorkloadRating(secondPageText) {
   return expectedValue;
 }
 
-function getDifficultyRatingNewFormat(secondPageText){
+function getDifficultyRatingNewFormat(secondPageText) {
   const values = { "Never": 5, "Rarely": 4, "A Few times": 3, "Often": 2, "Every lab": 1 };
   const pattern = /(Never|Rarely|A Few times|Often|Every lab)\s*(\d+\.?\d*)%/g;
   let matches = Array.from(secondPageText.matchAll(pattern));
@@ -228,7 +228,7 @@ function getDifficultyRatingNewFormat(secondPageText){
       console.error(`Difficulty pattern contains invalid text or percentage: "${textValue}"`);
       return null;
     }
-    result.push({ value: values[textValue], ratio: parseFloat(percentage)/100 });
+    result.push({ value: values[textValue], ratio: parseFloat(percentage) / 100 });
   }
   let expectedValue = 0;
   for (let i = 0; i < result.length; i++) {
@@ -238,7 +238,7 @@ function getDifficultyRatingNewFormat(secondPageText){
   return expectedValue;
 }
 
-function getWorkloadRatingNewFormat(secondPageText){
+function getWorkloadRatingNewFormat(secondPageText) {
   const values = { "< 2.0": 1, "2.0": 2, "2.5": 2.5, "3.0": 3, "> 3.0": 4 };
   const pattern = /(< 2.0|2.0|2.5|3.0|> 3.0)\s*(\d+\.?\d*)%/g;
   const matches = Array.from(secondPageText.matchAll(pattern));
@@ -249,7 +249,7 @@ function getWorkloadRatingNewFormat(secondPageText){
       console.error(`Workload pattern contains invalid text or percentage: "${textValue}"`);
       return null;
     }
-    result.push({ value: values[textValue], ratio: parseFloat(percentage)/100 });
+    result.push({ value: values[textValue], ratio: parseFloat(percentage) / 100 });
   }
   let expectedValue = 0;
   for (let i = 0; i < result.length; i++) {

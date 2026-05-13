@@ -17,36 +17,40 @@ const MAX_TERMS_INCLUDED = 25; // Approximately 5 years of data.
 export let termsWithinCutoff;
 
 export default async function getAndProcessNewEvals() {
+  console.log("------- GETTING AND PROCESSING NEW EVALS -------");
   const schoolsAndTerms = await getSchoolsAndTerms();
   deleteExpiredEvals();
   let hadNonEmptyTerm = false;
-  for (const term of schoolsAndTerms.termIds) {
+  for (let i = 0; i < MAX_TERMS_INCLUDED; i++) {
+    const term = schoolsAndTerms.termIds[i];
+    const termName = schoolsAndTerms.termNames[i];
     if (existingTerms.has(term)) {
       hadNonEmptyTerm = true;
       console.log(
-        `All PDFS from term ${term} have been downloaded already. Skipping...`,
+        `All PDFS from term ${termName} have been downloaded already. Skipping...`,
       );
       continue;
     } else if (!termsWithinCutoff.has(term)) {
-      console.log(`Term ${term} is not within the cutoff. Skipping...`);
+      console.log(`Term ${termName} is not within the cutoff. Skipping...`);
       continue;
     } else if (await termHasNoEvaluations(term)) {
       if (hadNonEmptyTerm) {
         evalsAndTerms.terms.push(term);
         console.log(
-          `Term ${term} has no data (and will always have no data). Adding to finished terms and skipping...`,
+          `Term ${termName} has no data (and will always have no data). Adding to finished terms and skipping...`,
         );
         continue;
       }
       console.log(
-        `Term ${term} is currently empty (but may have data in the future). Skipping for now...`,
+        `Term ${termName} is currently empty (but may have data in the future). Skipping for now...`,
       );
       continue;
     }
-    console.log("Getting eval links for term: " + term);
+    console.log("Getting eval links for term: " + termName);
     hadNonEmptyTerm = true;
     let evalLinksForThisTerm = new Set();
     for (const school of schoolsAndTerms.schools) {
+      console.log(`Getting eval links for school: ${school} in term: ${termName}`);
       for (let i = 0; i < 26; i++) {
         const queryResultsDoc = await fetchWithAuth(
           generateSearchLink(term, school, String.fromCharCode(97 + i)), REQUEST_MAX_RETRIES, 10
@@ -54,9 +58,7 @@ export default async function getAndProcessNewEvals() {
         addLinksFromQueryResults(queryResultsDoc, evalLinksForThisTerm);
       }
     }
-    console.log(
-      `Finished getting eval pdf links for term: ${term}.\nNow downloading and processing eval pdfs...`,
-    );
+    console.log(`Finished getting eval pdf links for term: ${termName}.\nNow downloading and processing eval pdfs...`,);
     await processEvalLinks(evalLinksForThisTerm, term);
     evalsAndTerms.terms.push(term);
     existingTerms.add(term);
@@ -75,6 +77,7 @@ async function getSchoolsAndTerms() {
   }
   let termElements = doc.querySelector("#term").children;
   let termIds = [];
+  let termNames = [];
   let termIdsToTermNames = {};
   for (let i = 0; i < MAX_TERMS_INCLUDED; i++) {
     const el = termElements.item(i);
@@ -83,6 +86,7 @@ async function getSchoolsAndTerms() {
     else {
       const termId = el.value.trim();
       const termName = el.textContent.trim();
+      termNames.push(termName);
       const termNameMatch = termName.match(TERM_NAME_PATTERN);
       if (!termNameMatch)
         console.error("Could not parse term name: " + termName);
@@ -95,8 +99,8 @@ async function getSchoolsAndTerms() {
   evalsAndTerms.termIdsToTermNames = termIdsToTermNames;
   termsWithinCutoff = new Set(termIds);
   console.log(`Got schools: ${schools}`);
-  console.log(`Using the latest ${MAX_TERMS_INCLUDED} terms: ${termIds}`);
-  return { schools, termIds };
+  console.log(`Using the latest ${MAX_TERMS_INCLUDED} terms: ${termNames}`);
+  return { schools, termIds, termNames };
 }
 
 function deleteExpiredEvals() {
