@@ -44,12 +44,26 @@ export default async function generateAggregateEvalsFile() {
       ...aggregateEvals[evaluation.courseCode],
       ...courseAggregateRating,
     };
+
+    // Generate department-level statistics
     if (!aggregateEvals.departmentStatistics[evaluation.deptName]) {
       aggregateEvals.departmentStatistics[evaluation.deptName] = {
+        courses: [],
         qualityAvgs: [],
         difficultyAvgs: [],
         workloadAvgs: [],
+        type: "dept",
       };
+    }
+    if (
+      evaluation.deptName &&
+      !aggregateEvals.departmentStatistics[evaluation.deptName].courses.includes(
+        evaluation.courseCode,
+      )
+    ) {
+      aggregateEvals.departmentStatistics[evaluation.deptName].courses.push(
+        evaluation.courseCode,
+      );
     }
     if (evaluation.qualityRating)
       aggregateEvals.departmentStatistics[evaluation.deptName].qualityAvgs.push(
@@ -64,6 +78,8 @@ export default async function generateAggregateEvalsFile() {
         evaluation.deptName
       ].workloadAvgs.push(toFixedNumber(evaluation.workloadRating, 4));
   }
+
+
   for (const deptName in aggregateEvals.departmentStatistics) {
     const deptStats = aggregateEvals.departmentStatistics[deptName];
     deptStats.qualityAvgs.sort();

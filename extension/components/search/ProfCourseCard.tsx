@@ -10,6 +10,7 @@ import ProfessorRecencyIndicator from "./ProfessorRecencyIndicator";
 import SortingMetricPicker from "./SortingMetricPicker";
 import {
   CourseData,
+  DepartmentStats,
   EvalsData,
   Evaluation,
   ProfessorCourseEvaluation,
@@ -28,7 +29,7 @@ export type SelectedProfOrCourse = {
   id: string;
   label: string,
   groupLabel: string,
-} & (ProfessorData | CourseData);
+} & (ProfessorData | CourseData | DepartmentStats);
 
 interface Props {
   selected: SelectedProfOrCourse | null;
@@ -53,14 +54,12 @@ export default function ProfCourseCard({
   const [profDepts, setProfDepts] = useState<string[]>([]);
   const [sortingMetric, setSortingMetric] = useState<string>(SortingMetrics.overall);
   const [sortDescending, setSortDescending] = useState(true);
-  const [profDeptAvgs, setProfDeptAvgs] = useState<{
-    qualityAvgs: number[];
-    difficultyAvgs: number[];
-    workloadAvgs: number[];
-  }>({
+  const [profDeptAvgs, setProfDeptAvgs] = useState<DepartmentStats>({
     qualityAvgs: [],
     difficultyAvgs: [],
     workloadAvgs: [],
+    courses: [],
+    type: "dept",
   });
   const [preferredPercentiles, setPreferredPercentiles] = useState({
     quality: 1,
@@ -132,6 +131,8 @@ export default function ProfCourseCard({
         qualityAvgs: getDeptAvgs(profDepts, "quality"),
         difficultyAvgs: getDeptAvgs(profDepts, "difficulty"),
         workloadAvgs: getDeptAvgs(profDepts, "workload"),
+        courses: [],
+        type: "dept",
       });
       getRMPrating();
     } else {
@@ -151,8 +152,15 @@ export default function ProfCourseCard({
         Evaluation | ProfessorCourseEvaluation
       ][];
       setSortedCourses(sortItems(ratingsToSort));
-    } else {
-      const ratingsToSort = selected.professors.map((item: any) => [
+    } else if (selected.type === "dept") {
+      const ratingsToSort = (selected.courses || [])
+        .map((courseCode) => [courseCode, data[courseCode] as CourseData])
+        .filter(([_, courseData]) => !!courseData) as [string, CourseData][];
+      console.log("Selected.courses: ", selected.courses);
+      console.log("Courses: ", ratingsToSort);
+      setSortedCourses(sortItems(ratingsToSort));
+    } else if (selected.type === "course") {
+      const ratingsToSort = (selected.professors || []).map((item: any) => [
         item,
         (data[item] as ProfessorData)[selected.id] as CourseData,
       ]) as [string, CourseData][];
@@ -230,7 +238,7 @@ export default function ProfCourseCard({
           );
         }
       }
-    } else {
+    } else if (selected!.type === "course") {
       for (const friendId in friendData.friendCoursesTaken?.[selected!.id] || {}) {
         const friendName = friendData.friends[friendId].name;
         const course = friendData.friendCoursesTaken[selected!.id][friendId];
@@ -655,5 +663,142 @@ export default function ProfCourseCard({
       </Card>
     );
   }
+  if (selected.type === "dept") {
+    return (
+      <Card sx={{ backgroundColor: "#f0f0f0" }}>
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold">
+            {selected.id} Department
+          </Typography>
+
+          <Typography
+            variant="h6"
+            gutterBottom
+            fontSize={"1.15rem"}
+            marginTop={2}
+          >
+            Overall Department Statistics
+          </Typography>
+          <EvalStats
+            stats={{
+              qualityTotal: (selected.qualityAvgs || []).reduce(
+                (a, b) => a + b,
+                0
+              ),
+              qualityCount: (selected.qualityAvgs || []).length,
+              difficultyTotal: (selected.difficultyAvgs || []).reduce(
+                (a, b) => a + b,
+                0
+              ),
+              difficultyCount: (selected.difficultyAvgs || []).length,
+              workloadTotal: (selected.workloadAvgs || []).reduce(
+                (a, b) => a + b,
+                0
+              ),
+              workloadCount: (selected.workloadAvgs || []).length,
+            }}
+            deptStats={selected}
+            preferredPercentiles={preferredPercentiles}
+          />
+          <Divider sx={{ mt: 2 }} />
+
+          <Typography
+            variant="h6"
+            fontSize={"1.15rem"}
+            marginTop={2}
+            gutterBottom
+          >
+            Courses in {selected.id}
+          </Typography>
+          <SortingMetricPicker
+            sortingMetric={sortingMetric}
+            sortDescending={sortDescending}
+            handleMetricChange={handleMetricChange}
+          />
+          {sortedCourses.length > 0 &&
+            sortedCourses.map(([courseCode, courseStats], index) => (
+              <Box key={courseCode}>
+                <Box sx={{ mt: 2 }} display={"flex"} flexDirection={"row"}>
+                  <Box
+                    display="flex"
+                    alignItems="left"
+                    flexDirection="column"
+                    justifyContent="space-between"
+                  >
+                    <Typography
+                      variant="body1"
+                      gutterBottom
+                      onClick={() => {
+                        onPageNavigation(courseCode);
+                      }}
+                      sx={{
+                        ml: 1,
+                        color: "#802a25",
+                        cursor: "pointer",
+                        "&:hover": {
+                          textDecoration: "underline",
+                        },
+                        margin: "0px 0px 0px",
+                      }}
+                      title={getCourseName(courseCode)}
+                    >
+                      {`${courseCode.substring(0, 4)} ${courseCode.substring(
+                        4
+                      )}`}
+                    </Typography>
+                    {isProfessorCourseEvaluation(courseStats) && (
+                      <RecentTermsToolTip recentTerms={courseStats.recentTerms}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          width={"150px"}
+                          sx={{
+                            margin: "0px 0px 0px",
+                          }}
+                        >
+                          <CalendarMonthIcon
+                            fontSize="small"
+                            sx={{
+                              marginRight: "2px",
+                              color: "black",
+                              marginBottom: "-2px",
+                              fontSize: "16px",
+                            }}
+                          />
+                          {extractTerms(courseStats.recentTerms).join(", ")}
+                        </Typography>
+                      </RecentTermsToolTip>
+                    )}
+                  </Box>
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    marginLeft="1rem"
+                  >
+                    <StatsWithLessFormatting
+                      flexGap={"2.5rem"}
+                      stats={courseStats}
+                      deptStats={
+                        data.departmentStatistics[courseCode.substring(0, 4)] || {
+                          qualityAvgs: [],
+                          difficultyAvgs: [],
+                          workloadAvgs: [],
+                          courses: [],
+                          type: "dept",
+                        }
+                      }
+                      preferredPercentiles={preferredPercentiles}
+                    />
+                  </Box>
+                </Box>
+                {index < sortedCourses.length - 1 && <Divider sx={{ my: 2 }} />}
+              </Box>
+            ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return null;
 }

@@ -117,6 +117,18 @@ export default function ProfCourseSearch({
           });
         }
       });
+
+      Object.entries(evalsData.departmentStatistics || {}).forEach(
+        ([key, value]: [string, any]) => {
+          options.push({
+            ...value,
+            id: key,
+            label: key,
+            groupLabel: "Departments",
+            type: "dept",
+          });
+        }
+      );
     } catch (err) {
       console.error("Error processing search options:", err);
     }
@@ -150,7 +162,7 @@ export default function ProfCourseSearch({
         groupLabel: "Professors",
         ...newPageData,
       } as SelectedProfOrCourse);
-    } else {
+    } else if (newPageData?.type === "course") {
       const regexMatch = newPageKey.match(/([A-Z]{4})(\d+[A-Z]*)/);
       if (!regexMatch) {
         console.error("Invalid course key:", newPageKey);
@@ -163,6 +175,17 @@ export default function ProfCourseSearch({
         groupLabel: "Courses",
         ...newPageData,
       } as SelectedProfOrCourse);
+    } else {
+      const deptData = evalsData.departmentStatistics[newPageKey];
+      if (deptData) {
+        onSelectionChange({
+          id: newPageKey,
+          label: newPageKey,
+          groupLabel: "Departments",
+          ...deptData,
+          type: "dept",
+        } as SelectedProfOrCourse);
+      }
     }
     scrollToTop();
   }
