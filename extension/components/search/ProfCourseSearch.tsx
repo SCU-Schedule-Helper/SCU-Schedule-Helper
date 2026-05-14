@@ -8,7 +8,10 @@ import {
   CircularProgress,
   Typography,
   Snackbar,
+  IconButton,
+  ListSubheader,
 } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 import { matchSorter } from "match-sorter";
 import ProfCourseCard, { SelectedProfOrCourse } from "./ProfCourseCard";
 import { EvalsData, ProfessorData } from "../../public/utils/types";
@@ -16,13 +19,15 @@ import { EvalsData, ProfessorData } from "../../public/utils/types";
 interface Props {
   scrollToTop: () => void;
   selectedProfessorOrCourse: SelectedProfOrCourse | null;
-  onSelectionChange: (newValue: SelectedProfOrCourse) => void;
+  onSelectionChange: (newValue: SelectedProfOrCourse | null) => void;
+  onClear?: () => void;
 }
 
 export default function ProfCourseSearch({
   scrollToTop,
   selectedProfessorOrCourse,
   onSelectionChange,
+  onClear,
 }: Props) {
   const [evalsData, setEvalsData] = useState<EvalsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +35,33 @@ export default function ProfCourseSearch({
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState<SelectedProfOrCourse[]>(
+    []
+  );
+
+  useEffect(() => {
+    chrome.storage.local.get("recentSearches").then((res) => {
+      if (res.recentSearches) {
+        setRecentSearches(res.recentSearches);
+      }
+    });
+  }, []);
+
+  function addToHistory(item: SelectedProfOrCourse) {
+    const newHistory = [
+      item,
+      ...recentSearches.filter((i) => i.id !== item.id),
+    ].slice(0, 5);
+    setRecentSearches(newHistory);
+    chrome.storage.local.set({ recentSearches: newHistory });
+  }
+
+  function removeFromHistory(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    const newHistory = recentSearches.filter((item) => item.id !== id);
+    setRecentSearches(newHistory);
+    chrome.storage.local.set({ recentSearches: newHistory });
+  }
 
   useEffect(() => {
     checkEvals();
@@ -100,9 +132,8 @@ export default function ProfCourseSearch({
 
           options.push({
             id: key,
-            label: `${dept} ${courseNum} - ${
-              value.courseName || "Unnamed Course"
-            }`,
+            label: `${dept} ${courseNum} - ${value.courseName || "Unnamed Course"
+              }`,
             groupLabel: "Courses",
             type: "course",
             ...value,
@@ -137,9 +168,14 @@ export default function ProfCourseSearch({
   }, [evalsData]);
 
   const searchOptions = useMemo(() => {
-    if (searchQuery.trim() === "") return [];
+    if (searchQuery.trim() === "") {
+      return recentSearches.map((item) => ({
+        ...item,
+        groupLabel: "Recent Searches",
+      }));
+    }
     return allOptions;
-  }, [allOptions, searchQuery]);
+  }, [allOptions, searchQuery, recentSearches]);
 
   function filterOptions(options: any, { inputValue }: { inputValue: string }) {
     return matchSorter<any>(options, inputValue, { keys: ["label"] }).slice(
@@ -155,13 +191,15 @@ export default function ProfCourseSearch({
   function onPageNavigation(newPageKey: string) {
     if (!evalsData) return;
     const newPageData = evalsData[newPageKey];
+    let selection: SelectedProfOrCourse;
+
     if (isProfessorData(newPageData)) {
-      onSelectionChange({
+      selection = {
         id: newPageKey,
         label: newPageKey,
         groupLabel: "Professors",
         ...newPageData,
-      } as SelectedProfOrCourse);
+      } as SelectedProfOrCourse;
     } else if (newPageData?.type === "course") {
       const regexMatch = newPageKey.match(/([A-Z]{4})(\d+[A-Z]*)/);
       if (!regexMatch) {
@@ -169,24 +207,24 @@ export default function ProfCourseSearch({
         return;
       }
       const [, dept, courseNum] = regexMatch!;
-      onSelectionChange({
+      selection = {
         id: newPageKey,
         label: `${dept} ${courseNum} - ${newPageData!.courseName}`,
         groupLabel: "Courses",
         ...newPageData,
-      } as SelectedProfOrCourse);
+      } as SelectedProfOrCourse;
     } else {
       const deptData = evalsData.departmentStatistics[newPageKey];
-      if (deptData) {
-        onSelectionChange({
-          id: newPageKey,
-          label: newPageKey,
-          groupLabel: "Departments",
-          ...deptData,
-          type: "dept",
-        } as SelectedProfOrCourse);
-      }
+      selection = {
+        id: newPageKey,
+        label: newPageKey,
+        groupLabel: "Departments",
+        ...deptData,
+        type: "dept",
+      } as SelectedProfOrCourse;
     }
+    onSelectionChange(selection);
+    addToHistory(selection);
     scrollToTop();
   }
 
@@ -237,9 +275,70 @@ export default function ProfCourseSearch({
           groupBy={(option) => option.groupLabel}
           value={selectedProfessorOrCourse}
           loading={isLoading}
-          onChange={(_event, newValue) => {
-            onSelectionChange(newValue);
+          noOptionsText={searchQuery === "" && recentSearches.length === 0 ? "Type to search..." : ""}
+          inputValue={searchQuery}
+          onInputChange={(_event, newInputValue, reason) => {
+            setSearchQuery(newInputValue);
+            if (reason === "clear") {
+              onClear?.();
+            }
           }}
+          onChange={(_event, newValue) => {
+            if (newValue) {
+              addToHistory(newValue);
+              onSelectionChange(newValue);
+            }
+          }}
+          renderOption={(props, option) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Typography variant="body2">{option.label}</Typography>
+                  {option.groupLabel === "Recent Searches" && (
+                    <IconButton
+                      size="small"
+                      onClick={(e) => removeFromHistory(e, option.id)}
+                      sx={{
+                        ml: 1,
+                        p: 0.5,
+                        "&:hover": {
+                          color: "#703331",
+                          backgroundColor: "rgba(112, 51, 49, 0.08)",
+                        },
+                      }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
+              </li>
+            );
+          }}
+          renderGroup={(params) => (
+            <li key={params.key}>
+              <ListSubheader
+                sx={{
+                  lineHeight: "32px",
+                  backgroundColor: "#fff",
+                  fontWeight: "bold",
+                  color: "#703331",
+                  pt: 1,
+                  pb: 0,
+                }}
+              >
+                {params.group}
+              </ListSubheader>
+              <Box sx={{ "& ul": { padding: 0 } }}>{params.children}</Box>
+            </li>
+          )}
           renderInput={(params) => (
             <TextField
               {...params}
