@@ -44,6 +44,8 @@ export interface DepartmentStats {
   qualityAvgs: number[];
   difficultyAvgs: number[];
   workloadAvgs: number[];
+  courses: string[];
+  type: "dept";
 }
 
 /**
