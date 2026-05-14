@@ -74,12 +74,6 @@ export default function SearchPage() {
               scrollToTop={scrollToTop}
               selectedProfessorOrCourse={selectedProfessorOrCourse}
               onSelectionChange={setSelectedProfessorOrCourse}
-              onClear={() => {
-                if (stack.length <= 1) {
-                  setStack([]);
-                  setSelectedProfessorOrCourse(null);
-                }
-              }}
             />
           </Box>
         </Box>
