@@ -16,15 +16,13 @@ import { EvalsData, ProfessorData } from "../../public/utils/types";
 interface Props {
   scrollToTop: () => void;
   selectedProfessorOrCourse: SelectedProfOrCourse | null;
-  onSelectionChange: (newValue: SelectedProfOrCourse | null) => void;
-  onClear?: () => void;
+  onSelectionChange: (newValue: SelectedProfOrCourse) => void;
 }
 
 export default function ProfCourseSearch({
   scrollToTop,
   selectedProfessorOrCourse,
   onSelectionChange,
-  onClear,
 }: Props) {
   const [evalsData, setEvalsData] = useState<EvalsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,26 +30,6 @@ export default function ProfCourseSearch({
   const [showActionCompletedMessage, setShowActionCompletedMessage] =
     useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [recentSearches, setRecentSearches] = useState<SelectedProfOrCourse[]>(
-    []
-  );
-
-  useEffect(() => {
-    chrome.storage.local.get("recentSearches").then((res) => {
-      if (res.recentSearches) {
-        setRecentSearches(res.recentSearches);
-      }
-    });
-  }, []);
-
-  function addToHistory(item: SelectedProfOrCourse) {
-    const newHistory = [
-      item,
-      ...recentSearches.filter((i) => i.id !== item.id),
-    ].slice(0, 5);
-    setRecentSearches(newHistory);
-    chrome.storage.local.set({ recentSearches: newHistory });
-  }
 
   useEffect(() => {
     checkEvals();
@@ -122,7 +100,9 @@ export default function ProfCourseSearch({
 
           options.push({
             id: key,
-            label: `${dept} ${courseNum} - ${value.courseName || "Unnamed Course"}`,
+            label: `${dept} ${courseNum} - ${
+              value.courseName || "Unnamed Course"
+            }`,
             groupLabel: "Courses",
             type: "course",
             ...value,
@@ -157,14 +137,9 @@ export default function ProfCourseSearch({
   }, [evalsData]);
 
   const searchOptions = useMemo(() => {
-    if (searchQuery.trim() === "") {
-      return recentSearches.map((item) => ({
-        ...item,
-        groupLabel: "Recent Searches",
-      }));
-    }
+    if (searchQuery.trim() === "") return [];
     return allOptions;
-  }, [allOptions, searchQuery, recentSearches]);
+  }, [allOptions, searchQuery]);
 
   function filterOptions(options: any, { inputValue }: { inputValue: string }) {
     return matchSorter<any>(options, inputValue, { keys: ["label"] }).slice(
@@ -180,10 +155,8 @@ export default function ProfCourseSearch({
   function onPageNavigation(newPageKey: string) {
     if (!evalsData) return;
     const newPageData = evalsData[newPageKey];
-    let selection: SelectedProfOrCourse;
-
     if (isProfessorData(newPageData)) {
-      selection = {
+      onSelectionChange({
         id: newPageKey,
         label: newPageKey,
         groupLabel: "Professors",
@@ -196,7 +169,7 @@ export default function ProfCourseSearch({
         return;
       }
       const [, dept, courseNum] = regexMatch!;
-      selection = {
+      onSelectionChange({
         id: newPageKey,
         label: `${dept} ${courseNum} - ${newPageData!.courseName}`,
         groupLabel: "Courses",
@@ -214,9 +187,6 @@ export default function ProfCourseSearch({
         } as SelectedProfOrCourse);
       }
     }
-
-    onSelectionChange(selection);
-    addToHistory(selection);
     scrollToTop();
   }
 
@@ -267,19 +237,8 @@ export default function ProfCourseSearch({
           groupBy={(option) => option.groupLabel}
           value={selectedProfessorOrCourse}
           loading={isLoading}
-          noOptionsText={searchQuery === "" && recentSearches.length === 0 ? "Type to search..." : "No options"}
-          inputValue={searchQuery}
-          onInputChange={(_event, newInputValue, reason) => {
-            setSearchQuery(newInputValue);
-            if (reason === "clear") {
-              onClear?.();
-            }
-          }}
           onChange={(_event, newValue) => {
-            if (newValue) {
-              addToHistory(newValue);
-              onSelectionChange(newValue);
-            }
+            onSelectionChange(newValue);
           }}
           renderInput={(params) => (
             <TextField
