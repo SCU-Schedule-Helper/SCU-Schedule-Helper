@@ -12,7 +12,7 @@ const edgecases = {
     "charles gabbe",
     "jacquelyn hendricks",
     "wenxin xie",
-    ". sunwolf",
+    "sunwolf",
   ]),
   name_transformations: new Map([
     ["hsin-i" + "cheng", "hsin cheng"],
